@@ -6,9 +6,9 @@
 # LD=/usr/local/arm/2.95.3/bin/arm-linux-ld -Bstatic
 # LDFLAGS= -Wl,-Bstatic
 ##LD=ld
-CFLAGS=-Wall -Winline -DLINUX -DADS_LITTLE_ENDIAN
-CTFLAGS=-Wall -Winline -fPID -DLINUX -DADS_LITTLE_ENDIAN
-CPPFLAGS=-Wall -Winline -DLINUX -DADS_LITTLE_ENDIAN
+CFLAGS=-Wall -Winline -DLINUX -Dads_LITTLE_ENDIAN
+CTFLAGS=-Wall -Winline -fPID -DLINUX -Dads_LITTLE_ENDIAN
+CPPFLAGS=-Wall -Winline -DLINUX -Dads_LITTLE_ENDIAN
 #
 # The following is needed to enable workarounds for statements that do
 # not work on (some?) ARM processors:
@@ -19,48 +19,48 @@ CPPFLAGS=-Wall -Winline -DLINUX -DADS_LITTLE_ENDIAN
 #-static -Wl,static -lc.a -static -lpthread.a -nostdlib 
 #CFLAGS=-O0 -Wall -Winline
 
-PROGRAMS=samples1 samples2 ADSclient ADSclient2 ADSclient3 ADSserver
+PROGRAMS=samples1 samples2 ADSclient ADSclient2 ADSclient3 adsserver
 
 DYNAMIC_PROGRAMS=ADSclientd
 
-LIBRARIES=libADS.so 
+LIBRARIES=libads.so 
 
 all: $(PROGRAMS) $(LIBRARIES)
-install: libADS.so
-	cp libADS.so /usr/lib
-	cp ADS.h /usr/include
+install: libads.so
+	cp libads.so /usr/lib
+	cp ads.h /usr/include
 	ldconfig
 dynamic: $(DYNAMIC_PROGRAMS)
 
-ADS.o: ADS.h log2.h
+ads.o: ads.h log2.h
 
-samples1.o: benchmark.c ADS.h
+samples1.o: benchmark.c ads.h
 
-samples1: ADS.o openSocket.o samples1.o
-	$(CC) $(LDFLAGS) ADS.o openSocket.o samples1.o -o samples1
+samples1: ads.o openSocket.o samples1.o
+	$(CC) $(LDFLAGS) ads.o openSocket.o samples1.o -o samples1
 
-samples2.o: benchmark.c ADS.h
+samples2.o: benchmark.c ads.h
 
-samples2: ADS.o openSocket.o samples2.o
-	$(CC) $(LDFLAGS) ADS.o openSocket.o samples2.o -o samples2
+samples2: ads.o openSocket.o samples2.o
+	$(CC) $(LDFLAGS) ads.o openSocket.o samples2.o -o samples2
 
-ADSclient: ADS.o openSocket.o ADSclient.o
-	$(CC) $(LDFLAGS) ADS.o openSocket.o ADSclient.o -o ADSclient
+ADSclient: ads.o openSocket.o ADSclient.o
+	$(CC) $(LDFLAGS) ads.o openSocket.o ADSclient.o -o ADSclient
 
-ADSclient2: ADS.o openSocket.o ADSclient2.o
-	$(CC) $(LDFLAGS) ADS.o openSocket.o ADSclient2.o -o ADSclient2
+ADSclient2: ads.o openSocket.o ADSclient2.o
+	$(CC) $(LDFLAGS) ads.o openSocket.o ADSclient2.o -o ADSclient2
 
-ADSclient3: ADS.o openSocket.o ADSclient3.o
-	$(CC) $(LDFLAGS) ADS.o openSocket.o ADSclient3.o -o ADSclient3
+ADSclient3: ads.o openSocket.o ADSclient3.o
+	$(CC) $(LDFLAGS) ads.o openSocket.o ADSclient3.o -o ADSclient3
 
-ADSserver: ADS.o openSocket.o ADSserver.o
-	$(CC) $(LDFLAGS) -lpthread ADS.o openSocket.o ADSserver.o -o ADSserver
-
-
+adsserver: ads.o openSocket.o adsserver.o
+	$(CC) $(LDFLAGS) -lpthread ads.o openSocket.o adsserver.o -o adsserver
 
 
-libADS.so: ADS.o openSocket.o
-	$(LD) -shared ADS.o openSocket.o -o libADS.so	
+
+
+libads.so: ads.o openSocket.o
+	$(LD) -shared ads.o openSocket.o -o libads.so	
 
 ibhsim5.o: simProperties.c
 ibhsim5: ibhsim5.o nodave.h nodave.o openSocket.o openSocket.h
