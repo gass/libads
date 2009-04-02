@@ -43,7 +43,7 @@
 //#include <unistd.h>
 #include <fcntl.h>
 #include "log2.h"
-#include "ADS.h"
+#include "ads.h"
 
 #include <winsock2.h>
 

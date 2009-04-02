@@ -4,7 +4,7 @@
 #include <unistd.h>
 #endif
 
-#include "ADS.h"
+#include "ads.h"
 
 AMSNetID me   ={172,16,17,5,1,1};
 AMSNetID other={172,16,17,1,1,1};

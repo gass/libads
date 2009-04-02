@@ -41,7 +41,7 @@
 #include <sys/socket.h>
 
 #include "log2.h"
-#include "ADS.h"
+#include "ads.h"
 
 extern int ADSDebug;
 
