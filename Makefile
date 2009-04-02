@@ -35,6 +35,7 @@ dynamic: $(DYNAMIC_PROGRAMS)
 ads.o: ads.h log2.h
 
 samples1.o: benchmark.c ads.h
+	$(CC) $(LDFLAGS) ads.o openSocket.o samples1.o -o samples1
 
 samples2: ads.o openSocket.o samples2.o
 	$(CC) $(LDFLAGS) ads.o openSocket.o samples2.o -o samples2
