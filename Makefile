@@ -19,7 +19,7 @@ CPPFLAGS=-Wall -Winline -DLINUX -Dads_LITTLE_ENDIAN
 #-static -Wl,static -lc.a -static -lpthread.a -nostdlib 
 #CFLAGS=-O0 -Wall -Winline
 
-PROGRAMS=samples1 samples2 ADSclient ADSclient2 ADSclient3 adsserver
+PROGRAMS=samples1 samples2 ADSclient ADSclient2 ADSclient3 ADSserver
 
 DYNAMIC_PROGRAMS=ADSclientd
 
@@ -53,8 +53,8 @@ ADSclient2: ads.o openSocket.o ADSclient2.o
 ADSclient3: ads.o openSocket.o ADSclient3.o
 	$(CC) $(LDFLAGS) ads.o openSocket.o ADSclient3.o -o ADSclient3
 
-adsserver: ads.o openSocket.o adsserver.o
-	$(CC) $(LDFLAGS) -lpthread ads.o openSocket.o adsserver.o -o adsserver
+ADSserver: ads.o openSocket.o ADSserver.o
+	$(CC) $(LDFLAGS) -lpthread ads.o openSocket.o ADSserver.o -o ADSserver
 
 
 
