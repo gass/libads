@@ -42,7 +42,7 @@
 
 #include "accepter.c"
 
-#include "ADS.h"
+#include "ads.h"
 
 #define debug 12
 

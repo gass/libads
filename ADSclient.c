@@ -29,7 +29,7 @@
 
 #include <fcntl.h>
 
-#include "ADS.h"
+#include "ads.h"
 
 #ifdef BCCWIN
 #include <time.h>

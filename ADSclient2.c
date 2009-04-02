@@ -30,7 +30,7 @@
 
 #include "log2.h"
 
-#include "ADS.h"
+#include "ads.h"
 
 #define bSize 1256
 #define us unsigned short

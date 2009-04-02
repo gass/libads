@@ -1,6 +1,6 @@
 /*
 */
-#include "ADS.h"
+#include "ads.h"
 
 #include <stdio.h>
 #include <stdlib.h>
