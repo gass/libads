@@ -14,7 +14,7 @@ CPPFLAGS=-Wall -Winline -DLINUX -Dads_LITTLE_ENDIAN
 # not work on (some?) ARM processors:
 #
 #CFLAGS+=-DARM_FIX 
-SRCDIR="src/"
+SRCDIR=src/
 
 #-static -Wl,static -lc.a -static -lpthread.a -nostdlib 
 #CFLAGS=-O0 -Wall -Winline
