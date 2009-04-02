@@ -51,17 +51,8 @@ ADSclient3: ads.o openSocket.o ADSclient3.o
 ADSserver: ads.o openSocket.o ADSserver.o
 	$(CC) $(LDFLAGS) -lpthread ads.o openSocket.o ADSserver.o -o ADSserver
 
-
-
-
 libads.so: ads.o openSocket.o
 	$(LD) -shared ads.o openSocket.o -o libads.so	
-
-ibhsim5.o: simProperties.c
-ibhsim5: ibhsim5.o nodave.h nodave.o openSocket.o openSocket.h
-	$(CC) -lpthread ibhsim5.o openSocket.o nodave.o -o ibhsim5
-isotest4: isotest4.o openSocket.o nodave.o nodave.h
-	$(CC) $(LDFLAGS) -lpthread isotest4.o openSocket.o nodave.o $(LIB) -o isotest4
 
 clean: 
 	rm -f $(DYNAMIC_PROGRAMS)
