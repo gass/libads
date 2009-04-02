@@ -32,14 +32,14 @@ install: libads.so
 	ldconfig
 dynamic: $(DYNAMIC_PROGRAMS)
 
-ads.o: $(srcdir)ads.h $(srcdir)log2.h
+ads.o: $(SRCDIR)ads.h $(SRCDIR)log2.h
 
-samples1.o: $(srcdir)benchmark.c $(srcdir)ads.h
+samples1.o: $(SRCDIR)benchmark.c $(SRCDIR)ads.h
 
 samples1: ads.o openSocket.o samples1.o
 	$(CC) $(LDFLAGS) ads.o openSocket.o samples1.o -o samples1
 
-samples2.o: $(srcdir)benchmark.c $(srcdir)ads.h
+samples2.o: $(SRCDIR)benchmark.c $(SRCDIR)ads.h
 
 samples2: ads.o openSocket.o samples2.o
 	$(CC) $(LDFLAGS) ads.o openSocket.o samples2.o -o samples2
