@@ -1,0 +1,96 @@
+#
+# Makefile to build a Windows Version of LIBNODAVE using VC++ 
+# from Microsoft under wine. The Makefile itself is executed by
+# good old GNU make.
+#
+#
+# Make the "alien" suffixes known:
+#
+.SUFFIXES:
+.SUFFIXES: .obj .h .c .cpp
+#
+# type 'make' to build libnodave.dll and some statically linked test programs.
+# type 'make dynamic' to make libnodave.dll and some dynamically linked test programs.
+#
+# The directories where the windows tools and libs are:
+#
+#VCPATH=e:\programme\microsoft visual C++ Toolkit 2003
+#SDKPATH=e:\programme\microsoft platform sdk
+VCPATH=c:/vc
+SDKPATH=c:/psdk
+
+INCPATH=$(VCPATH)/include
+INCPATH2="$(SDKPATH)/include"
+INCPATH3="$(SDKPATH)/include/crt"
+
+CC=wine $(VCPATH)/bin/cl
+LL=wine $(VCPATH)/bin/link
+
+CFLAGS= -I$(INCPATH) -I$(INCPATH2) -I$(INCPATH3) -c -DBCCWIN -DADS_LITTLE_ENDIAN -TC
+CPPFLAGS= -I$(INCPATH) -I$(INCPATH2) -I$(INCPATH3) -c -DBCCWIN -DADS_LITTLE_ENDIAN 
+LFLAGS = /LIBPATH:"$(VCPATH)\lib"
+LLFLAGS = /LIBPATH:"$(VCPATH)\lib" /DEF:libADS.DEF
+
+##CFLAGS=-Wall -Winline -DLINUX -DADS_LITTLE_ENDIAN
+##CTFLAGS=-Wall -Winline -fPID -DLINUX -DADS_LITTLE_ENDIAN
+##CPPFLAGS=-Wall -Winline -DLINUX -DADS_LITTLE_ENDIAN
+#
+# The following is needed to enable workarounds for statements that do
+# not work on (some?) ARM processors:
+#
+#CFLAGS+=-DARM_FIX 
+
+
+#-static -Wl,static -lc.a -static -lpthread.a -nostdlib 
+#CFLAGS=-O0 -Wall -Winline
+
+PROGRAMS=samples1.exe samples2.exe ADSclient.exe ADSclient2.exe ADSclient3.exe ADSserver.exe
+
+DYNAMIC_PROGRAMS=samples1d.exe ADSclientd.exe ADSclient2d.exe ADSclient3d.exe ADSserverd.exe
+
+LIBRARIES=libADS.dll 
+
+all: $(LIBRARIES) $(PROGRAMS)
+#install: libADS.so
+#	cp libADS.so /usr/lib
+#	cp ADS.h /usr/include
+#	ldconfig
+dynamic: $(DYNAMIC_PROGRAMS)
+
+ADS.o: ADS.h log2.h
+
+samples1.o: benchmark.c ADS.h
+
+samples1.exe: ADS.obj openSocketw.obj samples1.obj
+	$(LL) $(LFLAGS) samples1.obj openSocketw.obj ADS.obj "$(SDKPATH)\lib\ws2_32.lib" /OUT:$@	
+
+samples2.o: benchmark.c ADS.h	
+samples2.exe: ADS.obj openSocketw.obj samples2.obj
+	$(LL) $(LFLAGS) samples2.obj openSocketw.obj ADS.obj "$(SDKPATH)\lib\ws2_32.lib" /OUT:$@
+
+libADS.dll: ADS.obj openSocketw.obj 
+	$(LL) $(LLFLAGS) /DLL ADS.obj openSocketw.obj "C:\\psdk\\lib\\ws2_32.lib" /OUT:libADS.dll
+
+ADSclient.exe: ADS.obj openSocketw.obj ADSclient.obj
+	$(LL) $(LFLAGS) ADSclient.obj openSocketw.obj ADS.obj "$(SDKPATH)\lib\ws2_32.lib" /OUT:$@	
+ADSclient2.exe: ADS.obj openSocketw.obj ADSclient2.obj
+	$(LL) $(LFLAGS) ADSclient2.obj openSocketw.obj ADS.obj "$(SDKPATH)\lib\ws2_32.lib" /OUT:$@	
+
+clean: 
+	rm -f $(DYNAMIC_PROGRAMS)
+	rm -f $(PROGRAMS)
+	rm -f *.o
+	rm -f *.so
+
+.c.obj:
+	$(CC) $(CFLAGS) $<
+.cpp.obj:
+	$(CC) $(CPPFLAGS) $<	
+#
+# Special rules for those objects that are part of the .dll:
+#
+ADS.obj: ADS.c ADS.h
+	$(CC) $(CFLAGS) -DDOEXPORT ADS.c
+openSocketw.obj: openSocketw.c
+	$(CC) $(CFLAGS) -DDOEXPORT openSocketw.c
+

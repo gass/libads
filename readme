@@ -1,0 +1,5 @@
+ADSclient, ADSclient2, ADSclient3 contact a beckhoff module and do something. I currently do 
+not have the BECKHOOFF documentation at hand nor the modules themselves.
+
+ADSserver tries to "simulate" the server part of such a module.
+
