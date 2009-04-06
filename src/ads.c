@@ -35,7 +35,6 @@
 
 #include "ads.h"
 #include "AdsDEF.h"
-
 int ADSDebug;
 
 EXPORTSPEC char * DECL2 ADSCommandName(int c) {
