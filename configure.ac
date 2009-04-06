@@ -1,5 +1,5 @@
 AC_INIT([libads], [0.1])
-AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AM_INIT_AUTOMAKE([-Wall -Werror -DLINUX foreign])
 AC_PROG_LIBTOOL
 AC_PROG_CC
 AC_CONFIG_HEADERS([config.h])
