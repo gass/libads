@@ -34,6 +34,7 @@
 #include "log2.h"
 
 #include "ads.h"
+#include "AdsDEF.h"
 
 int ADSDebug;
 
@@ -229,7 +230,7 @@ EXPORTSPEC ADSInterface * DECL2 ADSNewInterface(_ADSOSserialType nfd, AMSNetID m
     return di;	
 };
 
-/* 
+/** 
     This will setup a new connection structure using an initialized
     ADSInterface.
 */
@@ -244,7 +245,7 @@ EXPORTSPEC ADSConnection * DECL2 ADSNewConnection(ADSInterface * di, AMSNetID pa
     return dc;	
 }
 
-/*
+/**
     Hex dump:
 */
 EXPORTSPEC void DECL2 _ADSDump(char * name, void * v,int len) {
@@ -288,7 +289,7 @@ EXPORTSPEC int DECL2 _ADSReadOne(ADSInterface * di, uc * b ) {
 #endif 
 
 
-/*
+/**
     Read one complete packet. First bytes contain length information.
 */
 EXPORTSPEC int DECL2 _ADSReadPacket(ADSInterface * di,uc *b) {

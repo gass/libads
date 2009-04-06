@@ -29,6 +29,8 @@ extern "C" {
 #ifndef __ADS
 #define __ADS
 
+#include "AdsDEF.h"
+
 /* 
     Some simple types:
 */
@@ -116,26 +118,11 @@ typedef struct _AMS_TCPheader {
     u32 length;		//length in bytes
 } AMS_TCPheader;
 
-/*
-    According to BECKHOFF, AMS Id is a six byte field. In case of IP transport, the first
-    4 bytes are identical to the IP Address.
-*/
-typedef struct _AMSNetID {
-    uc b1,b2,b3,b4;	// normally equal to IP address
-    uc  b5;		// extra bytes
-    uc  b6;
-} AMSNetID, AmsNetId;
 
 
-typedef struct _AmsAddr {
-    AmsNetId netId;
-    USHORT port;
-} AmsAddr, * PAmsAddr;
-
-/*
+/**
     The AMS header.
 */
-
 typedef struct _AMSheader {
     AMSNetID	targetId;
     us		targetPort;
@@ -153,16 +140,16 @@ typedef struct _AMSheader {
 /*
     Definitions of commands:
 */
-#define cmdADSinvalid		0x0000
-#define cmdADSreadDevInfo	0x0001
-#define cmdADSread		0x0002
-#define cmdADSwrite		0x0003
-#define cmdADSreadState		0x0004
-#define cmdADSwriteControl	0x0005
+#define cmdADSinvalid			0x0000
+#define cmdADSreadDevInfo		0x0001
+#define cmdADSread			0x0002
+#define cmdADSwrite			0x0003
+#define cmdADSreadState			0x0004
+#define cmdADSwriteControl		0x0005
 #define cmdADSaddDeviceNotification	0x0006
 #define cmdADSdeleteDeviceNotification	0x0007
-#define cmdADSdevNotify		0x0008
-#define cmdADSreadWrite		0x0009
+#define cmdADSdevNotify			0x0008
+#define cmdADSreadWrite			0x0009
 
 /*
     Definitions of bits in stateFlags:
@@ -308,27 +295,6 @@ extern int ADSDebug;
 #define ADSDebugAll ADSDebugOpen|ADSDebugPacket|ADSDebugByte|ADSDebugAnalyze|ADSDebugPrintErrors
 
 
-
-#define ADSPortLogger 100
-#define ADSPortRTCore 200
-#define ADSPortIO 300
-#define ADSPortReserved 400
-#define ADSPortNC 500
-
-#define ADSPortBC 800
-
-#define AMSPORT_RO_PLC_RTS0 801
-#define AMSPORT_RO_PLC_RTS1 811
-#define AMSPORT_RO_PLC_RTS2 821
-#define AMSPORT_RO_PLC_RTS3 831
-
-#define ADSPortPCRuntime1 801
-#define ADSPortPCRuntime2 811
-#define ADSPortPCRuntime3 821
-#define ADSPortPCRuntime4 831
-
-#define ADSPortCamshaftController 900
-
 /* 
     This is a wrapper for the serial or network interface. 
 */
@@ -358,19 +324,20 @@ typedef struct {
     int invokeId;
 }
 ADSConnection;
-/* 
+
+/** 
     This will setup a new interface structure from an initialized
     serial interface's handle and a name.
 */
 EXPORTSPEC ADSInterface * DECL2 ADSNewInterface(_ADSOSserialType nfd, AMSNetID me, int port, char * nname);
 
-/* 
+/** 
     This will setup a new connection structure using an initialized
     ADSInterface and PLC's MPI address.
 */
 EXPORTSPEC ADSConnection * DECL2 ADSNewConnection(ADSInterface * di,AMSNetID partner, int port);
 
-/*
+/**
     Hex dump:
 */
 EXPORTSPEC void DECL2 _ADSDump(char * name, void * v,int len);
@@ -380,7 +347,7 @@ EXPORTSPEC void DECL2 _ADSDumpAMSNetId(AMSNetID * id);
 
 EXPORTSPEC void DECL2 _ADSDumpAMSheader(AMSheader * h);
 
-/*
+/**
     Naming
 */
 EXPORTSPEC char * DECL2 ADSCommandName(int c);
