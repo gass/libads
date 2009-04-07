@@ -1,5 +1,6 @@
 /*
- Implementation of BECKHOFF's ADS protocol. 
+ Implementation of BECKHOFF's ADS protocol.
+ Definitions Header.
  ADS = Automation Device Specification
  Implemented according to specifications given in TwinCAT Information System Nov 2002.
  TwinCAT, ADS and maybe other terms used herein are registered trademarks of BECKHOFF 
