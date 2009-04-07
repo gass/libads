@@ -27,7 +27,9 @@
 
 #define ADSAPIERR_NOERROR			0x0000
 
+int AdsPortOpen(void);
 
+long AdsPortClose(void);
 
 #endif /* __ADSDEF_H__ */
 
