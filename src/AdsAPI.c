@@ -35,17 +35,26 @@ static int socket_fd = 0;
 
 /**
   * Establishes a connection (communication port) to the TwinCAT message router.
+  * \return A port number that has been assigned to the program by the ADS router is returned. 
   */
 int AdsPortOpen(void) {
     if (socket_fd = 0) {
 		socket_fd = socket(AF_INET, SOCK_STREAM, 0);
     }
-return 0;
+    /*
+	 * TODO: Should return a Port number. But ...
+	 */
+   return 0;
 }
 
+
+/**
+ * The connection (communication port) to the TwinCAT message router is closed. 
+ * \return The function's error status. 
+ */
 long AdsPortClose(void) {
 	if (socket_fd = 0) {
-		return 1;
+		return 0xD; /* Port not connected */
 	}
 	close(socket_fd);
 	socket_fd = 0;
