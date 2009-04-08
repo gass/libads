@@ -592,14 +592,6 @@ EXPORTSPEC int DECL2 ADSaddDeviceNotification(ADSConnection *dc,
     return 0;
 } 
 
-EXPORTSPEC int DECL2 AdsPortOpen() {
-    return 0;
-}
-
-EXPORTSPEC int DECL2 AdsGetLocalAddress(PAmsAddr pa) {
-    return 1;
-}
-
 EXPORTSPEC int DECL2 ADSparseNetID(const char * netIDstring, AMSNetID * id) {
     const char * p;
     char *q;

@@ -369,8 +369,6 @@ EXPORTSPEC int DECL2 ADSaddDeviceNotification(ADSConnection *dc,
     int indexGroup, int offset, int length,
     int transmissionMode, int maxDelay, int cycleTime);
 
-EXPORTSPEC int DECL2 AdsPortOpen();
-EXPORTSPEC int DECL2 AdsGetLocalAddress(PAmsAddr p);
 EXPORTSPEC int DECL2 _ADSwrite(ADSConnection *dc);
 
 EXPORTSPEC int DECL2 ADSparseNetID(const char * NetIDstring, AMSNetID * id);
