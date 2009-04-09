@@ -57,14 +57,14 @@
 #define ADSIGRP_SYM_VALBYHND				0xF005
 #define ADSIGRP_SYM_RELEASEHND				0xF006
 #define ADSIGRP_SYM_INFOBYNAME				0xF007
-#define ADSIGRP_SYM_VERSION				0xF008
+#define ADSIGRP_SYM_VERSION					0xF008
 #define ADSIGRP_SYM_INFOBYNAMEEX			0xF009
 
 #define ADSIGRP_SYM_DOWNLOAD				0xF00A
-#define ADSIGRP_SYM_UPLOAD				0xF00B
+#define ADSIGRP_SYM_UPLOAD					0xF00B
 #define ADSIGRP_SYM_UPLOADINFO				0xF00C
 
-#define ADSIGRP_SYMNOTE					0xF010		// notification of named handle
+#define ADSIGRP_SYMNOTE						0xF010		// notification of named handle
 
 #define ADSIGRP_IOIMAGE_RWIB				0xF020		// read/write input byte(s)
 #define ADSIGRP_IOIMAGE_RWIX				0xF021		// read/write input bit
@@ -73,7 +73,7 @@
 #define ADSIGRP_IOIMAGE_CLEARI				0xF040		// write inputs to null
 #define ADSIGRP_IOIMAGE_CLEARO				0xF050		// write outputs to null
 
-#define ADSIGRP_DEVICE_DATA				0xF100		// state, name, etc...
+#define ADSIGRP_DEVICE_DATA					0xF100		// state, name, etc...
 #define ADSIOFFS_DEVDATA_ADSSTATE			0x0000		// ads state of device
 #define ADSIOFFS_DEVDATA_DEVSTATE			0x0002		// device state
 
@@ -113,6 +113,36 @@ typedef	struct
 
 typedef	AdsVersion*	PAdsVersion;
 
+/**
+  *
+  */
+typedef enum nAdsTransMode
+{
+	ADSTRANS_NOTRANS		=0,
+	ADSTRANS_CLIENTCYCLE	=1,
+	ADSTRANS_CLIENT1REQ		=2,
+	ADSTRANS_SERVERCYCLE	=3,
+	ADSTRANS_SERVERONCHA	=4
+}ADSTRANSMODE;
 
+typedef enum nAdsState
+{
+	ADSSTATE_INVALID			=0,
+	ADSSTATE_IDLE				=1,
+	ADSSTATE_RESET				=2,
+	ADSSTATE_INIT				=3,
+	ADSSTATE_START				=4,
+	ADSSTATE_RUN				=5,
+	ADSSTATE_STOP				=6,
+	ADSSTATE_SAVECFG			=7,
+	ADSSTATE_LOADCFG			=8,
+	ADSSTATE_POWERFAILURE		=9,
+	ADSSTATE_POWERGOOD			=10,
+	ADSSTATE_ERROR				=11,
+	ADSSTATE_SHUTDOWN			=12,
+	ADSSTATE_SUSPEND			=13,
+	ADSSTATE_RESUME				=14,
+	ADSSTATE_MAXSTATES
+} ADSSTATE;
 
 #endif	// __ADSDEF_H__

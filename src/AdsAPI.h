@@ -26,10 +26,17 @@
 #define __ADSAPI_H__
 
 #define ADSAPIERR_NOERROR			0x0000
+#include "AdsDEF.h"
 
 int AdsPortOpen(void);
 
 long AdsPortClose(void);
+
+long AdsSyncWriteControlReq( PAmsAddr pAddr,
+							unsigned short nAdsState,
+							unsigned short nDeviceState,
+							unsigned long nLength,
+							void *pData );
 
 #endif /* __ADSDEF_H__ */
 

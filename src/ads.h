@@ -202,20 +202,6 @@ typedef struct _ADSreadRequest {
 #define errADSAllocLockedMemory	0x0003
 
 
-#define ADS_TRANS_NOTRANS	0x0000
-#define ADS_TRANS_CLIENTCYCLE	0x0001
-#define ADS_TRANS_CLIENT1REQ	0x0002
-#define ADS_TRANS_SERVERCYCLE	0x0003
-#define ADS_TRANS_SERVERONCHA	0x0004
-
-typedef enum nAdsTransmode {
-    ADSTRANS_NOTRANS=0,
-    ADSTRANS_CLIENTCYCLE=1,
-    ADSTRANS_CLIENT1REQ=2,
-    ADSTRANS_SERVERCYCLE=3,
-    ADSTRANS_SERVERONCHA=4
-} ADSTRANSMODE;    
-
 typedef struct _ADSreadResponse {
     u32 result;		// error code
     u32 length;		// length in bytes of response
