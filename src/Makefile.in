@@ -53,7 +53,7 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkgconfigdir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libads_la_LIBADD =
-am_libads_la_OBJECTS = ads.lo
+am_libads_la_OBJECTS = ads.lo AdsAPI.lo
 libads_la_OBJECTS = $(am_libads_la_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -184,12 +184,15 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 lib_LTLIBRARIES = libads.la
 libads_la_SOURCES = ads.c \
-			ads.h \
-			log2.h
+					ads.h \
+					AdsAPI.c\
+					AdsAPI.h\
+					AdsDEF.h\
+					log2.h
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libads.pc.in
-EXTRA_DIST = libads.pc.in
+EXTRA_DIST = libads.pc.in ads.h
 all: all-am
 
 .SUFFIXES:
@@ -261,6 +264,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AdsAPI.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ads.Plo@am__quote@
 
 .c.o:
