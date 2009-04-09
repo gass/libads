@@ -30,6 +30,10 @@
 #include <errno.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <ifaddrs.h>
+#include <arpa/inet.h>
+#include <string.h>
+#include <net/if.h>
 
 static int socket_fd = 0;
 
@@ -60,3 +64,44 @@ long AdsPortClose(void) {
 	socket_fd = 0;
 	return 0;
 }
+
+long AdsGetLocalAddress( PAmsAddr Paddr )  {
+	struct ifaddrs *list;
+	char done=0;
+	unsigned long int temp;
+	struct sockaddr_in *addrStruct;
+	
+	if(getifaddrs(&list) < 0)
+	{	
+		return 0;
+	}
+	
+	struct ifaddrs *cur;	
+	for(cur = list; cur != NULL; cur = cur->ifa_next)
+	{
+		if ((cur->ifa_addr->sa_family == AF_INET) && (strcmp(cur->ifa_name, "lo") != 0) ) {
+			addrStruct = (struct sockaddr_in *)cur->ifa_addr;
+			printf ("nome %s\n", cur->ifa_name);
+			temp = ntohl (addrStruct->sin_addr.s_addr);
+			printf("done 1\n");
+			memcpy ((char *) &Paddr->netId, (char *)&temp,4);
+			printf ("ip %ld.%ld.%ld.%ld  %d \n", Paddr->netId.b1, Paddr->netId.b2, Paddr->netId.b3, Paddr->netId.b4, cur->ifa_addr->sa_family);
+			done = 1;
+			break;
+		}
+	}	
+	
+	freeifaddrs(list);
+	
+	if (done) {
+		Paddr->netId.b5 = 1;
+		Paddr->netId.b6 = 1;		
+	}
+	else {
+		Paddr->netId = (AmsNetId) {172,16,17,3,1,1};
+	}
+	
+	return 0;
+} 
+
+
