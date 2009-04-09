@@ -68,7 +68,7 @@ long AdsPortClose(void) {
 /**
   * Returns the local NetId and port number. 
   * \return Returns the function's error status. 
-  * \param Paddr [out] Pointer to the structure of type AmsAddr. 
+  * \param paddr [out] Pointer to the structure of type AmsAddr. 
   */
 long AdsGetLocalAddress( PAmsAddr paddr )  {
 	struct ifaddrs *list;
