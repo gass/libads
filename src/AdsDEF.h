@@ -42,15 +42,15 @@
 #define	AMSPORT_R0_PLC_RTS2				811
 #define	AMSPORT_R0_PLC_RTS3				821
 #define	AMSPORT_R0_PLC_RTS4				831
-#define ADSPortCamshaftController			900
+#define ADSPortCamshaftController		900
 
 /*
  * ADS index groups
  */
 
-#define ADSIGRP_SYMTAB					0xF000
-#define ADSIGRP_SYMNAME					0xF001
-#define ADSIGRP_SYMVAL					0xF002
+#define ADSIGRP_SYMTAB						0xF000
+#define ADSIGRP_SYMNAME						0xF001
+#define ADSIGRP_SYMVAL						0xF002
 
 #define ADSIGRP_SYM_HNDBYNAME				0xF003
 #define ADSIGRP_SYM_VALBYNAME				0xF004
