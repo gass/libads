@@ -402,7 +402,7 @@ EXPORTSPEC int DECL2 ADSreadBytes(ADSConnection *dc, int indexGroup, int offset,
 	    dc->dataPointer=dc->msgIn+46;
 	    dc->AnswLen=rr->length;
 	    if (buffer!=NULL) {
-		memcpy(buffer, p2+44, rr->length);
+		memcpy(buffer, dc->dataPointer, rr->length);
 	    }
 	}
 	return 0;
