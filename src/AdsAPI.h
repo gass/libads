@@ -38,6 +38,12 @@ long AdsSyncWriteControlReq( PAmsAddr pAddr,
 							unsigned long nLength,
 							void *pData );
 
+long AdsSyncWriteReq( PAmsAddr pAddr,
+						unsigned short nIndexGroup,
+						unsigned short nIndexOffset,
+						unsigned long nLength,
+						void *pData );
+
 #endif /* __ADSDEF_H__ */
 
 

@@ -130,10 +130,32 @@ long AdsSyncWriteControlReq( PAmsAddr pAddr,
 }
 
 /**
+  * Writes data synchronously to an ADS device.
+  * \param pAddr Structure with NetId and port number of the ADS server.
+  * \param nIndexGroup Index Group.
+  * \param nIndexOffset Index Offset.
+  * \param nLength Length of the data, in bytes, written to the ADS server.
+  * \param pData Pointer to the data written to the ADS server. 
+  * \return Returns the function's error status.
+  */
+long AdsSyncWriteReq( PAmsAddr pAddr,
+						unsigned short nIndexGroup,
+						unsigned short nIndexOffset,
+						unsigned long nLength,
+						void *pData ) {
+      
+    ADSConnection *dc;
+    dc = AdsSocketConnect(pAddr, NULL);    
+ 	ADSwriteBytes(dc, nIndexGroup, nIndexOffset, nLength, pData);
+
+	return 0;
+}
+
+/**
  * \brief Opens a new onnection to the Ads client.
  * This is an auxiliar function.
- * \param pAddr Pointer to the target Ams address.
- * \param pMeAddr Pointer to the source (local) Ams Address.
+ * \param pAddr Structure with NetId and port number of the ADS server.
+ * \param pMeAddr Structure with NetId and port number of the ADS client (local).
  * If the supplied pointer is NULL, then the address is automatically found and used.
  * \return An ADSConnection pointer.
  */
