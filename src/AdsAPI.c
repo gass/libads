@@ -37,6 +37,8 @@
 
 static int socket_fd = 0;
 
+static ADSConnection *AdsSocketConnect(PAmsAddr pAddr, PAmsAddr pMeAddr);
+
 /**
   * Establishes a connection (communication port) to the TwinCAT message router.
   * \return A port number that has been assigned to the program by the ADS router is returned. 
@@ -119,8 +121,24 @@ long AdsSyncWriteControlReq( PAmsAddr pAddr,
 							unsigned short nDeviceState,
 							unsigned long nLength,
 							void *pData ) {
-							
-							
+                                 
+    ADSConnection *dc;
+    dc = AdsSocketConnect(pAddr, NULL);                             
+	ADSwriteControl(dc, nAdsState, nDeviceState, pData, nLength);
+
+	return 0;
+}
+
+/**
+ * \brief Opens a new onnection to the Ads client.
+ * This is an auxiliar function.
+ * \param pAddr Pointer to the target Ams address.
+ * \param pMeAddr Pointer to the source (local) Ams Address.
+ * If the supplied pointer is NULL, then the address is automatically found and used.
+ * \return An ADSConnection pointer.
+ */
+static ADSConnection *AdsSocketConnect(PAmsAddr pAddr, PAmsAddr pMeAddr) {
+
 	struct sockaddr_in addr;
     socklen_t addrlen;   
 	char peer[12];
@@ -128,12 +146,16 @@ long AdsSyncWriteControlReq( PAmsAddr pAddr,
 	ADSInterface *di;
 	ADSConnection *dc;
 	_ADSOSserialType fds;
-	AmsNetId me = {172,16,17,1,1,1};
+	if (pMeAddr == NULL) {
+		AmsAddr tempAddr;
+		pMeAddr = &tempAddr;
+		AdsGetLocalAddress( pMeAddr );
+	}
 	/*
 	 * If there is no defined socket already open, exit with error.
 	 */
 	if (socket_fd == 0)
-		return 1;
+		return NULL;
 	/* Build socket address */
 	addr.sin_family = AF_INET;
     addr.sin_port = htons(0xBF02); /* ADS port 48898 */
@@ -146,7 +168,8 @@ long AdsSyncWriteControlReq( PAmsAddr pAddr,
 	/* connect to plc */
     if (connect(socket_fd, (struct sockaddr *) & addr, addrlen)) {
 		printf("Socket error: %s \n", 0000);
-    } else {
+		return NULL;
+    }
 	if (ADSDebug & ADSDebugOpen) {
 		printf ("connected to %s", peer);
 	}  
@@ -154,16 +177,14 @@ long AdsSyncWriteControlReq( PAmsAddr pAddr,
 	opt=1;
 	setsockopt(socket_fd, SOL_SOCKET, SO_KEEPALIVE, &opt, 4);
 	if (ADSDebug & ADSDebugOpen) {	
-	    printf("setsockopt %s %d\n", strerror(errno),0);	
-	}    
-    }
-    
+	    printf("setsockopt %s %d\n", strerror(errno),0);
+	}  
+	
     fds.rfd=socket_fd;
     fds.wfd=socket_fd;
-    di=ADSNewInterface(fds,me, pAddr->port,"test");
+    di=ADSNewInterface(fds,pMeAddr->netId, pAddr->port,"test");
 	dc=ADSNewConnection(di,pAddr->netId, pAddr->port);
-	ADSwriteControl(dc, nAdsState, nDeviceState, pData, nLength);
-
-	return 0;		
+	
+	return dc;
 }
 
