@@ -177,6 +177,29 @@ long AdsSyncReadReq( PAmsAddr pAddr,
 }
 
 /**
+ * \brief Reads the ADS status and the device status from an ADS server.
+ * Any ADS device can inform another ADS device of its current state. A distinction is drawn here between the status of the device itself (DeviceState) and the status of the ADS interface of the ADS device (AdsState). The states that the ADS interface can adopt are laid down in the ADS specification.
+ * \param pAddr Structure with NetId and port number of the ADS server.
+ * \param Address of a variable that will receive the ADS status (see data type ADSSTATE).
+ * \param Address of a variable that will receive the device status. 
+ * \return Returns the function's error status.
+ *
+ */
+long AdsSyncReadStateReq(   PAmsAddr  pAddr, 
+							unsigned short *pAdsState, 
+							unsigned short *pDeviceState ){
+	ADSConnection *dc;
+    AmsAddr MeAddr;
+    PAmsAddr pMeAddr;
+    MeAddr.netId = (AmsNetId) {172,16,17,1,1,1};
+    dc = AdsSocketConnect(pAddr, pMeAddr);    
+ 	ADSreadState(dc, pAdsState, pDeviceState);
+
+	return 0;
+}
+
+
+/**
  * \brief Opens a new onnection to the Ads client.
  * This is an auxiliar function.
  * \param pAddr Structure with NetId and port number of the ADS server.

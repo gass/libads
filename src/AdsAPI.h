@@ -50,6 +50,9 @@ long AdsSyncReadReq( PAmsAddr pAddr,
 						unsigned long nLength,
 						void *pData );
 
+long AdsSyncReadStateReq(   PAmsAddr  pAddr, 
+							unsigned short *pAdsState, 
+							unsigned short *pDeviceState );
 #endif /* __ADSDEF_H__ */
 
 
