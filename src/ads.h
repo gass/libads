@@ -169,9 +169,7 @@ typedef struct _ADSpacket {
 
 typedef struct _ADSdeviceInfo {
     u32 ADSerror;
-    uc majorVersion;	// major version number
-    uc minorVersion;	// minor version number
-    us build;		// build number
+    AdsVersion Version;
     char name[16];	// rely on 16 byte, not terminating #0
 } ADSdeviceInfo;
 
@@ -347,7 +345,7 @@ EXPORTSPEC int DECL2 _ADSReadPacket(ADSInterface * di,uc *b);
 EXPORTSPEC void DECL2 analyze(uc * p1);
 
 EXPORTSPEC int DECL2 ADSreadBytes(ADSConnection *dc, int indexGroup, int offset, int length, void * buffer);
-EXPORTSPEC int DECL2 ADSreadDeviceInfo(ADSConnection *dc);
+EXPORTSPEC int DECL2 ADSreadDeviceInfo(ADSConnection *dc, char * pDevName, PAdsVersion pVersion );
 EXPORTSPEC int DECL2 ADSwriteBytes(ADSConnection *dc, int indexGroup, int offset, int length, void * data);
 EXPORTSPEC int DECL2 ADSreadState(ADSConnection *dc, unsigned short * ADSstate, unsigned short * devState);
 EXPORTSPEC int DECL2 ADSwriteControl(ADSConnection *dc, int ADSstate, int devState, void * data, int length);

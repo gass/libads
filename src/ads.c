@@ -182,8 +182,8 @@ EXPORTSPEC void DECL2 analyze(uc * p1) {
     switch(p->amsHeader.commandId) {
 	case cmdADSreadDevInfo: di =(ADSdeviceInfo *) (p1+38);
 	    LOG3("Error: %d %s\n", di->ADSerror, ADSerrorText(di->ADSerror));
-	    LOG3("Version: %d.%d\n", di->majorVersion, di->minorVersion);
-	    LOG2("Build: %d\n", di->build);
+	    LOG3("Version: %d.%d\n", di->Version.version, di->Version.revision);
+	    LOG2("Build: %d\n", di->Version.build);
 	    LOG1("Device name: ");
 	    for (i=0; i<15; i++) {
 		LOG2("%c", di->name[i]);
@@ -410,31 +410,43 @@ EXPORTSPEC int DECL2 ADSreadBytes(ADSConnection *dc, int indexGroup, int offset,
     return -1;
 } 
 
-EXPORTSPEC int DECL2 ADSreadDeviceInfo(ADSConnection *dc) {
-    AMSheader * h1;
-    AMS_TCPheader * h2;
-    ADSpacket * p1=(ADSpacket *) dc->msgOut;
-    h1= &(p1->amsHeader);
-    h2= &(p1->adsHeader);
-    _ADSsetupHeader(dc, h1);
-    h1->commandId=cmdADSreadDevInfo;
-    h1->dataLength=0;
-    _ADSDumpAMSheader(h1);
-    
-    p1->adsHeader.length=h1->dataLength+32;
-    p1->adsHeader.reserved=0;
+EXPORTSPEC int DECL2 ADSreadDeviceInfo(ADSConnection *dc, char * pDevName, PAdsVersion pVersion ) {
+	AMSheader * h1;
+	AMS_TCPheader * h2;
+	ADSpacket * p1=(ADSpacket *) dc->msgOut;
+	ADSpacket *p2;
+	ADSdeviceInfo * DeviceInfo;
+	h1= &(p1->amsHeader);
+	h2= &(p1->adsHeader);
+	_ADSsetupHeader(dc, h1);
+	h1->commandId=cmdADSreadDevInfo;
+	h1->dataLength=0;
+	_ADSDumpAMSheader(h1);
+
+	p1->adsHeader.length=h1->dataLength+32;
+	p1->adsHeader.reserved=0;
     
     _ADSwrite(dc);
-    dc->AnswLen=_ADSReadPacket(dc->iface, dc->msgIn);
-    if (dc->AnswLen>0) {
-//	res=dc->AnswLen;
-	if ((ADSDebug & ADSDebugPacket) !=0) { 
-	    _ADSDump("packet", dc->msgIn, dc->AnswLen);
-	}    
-	if ((ADSDebug & ADSDebugAnalyze)!=0){         
-	    analyze(dc->msgIn);
-	}
-    }    
+    /*Reads the answer */
+	dc->AnswLen=_ADSReadPacket(dc->iface, dc->msgIn);
+
+	/* Analises the received packet */
+	if (dc->AnswLen>0) {
+		p2 =(ADSpacket *) dc->msgIn;
+		if (p2->amsHeader.commandId==cmdADSreadDevInfo) {
+			DeviceInfo =(ADSdeviceInfo*) (dc->msgIn+38);
+			*pVersion = DeviceInfo->Version;
+			memcpy (pDevName, DeviceInfo->name, 16);			
+		}
+    	}
+
+	else { /* if there is an error */
+   		if ((ADSDebug & ADSDebugPacket)!=0) 
+			_ADSDump("packet", dc->msgIn, dc->AnswLen);
+	    
+		if ((ADSDebug & ADSDebugAnalyze)!=0)
+	    		analyze(dc->msgIn);
+	}        
     return 0;
 } 
 

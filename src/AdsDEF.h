@@ -111,7 +111,7 @@ typedef	struct
 	unsigned short		build; // < Build number
 } AdsVersion;
 
-typedef	AdsVersion*	PAdsVersion;
+typedef	AdsVersion* PAdsVersion;
 
 /**
   *

@@ -196,6 +196,23 @@ long AdsSyncReadStateReq( PAmsAddr  pAddr,
 	return 0;
 }
 
+/**
+ * Reads the identification and version number of an ADS server.
+ * \param pAddr Structure with NetId and port number of the ADS server.
+ * \param pDevName Pointer to a character string that will receive the name of the ADS device.
+ * \param pVersion Address of a variable of type AdsVersion, which will receive the version number, revision number and the build number.
+ * \return Returns the function's error status.
+ */
+long AdsSyncReadDeviceInfoReq( PAmsAddr  pAddr, 
+			char * pDevName, 
+			PAdsVersion pVersion ){
+
+	ADSConnection *dc;
+	dc = AdsSocketConnect(pAddr, NULL);
+ 	ADSreadDeviceInfo(dc, pDevName, pVersion );
+
+	return 0;
+}
 
 /**
  * \brief Opens a new onnection to the Ads client.
