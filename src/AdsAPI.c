@@ -44,10 +44,10 @@ static ADSConnection *AdsSocketConnect(PAmsAddr pAddr, PAmsAddr pMeAddr);
   * \return A port number that has been assigned to the program by the ADS router is returned. 
   */
 int AdsPortOpen(void) {
-    if (socket_fd == 0) {
+	if (socket_fd == 0) {
 		socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-    }
-    /*
+	}
+	/*
 	 * TODO: Should return a Port number. But ...
 	 */
    return 0;
@@ -121,9 +121,9 @@ long AdsSyncWriteControlReq( PAmsAddr pAddr,
 							unsigned short nDeviceState,
 							unsigned long nLength,
 							void *pData ) {
-                                 
-    ADSConnection *dc;
-    dc = AdsSocketConnect(pAddr, NULL);                             
+								 
+	ADSConnection *dc;
+	dc = AdsSocketConnect(pAddr, NULL);							 
 	ADSwriteControl(dc, nAdsState, nDeviceState, pData, nLength);
 
 	return 0;
@@ -143,9 +143,9 @@ long AdsSyncWriteReq( PAmsAddr pAddr,
 						unsigned short nIndexOffset,
 						unsigned long nLength,
 						void *pData ) {
-      
-    ADSConnection *dc;
-    dc = AdsSocketConnect(pAddr, NULL);    
+	  
+	ADSConnection *dc;
+	dc = AdsSocketConnect(pAddr, NULL);	
  	ADSwriteBytes(dc, nIndexGroup, nIndexOffset, nLength, pData);
 
 	return 0;
@@ -165,12 +165,12 @@ long AdsSyncReadReq( PAmsAddr pAddr,
 						unsigned short nIndexOffset,
 						unsigned long nLength,
 						void *pData ) {
-      
-    ADSConnection *dc;
-    AmsAddr MeAddr;
-    PAmsAddr pMeAddr;
-    MeAddr.netId = (AmsNetId) {172,16,17,1,1,1};
-    dc = AdsSocketConnect(pAddr, pMeAddr);    
+	  
+	ADSConnection *dc;
+	AmsAddr MeAddr;
+	PAmsAddr pMeAddr = &MeAddr;
+	MeAddr.netId = (AmsNetId) {172,16,17,1,1,1};
+	dc = AdsSocketConnect(pAddr, NULL);	
  	ADSreadBytes(dc, nIndexGroup, nIndexOffset, nLength, pData);
 
 	return 0;
@@ -180,19 +180,17 @@ long AdsSyncReadReq( PAmsAddr pAddr,
  * \brief Reads the ADS status and the device status from an ADS server.
  * Any ADS device can inform another ADS device of its current state. A distinction is drawn here between the status of the device itself (DeviceState) and the status of the ADS interface of the ADS device (AdsState). The states that the ADS interface can adopt are laid down in the ADS specification.
  * \param pAddr Structure with NetId and port number of the ADS server.
- * \param Address of a variable that will receive the ADS status (see data type ADSSTATE).
- * \param Address of a variable that will receive the device status. 
+ * \param pAdsState Address of a variable that will receive the ADS status (see data type ADSSTATE).
+ * \param pDeviceState Address of a variable that will receive the device status. 
  * \return Returns the function's error status.
  *
  */
-long AdsSyncReadStateReq(   PAmsAddr  pAddr, 
-							unsigned short *pAdsState, 
-							unsigned short *pDeviceState ){
+long AdsSyncReadStateReq( PAmsAddr  pAddr, 
+			unsigned short *pAdsState, 
+			unsigned short *pDeviceState ){
+
 	ADSConnection *dc;
-    AmsAddr MeAddr;
-    PAmsAddr pMeAddr;
-    MeAddr.netId = (AmsNetId) {172,16,17,1,1,1};
-    dc = AdsSocketConnect(pAddr, pMeAddr);    
+	dc = AdsSocketConnect(pAddr, NULL);
  	ADSreadState(dc, pAdsState, pDeviceState);
 
 	return 0;
@@ -210,7 +208,7 @@ long AdsSyncReadStateReq(   PAmsAddr  pAddr,
 static ADSConnection *AdsSocketConnect(PAmsAddr pAddr, PAmsAddr pMeAddr) {
 
 	struct sockaddr_in addr;
-    socklen_t addrlen;   
+	socklen_t addrlen;   
 	char peer[12];
 	int opt;
 	ADSInterface *di;
@@ -228,7 +226,7 @@ static ADSConnection *AdsSocketConnect(PAmsAddr pAddr, PAmsAddr pMeAddr) {
 		return NULL;
 	/* Build socket address */
 	addr.sin_family = AF_INET;
-    addr.sin_port = htons(0xBF02); /* ADS port 48898 */
+	addr.sin_port = htons(0xBF02); /* ADS port 48898 */
 	/* lazy convertion from byte array to socket adress format */
 	sprintf (peer,"%d.%d.%d.%d", pAddr->netId.b1, pAddr->netId.b2, pAddr->netId.b3, pAddr->netId.b4);
 	inet_aton(peer, &addr.sin_addr);
@@ -236,10 +234,10 @@ static ADSConnection *AdsSocketConnect(PAmsAddr pAddr, PAmsAddr pMeAddr) {
 	addrlen = sizeof(addr);
 	
 	/* connect to plc */
-    if (connect(socket_fd, (struct sockaddr *) & addr, addrlen)) {
+	if (connect(socket_fd, (struct sockaddr *) & addr, addrlen)) {
 		printf("Socket error: %s \n", 0000);
 		return NULL;
-    }
+	}
 	if (ADSDebug & ADSDebugOpen) {
 		printf ("connected to %s", peer);
 	}  
@@ -247,12 +245,12 @@ static ADSConnection *AdsSocketConnect(PAmsAddr pAddr, PAmsAddr pMeAddr) {
 	opt=1;
 	setsockopt(socket_fd, SOL_SOCKET, SO_KEEPALIVE, &opt, 4);
 	if (ADSDebug & ADSDebugOpen) {	
-	    printf("setsockopt %s %d\n", strerror(errno),0);
+		printf("setsockopt %s %d\n", strerror(errno),0);
 	}  
 	
-    fds.rfd=socket_fd;
-    fds.wfd=socket_fd;
-    di=ADSNewInterface(fds,pMeAddr->netId, pAddr->port,"test");
+	fds.rfd=socket_fd;
+	fds.wfd=socket_fd;
+	di=ADSNewInterface(fds,pMeAddr->netId, pAddr->port,"test");
 	dc=ADSNewConnection(di,pAddr->netId, pAddr->port);
 	
 	return dc;

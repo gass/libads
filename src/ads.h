@@ -349,7 +349,7 @@ EXPORTSPEC void DECL2 analyze(uc * p1);
 EXPORTSPEC int DECL2 ADSreadBytes(ADSConnection *dc, int indexGroup, int offset, int length, void * buffer);
 EXPORTSPEC int DECL2 ADSreadDeviceInfo(ADSConnection *dc);
 EXPORTSPEC int DECL2 ADSwriteBytes(ADSConnection *dc, int indexGroup, int offset, int length, void * data);
-EXPORTSPEC int DECL2 ADSreadState(ADSConnection *dc, int * ADSstate, int * devState);
+EXPORTSPEC int DECL2 ADSreadState(ADSConnection *dc, unsigned short * ADSstate, unsigned short * devState);
 EXPORTSPEC int DECL2 ADSwriteControl(ADSConnection *dc, int ADSstate, int devState, void * data, int length);
 EXPORTSPEC int DECL2 ADSaddDeviceNotification(ADSConnection *dc, 
     int indexGroup, int offset, int length,

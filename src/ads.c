@@ -479,62 +479,51 @@ EXPORTSPEC int DECL2 ADSwriteBytes(ADSConnection *dc, int indexGroup, int offset
     return 0;
 } 
 
-/*
-#define cmdADSwriteControl	0x0005
-#define cmdADSaddDevNotify	0x0006
-#define cmdADSdelDevNotify	0x0007
-#define cmdADSdevNotify		0x0008
-#define cmdADSreadWrite		0x0009
-*/
-EXPORTSPEC int DECL2 ADSreadState(ADSConnection *dc,int * ADSstate,int * devState) {
-    AMSheader * h1;
-    AMS_TCPheader * h2;
-    ADSpacket * p1=(ADSpacket *) dc->msgOut;
-    ADSpacket * p2;
-    h1= &(p1->amsHeader);
-    h2= &(p1->adsHeader);
-    _ADSsetupHeader(dc, h1);
-    h1->commandId=cmdADSreadState;
-    h1->dataLength=0;
-    _ADSDumpAMSheader(h1);
-	ADSstateResponse *StateResponse;
-    
-    p1->adsHeader.length=h1->dataLength+32;
-    p1->adsHeader.reserved=0;
-    
-    _ADSwrite(dc);
-    dc->AnswLen=_ADSReadPacket(dc->iface, dc->msgIn);
-    if (dc->AnswLen>0) {
-    	p2 =(ADSpacket *) dc->msgIn;
-	
-		if (p2->amsHeader.commandId==cmdADSreadState) {
-			printf ("it is what we expected\n");
-			
+/**
+ * \brief Builds the necessary headers and analises the ADSserver ADSstate response
+ * \param dc ADSConection handler
+ * \param ADSstate Address of a variable that will receive the ADS status (see data type ADSSTATE).
+ * \param devState Address of a variable that will receive the device status. 
+ * \return Error code
+ */
+EXPORTSPEC int DECL2 ADSreadState(ADSConnection *dc,unsigned short * ADSstate,unsigned short * devState) {
+	AMSheader * h1;
+	AMS_TCPheader * h2;
+	ADSpacket * p1=(ADSpacket *) dc->msgOut;
+	ADSpacket * p2;
+	ADSstateResponse *StateResponse;	
 
-		StateResponse =(ADSstateResponse*) (dc->msgIn+38);
-		printf ("ADS State: %d, ADS devState %d, result %d\n", StateResponse->ADSstate, StateResponse->devState, StateResponse->result);
-		ADSstate = &StateResponse->ADSstate;
-		devState = &StateResponse->devState;
-//	   	 LOG1("Here we are\n");
-//	   	 _ADSDump("Data: ", (uc*) (dc->msgIn+44), rr->length);
-	  /* 	 dc->dataPointer=dc->msgIn+46;
-	   	 dc->AnswLen=rr->length;
-	   	/** if (buffer!=NULL) {
-			*memcpy(buffer, dc->dataPointer, rr->length);
-	    }*/
+	/* Build the comunication headers */
+	h1= &(p1->amsHeader);
+	h2= &(p1->adsHeader);
+	_ADSsetupHeader(dc, h1);
+	h1->commandId=cmdADSreadState;
+	h1->dataLength=0;
+	_ADSDumpAMSheader(h1);
+	p1->adsHeader.length=h1->dataLength+32;
+	p1->adsHeader.reserved=0;
+	/* sends the the packet */    
+	_ADSwrite(dc);
+	/*Reads the answer */
+	dc->AnswLen=_ADSReadPacket(dc->iface, dc->msgIn);
+
+	/* Analises the received packet */
+	if (dc->AnswLen>0) {
+		p2 =(ADSpacket *) dc->msgIn;
+		if (p2->amsHeader.commandId==cmdADSreadState) {
+			StateResponse =(ADSstateResponse*) (dc->msgIn+38);
+			*ADSstate = StateResponse->ADSstate;;
+			*devState = StateResponse->devState;
 		}
-		return 0;
-    }    
-   
-    
-    _ADSDump("packet", dc->msgIn, dc->AnswLen);
-	if ((ADSDebug & ADSDebugPacket)!=0) {
-	    _ADSDump("packet", dc->msgIn, dc->AnswLen);
-	    }    
-	if ((ADSDebug & ADSDebugAnalyze)!=0){     
-	    analyze(dc->msgIn);
-		}    
-        
+    	}
+
+	else { /* if there is an error */
+   		if ((ADSDebug & ADSDebugPacket)!=0) 
+			_ADSDump("packet", dc->msgIn, dc->AnswLen);
+	    
+		if ((ADSDebug & ADSDebugAnalyze)!=0)
+	    		analyze(dc->msgIn);
+	}        
     return 0;
 } 
 
