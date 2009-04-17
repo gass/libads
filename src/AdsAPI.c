@@ -139,8 +139,8 @@ long AdsSyncWriteControlReq( PAmsAddr pAddr,
   * \return Returns the function's error status.
   */
 long AdsSyncWriteReq( PAmsAddr pAddr,
-						unsigned short nIndexGroup,
-						unsigned short nIndexOffset,
+						unsigned long nIndexGroup,
+						unsigned long nIndexOffset,
 						unsigned long nLength,
 						void *pData ) {
 	  
@@ -161,8 +161,8 @@ long AdsSyncWriteReq( PAmsAddr pAddr,
  * \return Returns the function's error status.
  */
 long AdsSyncReadReq( PAmsAddr pAddr,
-						unsigned short nIndexGroup,
-						unsigned short nIndexOffset,
+						unsigned long nIndexGroup,
+						unsigned long nIndexOffset,
 						unsigned long nLength,
 						void *pData ) {
 	  

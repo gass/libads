@@ -39,14 +39,14 @@ long AdsSyncWriteControlReq( PAmsAddr pAddr,
 							void *pData );
 
 long AdsSyncWriteReq( PAmsAddr pAddr,
-						unsigned short nIndexGroup,
-						unsigned short nIndexOffset,
+						unsigned long nIndexGroup,
+						unsigned long nIndexOffset,
 						unsigned long nLength,
 						void *pData );
 
 long AdsSyncReadReq( PAmsAddr pAddr,
-						unsigned short nIndexGroup,
-						unsigned short nIndexOffset,
+						unsigned long nIndexGroup,
+						unsigned long nIndexOffset,
 						unsigned long nLength,
 						void *pData );
 
