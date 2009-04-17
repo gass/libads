@@ -490,12 +490,14 @@ EXPORTSPEC int DECL2 ADSreadState(ADSConnection *dc,int * ADSstate,int * devStat
     AMSheader * h1;
     AMS_TCPheader * h2;
     ADSpacket * p1=(ADSpacket *) dc->msgOut;
+    ADSpacket * p2;
     h1= &(p1->amsHeader);
     h2= &(p1->adsHeader);
     _ADSsetupHeader(dc, h1);
     h1->commandId=cmdADSreadState;
     h1->dataLength=0;
     _ADSDumpAMSheader(h1);
+	ADSstateResponse *StateResponse;
     
     p1->adsHeader.length=h1->dataLength+32;
     p1->adsHeader.reserved=0;
@@ -503,13 +505,36 @@ EXPORTSPEC int DECL2 ADSreadState(ADSConnection *dc,int * ADSstate,int * devStat
     _ADSwrite(dc);
     dc->AnswLen=_ADSReadPacket(dc->iface, dc->msgIn);
     if (dc->AnswLen>0) {
-	if ((ADSDebug & ADSDebugPacket)!=0) { 
+    	p2 =(ADSpacket *) dc->msgIn;
+	
+		if (p2->amsHeader.commandId==cmdADSreadState) {
+			printf ("it is what we expected\n");
+			
+
+		StateResponse =(ADSstateResponse*) (dc->msgIn+38);
+		printf ("ADS State: %d, ADS devState %d, result %d\n", StateResponse->ADSstate, StateResponse->devState, StateResponse->result);
+		ADSstate = &StateResponse->ADSstate;
+		devState = &StateResponse->devState;
+//	   	 LOG1("Here we are\n");
+//	   	 _ADSDump("Data: ", (uc*) (dc->msgIn+44), rr->length);
+	  /* 	 dc->dataPointer=dc->msgIn+46;
+	   	 dc->AnswLen=rr->length;
+	   	/** if (buffer!=NULL) {
+			*memcpy(buffer, dc->dataPointer, rr->length);
+	    }*/
+		}
+		return 0;
+    }    
+   
+    
+    _ADSDump("packet", dc->msgIn, dc->AnswLen);
+	if ((ADSDebug & ADSDebugPacket)!=0) {
 	    _ADSDump("packet", dc->msgIn, dc->AnswLen);
 	    }    
 	if ((ADSDebug & ADSDebugAnalyze)!=0){     
 	    analyze(dc->msgIn);
-	}    
-    }    
+		}    
+        
     return 0;
 } 
 
