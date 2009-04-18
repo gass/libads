@@ -142,15 +142,25 @@ typedef struct _AMSheader {
  * Other commands are not defined or are used internally. Therefore the Command Id is only allowed to contain the above enumerated values!
  */
 enum nAdsCommandId {
+	/**Invalid*/
 	cmdADSinvalid			=0x0000,
+	/**ADS Read Device Info*/
 	cmdADSreadDevInfo		=0x0001,
+	/**ADS Read*/
 	cmdADSread			=0x0002,
+	/**ADS Write*/
 	cmdADSwrite			=0x0003,
+	/**ADS Read State*/
 	cmdADSreadState			=0x0004,
+	/**ADS Write Control*/
 	cmdADSwriteControl		=0x0005,
+	/**ADS Add Device Notification*/
 	cmdADSaddDeviceNotification	=0x0006,
+	/**ADS Delete Device Notification*/
 	cmdADSdeleteDeviceNotification	=0x0007,
+	/**ADS Device Notification*/
 	cmdADSdevNotify			=0x0008,
+	/**ADS Read Write*/
 	cmdADSreadWrite			=0x0009
 }AdsCommandId;
 /*
