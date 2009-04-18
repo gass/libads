@@ -72,17 +72,6 @@ EXPORTSPEC void DECL2 _ADSDumpAMSheader(AMSheader * h) {
     LOG2("invokeId:   %d\n", h->invokeId);
 }
 
-
-/*
-typedef struct _ADSdeviceInfo {
-    u32 ADSerror;
-    uc majorVersion;	// major version number
-    uc minorVersion;	// minor version number
-    us build;		// build number
-    char name[16];	// rely on 16 byte, not terminating #0
-} ADSdeviceInfo;
-*/
-
 EXPORTSPEC char * DECL2 ADSerrorText(int err) {
     switch (err) {
 	case 0: return "ok";
