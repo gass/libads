@@ -101,7 +101,8 @@ long AdsGetLocalAddress( PAmsAddr pAddr )  {
 	return 0;
 } 
 
-/** \brief Changes the ADS status and the device status of an ADS server. 
+/** \brief Changes the ADS status and the device status of an ADS server.
+  *
   * In addition to changing the ADS status and the device status, it is also possible
   * to send data to the ADS server in order to transfer further information.
   * In the current ADS devices (PLC, NC, ...) this data has no further effect.
@@ -270,7 +271,7 @@ static ADSConnection *AdsSocketConnect(PAmsAddr pAddr, PAmsAddr pMeAddr) {
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(0xBF02); /* ADS port 48898 */
 	/* lazy convertion from byte array to socket adress format */
-	sprintf (peer,"%d.%d.%d.%d", pAddr->netId.b1, pAddr->netId.b2, pAddr->netId.b3, pAddr->netId.b4);
+	sprintf (peer,"%d.%d.%d.%d", pAddr->netId.b[0], pAddr->netId.b[1], pAddr->netId.b[2], pAddr->netId.b[3]);
 	inet_aton(peer, &addr.sin_addr);
 	
 	addrlen = sizeof(addr);

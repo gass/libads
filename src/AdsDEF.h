@@ -87,9 +87,7 @@
     4 bytes are identical to the IP Address.
 */
 typedef struct _AMSNetID {
-    unsigned char b1,b2,b3,b4;	// < normally equal to IP address.
-    unsigned char  b5;		// < extra byte defined as 1.
-    unsigned char  b6;		// < extra byte defined as 1.
+    unsigned char b[6];
 } AMSNetID, AmsNetId;
 
 /**
