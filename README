@@ -1,5 +1,41 @@
-ADSclient, ADSclient2, ADSclient3 contact a beckhoff module and do something. I currently do 
-not have the BECKHOOFF documentation at hand nor the modules themselves.
+libAds :: IMPLEMENTATION OF BECKHOFF'S ADS PROTOCOL
+---------------------------------------------------
 
-ADSserver tries to "simulate" the server part of such a module.
+libads's purpose is to provide a way to comunicate with the Beckhoff's Automation modules.
+They comunicate via TCP/IP packets, using an open[1] specification format: ADS.[2]
 
+ADS stands for "Automation Device Specification". 
+
+This is a library started by Thomas Hergenhahn, as part of Visual[3].
+
+WHAT IS LIBADS
+---------------
+LibAds is a 2 layer library:
+ - a low level api
+ - a higher level api, compatible with the oficial Beckhoff's Api[4]
+
+STATE OF LIBADS
+----------------
+the ADS protocol is implemented, as client, by 2 components:
+ - A router (ADS router)
+ - client API (oficial api)
+
+The router is a daemon (in windows is a service) that manages conections to the ADS servers.
+This router is accessed by the AdsAPI.
+
+Currently, libads does not have a router, so the api it self manages (badly) the connections.
+The best approach is to use the lower level api.
+
+FUTURE
+----------------
+Further development is needed to do 3 things:
+ - finnish the support of the official Ads API.
+ - review the code (that is a mess) and implement a better logging and error management.
+ - develop an Ads Router
+
+All all functions, except the notification, where tested with a Beckhoff BC9000.
+
+[1] "Open" as in "They provide the specification"
+[2] http://www.beckhoff.com/download/Document/Software/TwinCAT/1033/TcAdsCommon.pdf
+[3] http://sourceforge.net/projects/visual
+[4] http://www.beckhoff.com/download/Document/Software/TwinCAT/1033/TcAdsDll.pdf
