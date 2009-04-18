@@ -6,7 +6,7 @@ They comunicate via TCP/IP packets, using an open[1] specification format: ADS.[
 
 ADS stands for "Automation Device Specification". 
 
-This is a library started by Thomas Hergenhahn, as part of Visual[3].
+This is a library was started by Thomas Hergenhahn, as part of Visual[3].
 
 WHAT IS LIBADS
 ---------------
