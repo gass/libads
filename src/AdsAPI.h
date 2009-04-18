@@ -58,6 +58,14 @@ long AdsSyncReadDeviceInfoReq( PAmsAddr  pAddr,
 			char * pDevName, 
 			PAdsVersion pVersion );
 
+long AdsSyncReadWriteReq( PAmsAddr pAddr,
+			unsigned long nIndexGroup,
+			unsigned long nIndexOffset,
+			unsigned long nReadLength,
+			void *pReadData,
+			unsigned long nWriteLength,
+			void *pWriteData );
+
 #endif /* __ADSDEF_H__ */
 
 

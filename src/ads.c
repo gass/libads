@@ -410,6 +410,75 @@ EXPORTSPEC int DECL2 ADSreadBytes(ADSConnection *dc, int indexGroup, int offset,
     return -1;
 } 
 
+EXPORTSPEC int DECL2 ADSreadWriteBytes(ADSConnection *dc,
+					int indexGroup,
+					int offset,
+					int readLength,
+					void *readBuffer,
+					int writeLength,
+					void *writeBuffer ) {
+
+	AMSheader *h1;
+	AMS_TCPheader *h2;
+	ADSreadWriteRequest *rq;
+	ADSreadWriteResponse *rr;
+	ADSpacket * p1=(ADSpacket *) dc->msgOut;
+	ADSpacket * p2;
+	h1= &(p1->amsHeader);
+	h2= &(p1->adsHeader);
+	_ADSsetupHeader(dc, h1);
+	h1->commandId=cmdADSreadWrite;
+	h1->dataLength=sizeof(ADSreadWriteRequest)-maxDataLen+writeLength;
+	
+	_ADSDumpAMSheader(h1);
+
+	h2->length=h1->dataLength+sizeof(AMSheader);
+	h2->reserved=0;
+	printf ("lenght: %d\n", h2->length);
+	rq=(ADSreadWriteRequest*) &p1->data;
+	rq->indexGroup=indexGroup;
+	rq->indexOffset=offset;
+	rq->writeLength=writeLength;
+	rq->readLength=readLength;
+	
+	if (writeBuffer != NULL) {
+		memcpy(rq->data, writeBuffer, writeLength);
+	}
+	_ADSDump("packet", dc->msgOut, p1->adsHeader.length+6);
+	
+	if ((ADSDebug & ADSDebugPacket)!=0) { 
+		LOG2("Index Group:   %x\n", rq->indexGroup);
+		LOG2("Index Offset:  %d\n", rq->indexOffset);
+		LOG2("Data length:  %d\n", rq->writeLength);
+	}	
+	_ADSwrite(dc);
+	/*Reads the answer */
+	dc->AnswLen=_ADSReadPacket(dc->iface, dc->msgIn);
+
+	/* Analises the received packet */
+	if (dc->AnswLen>0) {
+		p2 =(ADSpacket *) dc->msgIn;
+		if (p2->amsHeader.commandId==cmdADSreadWrite) {
+
+			_ADSDump(" readpacket", dc->msgIn, dc->AnswLen);
+			rr =(ADSreadWriteResponse *) (dc->msgIn+38);
+			printf ("this  is it %d\n", *rr->data);
+			printf ("this  is it %d\n", readBuffer);
+			memcpy (readBuffer, rr->data, readLength);
+			printf ("this  is it %d\n", readBuffer);			
+		}
+    	}
+
+	else { /* if there is an error */
+   		if ((ADSDebug & ADSDebugPacket)!=0) 
+			_ADSDump("packet", dc->msgIn, dc->AnswLen);
+	    
+		if ((ADSDebug & ADSDebugAnalyze)!=0)
+	    		analyze(dc->msgIn);
+	}        
+    return 0;
+}
+
 EXPORTSPEC int DECL2 ADSreadDeviceInfo(ADSConnection *dc, char * pDevName, PAdsVersion pVersion ) {
 	AMSheader * h1;
 	AMS_TCPheader * h2;
@@ -476,7 +545,7 @@ EXPORTSPEC int DECL2 ADSwriteBytes(ADSConnection *dc, int indexGroup, int offset
 	LOG2("Index Group:   %x\n", rq->indexGroup);
         LOG2("Index Offset:  %d\n", rq->indexOffset);
 	LOG2("Data length:  %d\n", rq->length);
-    }	
+    }
     _ADSwrite(dc);
     dc->AnswLen=_ADSReadPacket(dc->iface, dc->msgIn);
     if (dc->AnswLen>0) {

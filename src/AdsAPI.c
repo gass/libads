@@ -215,6 +215,31 @@ long AdsSyncReadDeviceInfoReq( PAmsAddr  pAddr,
 }
 
 /**
+ * Reads the identification and version number of an ADS server.
+ * \param pAddr Structure with NetId and port number of the ADS server.
+ * \param nIndexGroup Index Group.
+ * \param nIndexOffset Index Offset.
+ * \param nReadLength Length of the data, in bytes, returned by the ADS device.
+ * \param pReadData Buffer with data returned by the ADS device.
+ * \param nWriteLength Length of the data, in bytes, written to the ADS server.
+ * \param pWriteData Buffer with data written to the ADS device.
+ * \return Returns the function's error status.
+ */
+long AdsSyncReadWriteReq( PAmsAddr pAddr,
+			unsigned long nIndexGroup,
+			unsigned long nIndexOffset,
+			unsigned long nReadLength,
+			void *pReadData,
+			unsigned long nWriteLength,
+			void *pWriteData ) { 
+	ADSConnection *dc;
+	dc = AdsSocketConnect(pAddr, NULL);
+ 	ADSreadWriteBytes(dc, nIndexGroup, nIndexOffset, nReadLength, pReadData, nWriteLength, pWriteData);
+
+	return 0;
+}
+
+/**
  * \brief Opens a new onnection to the Ads client.
  * This is an auxiliar function.
  * \param pAddr Structure with NetId and port number of the ADS server.

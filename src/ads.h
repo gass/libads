@@ -352,7 +352,13 @@ EXPORTSPEC int DECL2 ADSwriteControl(ADSConnection *dc, int ADSstate, int devSta
 EXPORTSPEC int DECL2 ADSaddDeviceNotification(ADSConnection *dc, 
     int indexGroup, int offset, int length,
     int transmissionMode, int maxDelay, int cycleTime);
-
+EXPORTSPEC int DECL2 ADSreadWriteBytes(ADSConnection *dc,
+					int indexGroup,
+					int offset,
+					int readLength,
+					void *readBuffer,
+					int writeLength,
+					void *writeBuffer );
 EXPORTSPEC int DECL2 _ADSwrite(ADSConnection *dc);
 
 EXPORTSPEC int DECL2 ADSparseNetID(const char * NetIDstring, AMSNetID * id);
