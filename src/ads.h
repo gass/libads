@@ -137,20 +137,22 @@ typedef struct _AMSheader {
 				// same value
 } AMSheader;
 
-/*
-    Definitions of commands:
-*/
-#define cmdADSinvalid			0x0000
-#define cmdADSreadDevInfo		0x0001
-#define cmdADSread			0x0002
-#define cmdADSwrite			0x0003
-#define cmdADSreadState			0x0004
-#define cmdADSwriteControl		0x0005
-#define cmdADSaddDeviceNotification	0x0006
-#define cmdADSdeleteDeviceNotification	0x0007
-#define cmdADSdevNotify			0x0008
-#define cmdADSreadWrite			0x0009
-
+/**
+ * \brief Ads Command Id for AmsHeader
+ * Other commands are not defined or are used internally. Therefore the Command Id is only allowed to contain the above enumerated values!
+ */
+enum nAdsCommandId {
+	cmdADSinvalid			=0x0000,
+	cmdADSreadDevInfo		=0x0001,
+	cmdADSread			=0x0002,
+	cmdADSwrite			=0x0003,
+	cmdADSreadState			=0x0004,
+	cmdADSwriteControl		=0x0005,
+	cmdADSaddDeviceNotification	=0x0006,
+	cmdADSdeleteDeviceNotification	=0x0007,
+	cmdADSdevNotify			=0x0008,
+	cmdADSreadWrite			=0x0009
+}AdsCommandId;
 /*
     Definitions of bits in stateFlags:
 */
