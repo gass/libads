@@ -66,6 +66,14 @@ long AdsSyncReadWriteReq( PAmsAddr pAddr,
 			unsigned long nWriteLength,
 			void *pWriteData );
 
+long AdsSyncAddDeviceNotificationReq( PAmsAddr pAddr,
+				unsigned long nIndexGroup,
+				unsigned long nIndexOffset,
+				PAdsNotificationAttrib pNoteAttrib,
+				PAdsNotificationFunc   pNoteFunc,
+				unsigned long hUser,
+				unsigned long *pNotification )
+
 #endif /* __ADSDEF_H__ */
 
 

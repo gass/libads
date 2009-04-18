@@ -25,6 +25,10 @@
 #ifndef __ADSDEF_H__
 #define __ADSDEF_H__
 
+#ifndef	ANYSIZE_ARRAY
+#define	ANYSIZE_ARRAY					1
+#endif
+
 /*
  * ADS Available Ports
  */
@@ -142,5 +146,29 @@ typedef enum nAdsState
 	ADSSTATE_RESUME				=14,
 	ADSSTATE_MAXSTATES
 } ADSSTATE;
+
+typedef struct
+{
+	unsigned long	cbLength;
+	ADSTRANSMODE	nTransMode;
+	unsigned long	nMaxDelay;
+	union
+	{
+		unsigned long		nCycleTime;
+		unsigned long		dwChangeFilter;
+	};
+} AdsNotificationAttrib, *PAdsNotificationAttrib;
+
+typedef struct
+{
+	unsigned	long	hNotification;
+	unsigned 	long long	nTimeStamp;
+	unsigned	long	cbSampleSize;
+	unsigned	char	data[ANYSIZE_ARRAY];
+} AdsNotificationHeader, *PAdsNotificationHeader;
+
+typedef void (*PAdsNotificationFunc)( AmsAddr *Addr,
+					AdsNotificationHeader *pNotification,
+					unsigned long hUser );
 
 #endif	// __ADSDEF_H__

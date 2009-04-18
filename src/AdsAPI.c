@@ -241,6 +241,33 @@ long AdsSyncReadWriteReq( PAmsAddr pAddr,
 }
 
 /**
+ * A notification is defined within an ADS server (e.g. PLC). When a certain event occurs a function (the callback
+function) is invoked in the ADS client (C program).
+ * \param pAddr Structure with NetId and port number of the ADS server.
+ * \param nIndexGroup Index Group.
+ * \param nIndexOffset Index Offset.
+ * \param pNoteAttrib Pointer to the structure that contains further information.
+ * \param pNoteFunc Name of the callback function.
+ * \param hUser 32-bit value that is passed to the callback function.
+ * \param pNotification Address of the variable that will receive the handle of the notification.
+ * \return Returns the function's error status.
+ */
+long AdsSyncAddDeviceNotificationReq( PAmsAddr pAddr,
+				unsigned long nIndexGroup,
+				unsigned long nIndexOffset,
+				PAdsNotificationAttrib pNoteAttrib,
+				PAdsNotificationFunc   pNoteFunc,
+				unsigned long hUser,
+				unsigned long *pNotification ) { 
+	ADSConnection *dc;
+	dc = AdsSocketConnect(pAddr, NULL);
+ 	ADSaddDeviceNotification(dc, nIndexGroup, nIndexOffset, pNoteAttrib->cbLength,pNoteAttrib->nTransMode,
+					pNoteAttrib->nMaxDelay, pNoteAttrib->nCycleTime);
+
+	return 0;
+}
+
+/**
  * \brief Opens a new onnection to the Ads client.
  * This is an auxiliar function.
  * \param pAddr Structure with NetId and port number of the ADS server.
