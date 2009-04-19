@@ -166,9 +166,6 @@ long AdsSyncReadReq( PAmsAddr pAddr,
 						void *pData ) {
 	  
 	ADSConnection *dc;
-	AmsAddr MeAddr;
-	PAmsAddr pMeAddr = &MeAddr;
-	MeAddr.netId = (AmsNetId) {172,16,17,1,1,1};
 	dc = AdsSocketConnect(pAddr, NULL);	
  	ADSreadBytes(dc, nIndexGroup, nIndexOffset, nLength, pData);
 	AdsSocketDisconnect();
