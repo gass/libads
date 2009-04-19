@@ -72,7 +72,7 @@ long AdsSyncAddDeviceNotificationReq( PAmsAddr pAddr,
 				PAdsNotificationAttrib pNoteAttrib,
 				PAdsNotificationFunc   pNoteFunc,
 				unsigned long hUser,
-				unsigned long *pNotification )
+				unsigned long *pNotification );
 
 #endif /* __ADSDEF_H__ */
 
