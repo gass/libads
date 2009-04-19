@@ -38,19 +38,19 @@
 static int socket_fd = 0;
 
 static ADSConnection *AdsSocketConnect(PAmsAddr pAddr, PAmsAddr pMeAddr);
+static int AdsSocketDisconnect(void);
 
 /**
-  * Establishes a connection (communication port) to the TwinCAT message router.
+  * \brief Establishes a connection (communication port) to the TwinCAT message router.
+  * For now this is a dummy function
   * \return A port number that has been assigned to the program by the ADS router is returned. 
   */
 int AdsPortOpen(void) {
-	if (socket_fd == 0) {
-		socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-	}
+
 	/*
 	 * TODO: Should return a Port number. But ...
 	 */
-   return 0;
+   return 101;
 }
 
 
@@ -59,11 +59,7 @@ int AdsPortOpen(void) {
  * \return Returns The function's error status. 
  */
 long AdsPortClose(void) {
-	if (socket_fd = 0) {
-		return 0xD; /* Port not connected */
-	}
-	close(socket_fd);
-	socket_fd = 0;
+	
 	return 0;
 }
 
@@ -126,6 +122,7 @@ long AdsSyncWriteControlReq( PAmsAddr pAddr,
 	ADSConnection *dc;
 	dc = AdsSocketConnect(pAddr, NULL);							 
 	ADSwriteControl(dc, nAdsState, nDeviceState, pData, nLength);
+	AdsSocketDisconnect();
 
 	return 0;
 }
@@ -148,6 +145,7 @@ long AdsSyncWriteReq( PAmsAddr pAddr,
 	ADSConnection *dc;
 	dc = AdsSocketConnect(pAddr, NULL);	
  	ADSwriteBytes(dc, nIndexGroup, nIndexOffset, nLength, pData);
+	AdsSocketDisconnect();
 
 	return 0;
 }
@@ -173,6 +171,7 @@ long AdsSyncReadReq( PAmsAddr pAddr,
 	MeAddr.netId = (AmsNetId) {172,16,17,1,1,1};
 	dc = AdsSocketConnect(pAddr, NULL);	
  	ADSreadBytes(dc, nIndexGroup, nIndexOffset, nLength, pData);
+	AdsSocketDisconnect();
 
 	return 0;
 }
@@ -193,6 +192,7 @@ long AdsSyncReadStateReq( PAmsAddr  pAddr,
 	ADSConnection *dc;
 	dc = AdsSocketConnect(pAddr, NULL);
  	ADSreadState(dc, pAdsState, pDeviceState);
+	AdsSocketDisconnect();
 
 	return 0;
 }
@@ -211,6 +211,7 @@ long AdsSyncReadDeviceInfoReq( PAmsAddr  pAddr,
 	ADSConnection *dc;
 	dc = AdsSocketConnect(pAddr, NULL);
  	ADSreadDeviceInfo(dc, pDevName, pVersion );
+	AdsSocketDisconnect();
 
 	return 0;
 }
@@ -236,6 +237,7 @@ long AdsSyncReadWriteReq( PAmsAddr pAddr,
 	ADSConnection *dc;
 	dc = AdsSocketConnect(pAddr, NULL);
  	ADSreadWriteBytes(dc, nIndexGroup, nIndexOffset, nReadLength, pReadData, nWriteLength, pWriteData);
+	AdsSocketDisconnect();
 
 	return 0;
 }
@@ -263,6 +265,7 @@ long AdsSyncAddDeviceNotificationReq( PAmsAddr pAddr,
 	dc = AdsSocketConnect(pAddr, NULL);
  	ADSaddDeviceNotification(dc, nIndexGroup, nIndexOffset, pNoteAttrib->cbLength,pNoteAttrib->nTransMode,
 					pNoteAttrib->nMaxDelay, pNoteAttrib->nCycleTime);
+	AdsSocketDisconnect();
 
 	return 0;
 }
@@ -289,11 +292,9 @@ static ADSConnection *AdsSocketConnect(PAmsAddr pAddr, PAmsAddr pMeAddr) {
 		pMeAddr = &tempAddr;
 		AdsGetLocalAddress( pMeAddr );
 	}
-	/*
-	 * If there is no defined socket already open, exit with error.
-	 */
-	if (socket_fd == 0)
-		return NULL;
+	if (socket_fd==0)
+		socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+	
 	/* Build socket address */
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(0xBF02); /* ADS port 48898 */
@@ -324,5 +325,18 @@ static ADSConnection *AdsSocketConnect(PAmsAddr pAddr, PAmsAddr pMeAddr) {
 	dc=ADSNewConnection(di,pAddr->netId, pAddr->port);
 	
 	return dc;
+}
+
+/**
+ * \brief Closes the connection socket opened by AdsSocketConnect
+ * \return Error code
+ */
+static int AdsSocketDisconnect(void) {
+	if (socket_fd==0) {
+		return 0xD; /* Port not connected */
+	}
+	close(socket_fd);
+	socket_fd = 0;
+	return 0;
 }
 
