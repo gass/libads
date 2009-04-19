@@ -691,6 +691,77 @@ EXPORTSPEC int DECL2 ADSparseNetID(const char * netIDstring, AMSNetID * id) {
     }	
     return 0;
 }
+
+/**
+ * \brief Opens a new onnection to the Ads client.
+ * This is an auxiliar function.
+ * \param pAddr Structure with NetId and port number of the ADS server.
+ * \param pMeAddr Structure with NetId and port number of the ADS client (local).
+ * If the supplied pointer is NULL, then the address is automatically found and used.
+ * \return An ADSConnection pointer.
+ */
+ADSConnection *AdsSocketConnect(PAmsAddr pAddr, PAmsAddr pMeAddr) {
+
+	struct sockaddr_in addr;
+	socklen_t addrlen;   
+	char peer[12];
+	int opt;
+	ADSInterface *di;
+	ADSConnection *dc;
+	_ADSOSserialType fds;
+	if (pMeAddr == NULL) {
+		AmsAddr tempAddr;
+		pMeAddr = &tempAddr;
+		AdsGetLocalAddress( pMeAddr );
+	}
+	if (socket_fd==0)
+		socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+	
+	/* Build socket address */
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(0xBF02); /* ADS port 48898 */
+	/* lazy convertion from byte array to socket adress format */
+	sprintf (peer,"%d.%d.%d.%d", pAddr->netId.b[0], pAddr->netId.b[1], pAddr->netId.b[2], pAddr->netId.b[3]);
+	inet_aton(peer, &addr.sin_addr);
+	
+	addrlen = sizeof(addr);
+	
+	/* connect to plc */
+	if (connect(socket_fd, (struct sockaddr *) & addr, addrlen)) {
+		printf("Socket error: %s \n", 0000);
+		return NULL;
+	}
+	if (ADSDebug & ADSDebugOpen) {
+		printf ("connected to %s", peer);
+	}  
+	errno=0;
+	opt=1;
+	setsockopt(socket_fd, SOL_SOCKET, SO_KEEPALIVE, &opt, 4);
+	if (ADSDebug & ADSDebugOpen) {	
+		printf("setsockopt %s %d\n", strerror(errno),0);
+	}  
+	
+	fds.rfd=socket_fd;
+	fds.wfd=socket_fd;
+	di=ADSNewInterface(fds,pMeAddr->netId, pAddr->port,"test");
+	dc=ADSNewConnection(di,pAddr->netId, pAddr->port);
+	
+	return dc;
+}
+
+/**
+ * \brief Closes the connection socket opened by AdsSocketConnect
+ * \return Error code
+ */
+int AdsSocketDisconnect(void) {
+	if (socket_fd==0) {
+		return 0xD; /* Port not connected */
+	}
+	close(socket_fd);
+	socket_fd = 0;
+	return 0;
+}
+
 /*
     Changes:
     03/12/2005 	added ADSparseNetID

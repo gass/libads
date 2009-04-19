@@ -375,6 +375,9 @@ EXPORTSPEC int DECL2 _ADSwrite(ADSConnection *dc);
 
 EXPORTSPEC int DECL2 ADSparseNetID(const char * NetIDstring, AMSNetID * id);
 
+ADSConnection *AdsSocketConnect(PAmsAddr pAddr, PAmsAddr pMeAddr);
+
+int AdsSocketDisconnect(void);
 #endif /* __ADS */
 
 #ifdef __cplusplus
