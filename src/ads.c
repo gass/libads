@@ -231,6 +231,7 @@ int freeADSInterface (ADSInterface *di) {
  * Frees the allocated space for ADSConnection
  */
 int freeADSConnection (ADSConnection *dc) {
+	freeADSInterface (dc->iface);
 	free (dc);
 }
 
