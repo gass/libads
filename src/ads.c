@@ -29,7 +29,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <errno.h>
 
 #include "log2.h"
 
@@ -217,6 +219,20 @@ EXPORTSPEC ADSInterface * DECL2 ADSNewInterface(_ADSOSserialType nfd, AMSNetID m
     }
     return di;	
 };
+
+/**
+ * Frees the allocated space for ADSInterface
+ */
+int freeADSInterface (ADSInterface *di) {
+	free (di);
+}
+
+/**
+ * Frees the allocated space for ADSConnection
+ */
+int freeADSConnection (ADSConnection *dc) {
+	free (dc);
+}
 
 /** 
     This will setup a new connection structure using an initialized
@@ -429,7 +445,6 @@ EXPORTSPEC int DECL2 ADSreadWriteBytes(ADSConnection *dc,
 	rq->indexOffset=offset;
 	rq->writeLength=writeLength;
 	rq->readLength=readLength;
-	
 	if (writeBuffer != NULL) {
 		memcpy(rq->data, writeBuffer, writeLength);
 	}
@@ -700,7 +715,7 @@ EXPORTSPEC int DECL2 ADSparseNetID(const char * netIDstring, AMSNetID * id) {
  * If the supplied pointer is NULL, then the address is automatically found and used.
  * \return An ADSConnection pointer.
  */
-ADSConnection *AdsSocketConnect(PAmsAddr pAddr, PAmsAddr pMeAddr) {
+ADSConnection *AdsSocketConnect(int *socket_fd, PAmsAddr pAddr, PAmsAddr pMeAddr) {
 
 	struct sockaddr_in addr;
 	socklen_t addrlen;   
@@ -714,8 +729,8 @@ ADSConnection *AdsSocketConnect(PAmsAddr pAddr, PAmsAddr pMeAddr) {
 		pMeAddr = &tempAddr;
 		AdsGetLocalAddress( pMeAddr );
 	}
-	if (socket_fd==0)
-		socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (*socket_fd==0)
+		*socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 	
 	/* Build socket address */
 	addr.sin_family = AF_INET;
@@ -727,7 +742,7 @@ ADSConnection *AdsSocketConnect(PAmsAddr pAddr, PAmsAddr pMeAddr) {
 	addrlen = sizeof(addr);
 	
 	/* connect to plc */
-	if (connect(socket_fd, (struct sockaddr *) & addr, addrlen)) {
+	if (connect(*socket_fd, (struct sockaddr *) & addr, addrlen)) {
 		printf("Socket error: %s \n", 0000);
 		return NULL;
 	}
@@ -736,13 +751,13 @@ ADSConnection *AdsSocketConnect(PAmsAddr pAddr, PAmsAddr pMeAddr) {
 	}  
 	errno=0;
 	opt=1;
-	setsockopt(socket_fd, SOL_SOCKET, SO_KEEPALIVE, &opt, 4);
+	setsockopt(*socket_fd, SOL_SOCKET, SO_KEEPALIVE, &opt, 4);
 	if (ADSDebug & ADSDebugOpen) {	
 		printf("setsockopt %s %d\n", strerror(errno),0);
 	}  
 	
-	fds.rfd=socket_fd;
-	fds.wfd=socket_fd;
+	fds.rfd=*socket_fd;
+	fds.wfd=*socket_fd;
 	di=ADSNewInterface(fds,pMeAddr->netId, pAddr->port,"test");
 	dc=ADSNewConnection(di,pAddr->netId, pAddr->port);
 	
@@ -753,12 +768,12 @@ ADSConnection *AdsSocketConnect(PAmsAddr pAddr, PAmsAddr pMeAddr) {
  * \brief Closes the connection socket opened by AdsSocketConnect
  * \return Error code
  */
-int AdsSocketDisconnect(void) {
-	if (socket_fd==0) {
+int AdsSocketDisconnect(int * fd) {
+	if (*fd==0) {
 		return 0xD; /* Port not connected */
 	}
-	close(socket_fd);
-	socket_fd = 0;
+	close(*fd);
+	*fd = 0;
 	return 0;
 }
 

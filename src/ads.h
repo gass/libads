@@ -30,6 +30,7 @@ extern "C" {
 #define __ADS
 
 #include "AdsDEF.h"
+#include <stdio.h>
 
 /* 
     Some simple types:
@@ -375,9 +376,14 @@ EXPORTSPEC int DECL2 _ADSwrite(ADSConnection *dc);
 
 EXPORTSPEC int DECL2 ADSparseNetID(const char * NetIDstring, AMSNetID * id);
 
-ADSConnection *AdsSocketConnect(PAmsAddr pAddr, PAmsAddr pMeAddr);
+ADSConnection *AdsSocketConnect(int *socket_fd, PAmsAddr pAddr, PAmsAddr pMeAddr);
 
-int AdsSocketDisconnect(void);
+int AdsSocketDisconnect(int * fd);
+
+int freeADSInterface (ADSInterface *di);
+
+int freeADSConnection (ADSConnection *dc);
+
 #endif /* __ADS */
 
 #ifdef __cplusplus

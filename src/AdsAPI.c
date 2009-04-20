@@ -117,9 +117,10 @@ long AdsSyncWriteControlReq( PAmsAddr pAddr,
 							void *pData ) {
 								 
 	ADSConnection *dc;
-	dc = AdsSocketConnect(pAddr, NULL);							 
+	dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
+	socket_fd = dc->iface->fd.rfd;							 
 	ADSwriteControl(dc, nAdsState, nDeviceState, pData, nLength);
-	AdsSocketDisconnect();
+	AdsSocketDisconnect(&socket_fd);
 
 	return 0;
 }
@@ -140,9 +141,11 @@ long AdsSyncWriteReq( PAmsAddr pAddr,
 						void *pData ) {
 	  
 	ADSConnection *dc;
-	dc = AdsSocketConnect(pAddr, NULL);	
+	dc = AdsSocketConnect(&socket_fd, pAddr, NULL);	
+	socket_fd = dc->iface->fd.rfd;	
  	ADSwriteBytes(dc, nIndexGroup, nIndexOffset, nLength, pData);
-	AdsSocketDisconnect();
+	AdsSocketDisconnect(&socket_fd);
+	freeADSConnection (dc);
 
 	return 0;
 }
@@ -163,9 +166,10 @@ long AdsSyncReadReq( PAmsAddr pAddr,
 						void *pData ) {
 	  
 	ADSConnection *dc;
-	dc = AdsSocketConnect(pAddr, NULL);	
+	dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
+	socket_fd = dc->iface->fd.rfd;
  	ADSreadBytes(dc, nIndexGroup, nIndexOffset, nLength, pData);
-	AdsSocketDisconnect();
+	AdsSocketDisconnect(&socket_fd);
 
 	return 0;
 }
@@ -184,9 +188,9 @@ long AdsSyncReadStateReq( PAmsAddr  pAddr,
 			unsigned short *pDeviceState ){
 
 	ADSConnection *dc;
-	dc = AdsSocketConnect(pAddr, NULL);
+	dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
  	ADSreadState(dc, pAdsState, pDeviceState);
-	AdsSocketDisconnect();
+	AdsSocketDisconnect(&socket_fd);
 
 	return 0;
 }
@@ -203,9 +207,10 @@ long AdsSyncReadDeviceInfoReq( PAmsAddr  pAddr,
 			PAdsVersion pVersion ){
 
 	ADSConnection *dc;
-	dc = AdsSocketConnect(pAddr, NULL);
+	dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
+	socket_fd = dc->iface->fd.rfd;
  	ADSreadDeviceInfo(dc, pDevName, pVersion );
-	AdsSocketDisconnect();
+	AdsSocketDisconnect(&socket_fd);
 
 	return 0;
 }
@@ -229,9 +234,10 @@ long AdsSyncReadWriteReq( PAmsAddr pAddr,
 			unsigned long nWriteLength,
 			void *pWriteData ) { 
 	ADSConnection *dc;
-	dc = AdsSocketConnect(pAddr, NULL);
+	dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
+	socket_fd = dc->iface->fd.rfd;
  	ADSreadWriteBytes(dc, nIndexGroup, nIndexOffset, nReadLength, pReadData, nWriteLength, pWriteData);
-	AdsSocketDisconnect();
+	AdsSocketDisconnect(&socket_fd);
 
 	return 0;
 }
@@ -256,10 +262,11 @@ long AdsSyncAddDeviceNotificationReq( PAmsAddr pAddr,
 				unsigned long hUser,
 				unsigned long *pNotification ) { 
 	ADSConnection *dc;
-	dc = AdsSocketConnect(pAddr, NULL);
+	dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
+	socket_fd = dc->iface->fd.rfd;
  	ADSaddDeviceNotification(dc, nIndexGroup, nIndexOffset, pNoteAttrib->cbLength,pNoteAttrib->nTransMode,
 					pNoteAttrib->nMaxDelay, pNoteAttrib->nCycleTime);
-	AdsSocketDisconnect();
+	AdsSocketDisconnect(&socket_fd);
 
 	return 0;
 }
