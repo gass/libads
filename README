@@ -6,7 +6,15 @@ They comunicate via TCP/IP packets, using an open[1] specification format: ADS.[
 
 ADS stands for "Automation Device Specification". 
 
-This is a library was started by Thomas Hergenhahn, as part of Visual[3].
+This is a library that was started by Thomas Hergenhahn, as part of Visual[3].
+
+CONTACT AND DISCUSSION
+-----------------------
+
+You can contact the authors, but it is preferred to use the general mailling list:
+List email address: beckhoff-linux@googlegroups.com
+Lista archive: http://groups.google.com/group/beckhoff-linux
+
 
 WHAT IS LIBADS
 ---------------
