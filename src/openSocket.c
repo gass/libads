@@ -45,20 +45,21 @@
 
 extern int ADSDebug;
 
-int openSocket(const int port, const char * peer) {
-    int fd,res,opt;
+int openSocket(const int port, const char *peer)
+{
+    int fd, res, opt;
     struct sockaddr_in addr;
     socklen_t addrlen;
-#ifndef DONT_USE_GETHOSTBYNAME    
+#ifndef DONT_USE_GETHOSTBYNAME
     struct hostent *he;
-#endif    
+#endif
     if (ADSDebug & ADSDebugOpen) {
 	LOG1(ThisModule "enter OpenSocket");
 	FLUSH;
     }
     addr.sin_family = AF_INET;
-    addr.sin_port =htons(port);
-//	(((port) & 0xff) << 8) | (((port) & 0xff00) >> 8);
+    addr.sin_port = htons(port);
+//      (((port) & 0xff) << 8) | (((port) & 0xff00) >> 8);
 #ifndef DONT_USE_GETHOSTBYNAME
     he = gethostbyname(peer);
     memcpy(&addr.sin_addr, he->h_addr_list[0], sizeof(addr.sin_addr));
@@ -69,40 +70,40 @@ int openSocket(const int port, const char * peer) {
     fd = socket(AF_INET, SOCK_STREAM, 0);
     if (ADSDebug & ADSDebugOpen) {
 	LOG2(ThisModule "OpenSocket: socket is %d\n", fd);
-    }	
-    if (ADSDebug & ADSDebugOpen) {
-	LOG3(ThisModule "setsockopt %s %d\n", strerror(errno),res);
     }
-    
+    if (ADSDebug & ADSDebugOpen) {
+	LOG3(ThisModule "setsockopt %s %d\n", strerror(errno), res);
+    }
+
     addrlen = sizeof(addr);
-    if (connect(fd, (struct sockaddr *) & addr, addrlen)) {
+    if (connect(fd, (struct sockaddr *) &addr, addrlen)) {
 	LOG2(ThisModule "Socket error: %s \n", strerror(errno));
 	close(fd);
 	fd = 0;
     } else {
 	if (ADSDebug & ADSDebugOpen) {
 	    LOG2(ThisModule "Connected to host: %s \n", peer);
-	}    
+	}
 /*
 	Need this, so we can read a packet with a single read call and make
 	read return if there are too few bytes.
-*/	
-	errno=0;
-//	res=fcntl(fd, F_SETFL, O_NONBLOCK);
-//	if (ADSDebug & ADSDebugOpen) 
-//	    LOG3(ThisModule "Set mode to O_NONBLOCK %s %d\n", strerror(errno),res);
+*/
+	errno = 0;
+//      res=fcntl(fd, F_SETFL, O_NONBLOCK);
+//      if (ADSDebug & ADSDebugOpen) 
+//          LOG3(ThisModule "Set mode to O_NONBLOCK %s %d\n", strerror(errno),res);
 /*
 	I thought this might solve Marc's problem with the CP closing
 	a connection after 30 seconds or so, but the Standrad keepalive time
 	on my box is 7200 seconds.	    
-*/	
-	errno=0;
-	opt=1;
-	res=setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &opt, 4);
-	if (ADSDebug & ADSDebugOpen) {	
-	    LOG3(ThisModule "setsockopt %s %d\n", strerror(errno),res);	
-	}    
-    }	
+*/
+	errno = 0;
+	opt = 1;
+	res = setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &opt, 4);
+	if (ADSDebug & ADSDebugOpen) {
+	    LOG3(ThisModule "setsockopt %s %d\n", strerror(errno), res);
+	}
+    }
     FLUSH;
     return fd;
 }

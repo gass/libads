@@ -1,5 +1,6 @@
 
-lib_LTLIBRARIES = libads.la
+lib_LTLIBRARIES = libads.la \
+	libadsAPI.la
 libads_la_SOURCES = ads.c \
 					ads.h \
 					AdsAPI.c\
@@ -7,8 +8,16 @@ libads_la_SOURCES = ads.c \
 					AdsDEF.h\
 					log2.h
 
+libadsAPI_la_SOURCES = \
+	AdsAPI.c      \
+	AdsAPI.h      \
+	AdsDEF.h
+
+libadsAPI_la_LIBADD = \
+	libads
+
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA=libads.pc.in
 
-EXTRA_DIST=libads.pc.in ads.h
+EXTRA_DIST=libads.pc.in 
  

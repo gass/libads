@@ -34,7 +34,7 @@
 
 
 #ifndef DONT_USE_GETHOSTBYNAME
-//#include <netdb.h>		// for gethostbyname
+//#include <netdb.h>            // for gethostbyname
 #endif
 
 #include <stdio.h>
@@ -51,16 +51,18 @@
 extern int ADSDebug;
 #define DONT_USE_GETHOSTBYNAME
 
-__declspec (dllexport) HANDLE __stdcall openSocket(const int port, const char * peer) {
+__declspec(dllexport)
+HANDLE __stdcall openSocket(const int port, const char *peer)
+{
     int res;
     SOCKET fd;
     struct sockaddr_in addr;
     int addrlen;
     WSADATA wsadata;
-    res=WSAStartup(MAKEWORD(2,0), &wsadata);
-#ifndef DONT_USE_GETHOSTBYNAME    
+    res = WSAStartup(MAKEWORD(2, 0), &wsadata);
+#ifndef DONT_USE_GETHOSTBYNAME
     struct hostent *he;
-#endif    
+#endif
     if (ADSDebug & ADSDebugOpen) {
 	LOG1(ThisModule "enter OpenSocket\n");
 	FLUSH;
@@ -68,85 +70,84 @@ __declspec (dllexport) HANDLE __stdcall openSocket(const int port, const char * 
     addr.sin_family = AF_INET;
     if (ADSDebug & ADSDebugOpen) {
 	LOG1(ThisModule "1\n");
-        FLUSH;
-    }	
+	FLUSH;
+    }
 
-    addr.sin_port =htons(port);
-//addr.sin_port =	(((port) & 0xff) << 8) | (((port) & 0xff00) >> 8);
-	if (ADSDebug & ADSDebugOpen) {
-	    printf(ThisModule "2 %04X\n",addr.sin_port);
-	    FLUSH;
-	}    
-
+    addr.sin_port = htons(port);
+//addr.sin_port =       (((port) & 0xff) << 8) | (((port) & 0xff00) >> 8);
+    if (ADSDebug & ADSDebugOpen) {
+	printf(ThisModule "2 %04X\n", addr.sin_port);
+	FLUSH;
+    }
 #ifndef DONT_USE_GETHOSTBYNAME
-	if (ADSDebug & ADSDebugOpen) {
-	    LOG1(ThisModule "3\n");
-	    FLUSH;
-	}    
+    if (ADSDebug & ADSDebugOpen) {
+	LOG1(ThisModule "3\n");
+	FLUSH;
+    }
 
     he = gethostbyname(peer);
-	LOG1(ThisModule "4\n");
-	FLUSH;
+    LOG1(ThisModule "4\n");
+    FLUSH;
 
     memcpy(&addr.sin_addr, he->h_addr_list[0], sizeof(addr.sin_addr));
     if (ADSDebug & ADSDebugOpen) {
 	LOG1(ThisModule "5\n");
 	FLUSH;
-    }	
-
+    }
 #else
-   // inet_aton(peer, &addr.sin_addr);
-  addr.sin_addr.s_addr=inet_addr(peer);
-  if (ADSDebug & ADSDebugOpen) {
-	printf(ThisModule "peer:%s=%d\n",peer,inet_addr(peer));
+    // inet_aton(peer, &addr.sin_addr);
+    addr.sin_addr.s_addr = inet_addr(peer);
+    if (ADSDebug & ADSDebugOpen) {
+	printf(ThisModule "peer:%s=%d\n", peer, inet_addr(peer));
 	FLUSH;
-  }	
+    }
 
 
-  if (ADSDebug & ADSDebugOpen) {
+    if (ADSDebug & ADSDebugOpen) {
 	LOG1(ThisModule "6\n");
 	FLUSH;
-    }	
-
+    }
 #endif
 
     fd = socket(AF_INET, SOCK_STREAM, 6);
     if (ADSDebug & ADSDebugOpen) {
 	LOG1(ThisModule "7\n");
 	FLUSH;
-    }	
+    }
 
     if (ADSDebug & ADSDebugOpen) {
 	LOG2(ThisModule "socket is %d\n", fd);
-   }	
-   if (ADSDebug & ADSDebugOpen) {
-	LOG3(ThisModule "setsockopt %s %d\n", strerror(WSAGetLastError()),WSAGetLastError());
-   }
-    
+    }
+    if (ADSDebug & ADSDebugOpen) {
+	LOG3(ThisModule "setsockopt %s %d\n", strerror(WSAGetLastError()),
+	     WSAGetLastError());
+    }
+
     addrlen = sizeof(addr);
     if (ADSDebug & ADSDebugOpen) {
 	LOG1(ThisModule "8\n");
 	FLUSH;
-    }	
-   if (bind(fd, (struct sockaddr *) & addr, addrlen)) {
+    }
+    if (bind(fd, (struct sockaddr *) &addr, addrlen)) {
 	LOG2(ThisModule "bind Socket error: %s \n", strerror(errno));
     }
-    if (connect(fd, (struct sockaddr *) & addr, addrlen)) {
+    if (connect(fd, (struct sockaddr *) &addr, addrlen)) {
 	if (ADSDebug & ADSDebugOpen) {
-	    LOG2(ThisModule "connect Socket error: %s \n", strerror(errno));
-	}    
-//	socketClose(fd);
+	    LOG2(ThisModule "connect Socket error: %s \n",
+		 strerror(errno));
+	}
+//      socketClose(fd);
 	closesocket(fd);
 	fd = 0;
     } else {
-//	if (ADSDebug & ADSDebugOpen) {
-	    LOG2(ThisModule "Connected to host: %s \n", peer);
-//	}    
+//      if (ADSDebug & ADSDebugOpen) {
+	LOG2(ThisModule "Connected to host: %s \n", peer);
+//      }    
 /*
 	Need this, so we can read a packet with a single read call and make
 	read return if there are too few bytes.
-*/	
-	errno=0;
+*/
+	errno = 0;
 /*
 	res=fcntl(fd, F_SETFL, O_NONBLOCK);
 	if (ADSDebug & ADSDebugOpen) 
@@ -160,8 +161,8 @@ __declspec (dllexport) HANDLE __stdcall openSocket(const int port, const char * 
 	opt=1;
 	res=setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &opt, 4);
 	LOG3(ThisModule "setsockopt %s %d\n", strerror(errno),res);
-*/	
-    }	
+*/
+    }
     FLUSH;
     return (HANDLE) fd;
 }

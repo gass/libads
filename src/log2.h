@@ -37,7 +37,7 @@
 
 #define LOG_1(a) fprintf(logout,a)
 #define LOG_2(a,b) fprintf(logout,a,b)
-#endif /* HAVE_PRINTF */
+#endif				/* HAVE_PRINTF */
 
 #ifdef NO_PRINT_CODE
 #define LOG1(x)
@@ -50,8 +50,8 @@
 #define FLUSH
 
 #define LOG_1(a)
-#define LOG_2(a,b) 
-#endif /*  NO_PRINT_CODE */
+#define LOG_2(a,b)
+#endif				/*  NO_PRINT_CODE */
 
-				
-#endif /* __log */
+
+#endif				/* __log */

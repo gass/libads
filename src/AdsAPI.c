@@ -42,12 +42,13 @@ static int socket_fd = 0;
   * For now this is a dummy function
   * \return A port number that has been assigned to the program by the ADS router is returned. 
   */
-int AdsPortOpen(void) {
+int AdsPortOpen(void)
+{
 
-	/*
-	 * TODO: Should return a Port number. But ...
-	 */
-   return 101;
+    /*
+     * TODO: Should return a Port number. But ...
+     */
+    return 101;
 }
 
 
@@ -55,9 +56,10 @@ int AdsPortOpen(void) {
  * The connection (communication port) to the TwinCAT message router is closed. 
  * \return Returns The function's error status. 
  */
-long AdsPortClose(void) {
-	
-	return 0;
+long AdsPortClose(void)
+{
+
+    return 0;
 }
 
 /**
@@ -65,34 +67,36 @@ long AdsPortClose(void) {
   * \return Returns the function's error status. 
   * \param pAddr Pointer to the structure of type AmsAddr. 
   */
-long AdsGetLocalAddress( PAmsAddr pAddr )  {
-	struct ifaddrs *list;
-	unsigned char b[4];
-	unsigned long int netAddr;
-	struct sockaddr_in *addrStruct;
-	
-	if(getifaddrs(&list) < 0)
-	{	
-		return 0;
-	}
-	
-	struct ifaddrs *cur;	
-	for(cur = list; cur != NULL; cur = cur->ifa_next)
-	{
-		if ((cur->ifa_addr->sa_family == AF_INET) && (strcmp(cur->ifa_name, "lo") != 0) ) {
-			addrStruct = (struct sockaddr_in *)cur->ifa_addr;
-			netAddr = ntohl (addrStruct->sin_addr.s_addr);
-			memcpy ((char *) &b, (char *)&netAddr,4);
-			pAddr->netId = (AmsNetId) {b[3], b[2], b[1], b[0], 1, 1};
-			break;
-		}
-		if (cur->ifa_next == NULL)
-			pAddr->netId = (AmsNetId) {127,0,0,1,1,1};
-	}	
-	freeifaddrs(list);
+long AdsGetLocalAddress(PAmsAddr pAddr)
+{
+    struct ifaddrs *list;
+    unsigned char b[4];
+    unsigned long int netAddr;
+    struct sockaddr_in *addrStruct;
 
+    if (getifaddrs(&list) < 0) {
 	return 0;
-} 
+    }
+
+    struct ifaddrs *cur;
+    for (cur = list; cur != NULL; cur = cur->ifa_next) {
+	if ((cur->ifa_addr->sa_family == AF_INET)
+	    && (strcmp(cur->ifa_name, "lo") != 0)) {
+	    addrStruct = (struct sockaddr_in *) cur->ifa_addr;
+	    netAddr = ntohl(addrStruct->sin_addr.s_addr);
+	    memcpy((char *) &b, (char *) &netAddr, 4);
+	    pAddr->netId = (AmsNetId) {
+	    b[3], b[2], b[1], b[0], 1, 1};
+	    break;
+	}
+	if (cur->ifa_next == NULL)
+	    pAddr->netId = (AmsNetId) {
+	    127, 0, 0, 1, 1, 1};
+    }
+    freeifaddrs(list);
+
+    return 0;
+}
 
 /** \brief Changes the ADS status and the device status of an ADS server.
   *
@@ -110,20 +114,20 @@ long AdsGetLocalAddress( PAmsAddr pAddr )  {
   * \param pData Pointer to data sent additionally to the ADS device. 
   * \return Returns the function's error status. 
   */
-long AdsSyncWriteControlReq( PAmsAddr pAddr,
-							unsigned short nAdsState,
-							unsigned short nDeviceState,
-							unsigned long nLength,
-							void *pData ) {
-								 
-	ADSConnection *dc;
-	dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
-	socket_fd = dc->iface->fd.rfd;							 
-	ADSwriteControl(dc, nAdsState, nDeviceState, pData, nLength);
-	AdsSocketDisconnect(&socket_fd);
-	freeADSConnection (dc);
+long AdsSyncWriteControlReq(PAmsAddr pAddr,
+			    unsigned short nAdsState,
+			    unsigned short nDeviceState,
+			    unsigned long nLength, void *pData)
+{
 
-	return 0;
+    ADSConnection *dc;
+    dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
+    socket_fd = dc->iface->fd.rfd;
+    ADSwriteControl(dc, nAdsState, nDeviceState, pData, nLength);
+    AdsSocketDisconnect(&socket_fd);
+    freeADSConnection(dc);
+
+    return 0;
 }
 
 /**
@@ -135,20 +139,20 @@ long AdsSyncWriteControlReq( PAmsAddr pAddr,
   * \param pData Pointer to the data written to the ADS server. 
   * \return Returns the function's error status.
   */
-long AdsSyncWriteReq( PAmsAddr pAddr,
-						unsigned long nIndexGroup,
-						unsigned long nIndexOffset,
-						unsigned long nLength,
-						void *pData ) {
-	  
-	ADSConnection *dc;
-	dc = AdsSocketConnect(&socket_fd, pAddr, NULL);	
-	socket_fd = dc->iface->fd.rfd;	
- 	ADSwriteBytes(dc, nIndexGroup, nIndexOffset, nLength, pData);
-	AdsSocketDisconnect(&socket_fd);
-	freeADSConnection (dc);
+long AdsSyncWriteReq(PAmsAddr pAddr,
+		     unsigned long nIndexGroup,
+		     unsigned long nIndexOffset,
+		     unsigned long nLength, void *pData)
+{
 
-	return 0;
+    ADSConnection *dc;
+    dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
+    socket_fd = dc->iface->fd.rfd;
+    ADSwriteBytes(dc, nIndexGroup, nIndexOffset, nLength, pData);
+    AdsSocketDisconnect(&socket_fd);
+    freeADSConnection(dc);
+
+    return 0;
 }
 
 /**
@@ -160,20 +164,20 @@ long AdsSyncWriteReq( PAmsAddr pAddr,
  * \param pData Pointer to the data written to the ADS server. 
  * \return Returns the function's error status.
  */
-long AdsSyncReadReq( PAmsAddr pAddr,
-						unsigned long nIndexGroup,
-						unsigned long nIndexOffset,
-						unsigned long nLength,
-						void *pData ) {
-	  
-	ADSConnection *dc;
-	dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
-	socket_fd = dc->iface->fd.rfd;
- 	ADSreadBytes(dc, nIndexGroup, nIndexOffset, nLength, pData);
-	AdsSocketDisconnect(&socket_fd);
-	freeADSConnection (dc);
+long AdsSyncReadReq(PAmsAddr pAddr,
+		    unsigned long nIndexGroup,
+		    unsigned long nIndexOffset,
+		    unsigned long nLength, void *pData)
+{
 
-	return 0;
+    ADSConnection *dc;
+    dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
+    socket_fd = dc->iface->fd.rfd;
+    ADSreadBytes(dc, nIndexGroup, nIndexOffset, nLength, pData);
+    AdsSocketDisconnect(&socket_fd);
+    freeADSConnection(dc);
+
+    return 0;
 }
 
 /**
@@ -185,17 +189,18 @@ long AdsSyncReadReq( PAmsAddr pAddr,
  * \return Returns the function's error status.
  *
  */
-long AdsSyncReadStateReq( PAmsAddr  pAddr, 
-			unsigned short *pAdsState, 
-			unsigned short *pDeviceState ){
+long AdsSyncReadStateReq(PAmsAddr pAddr,
+			 unsigned short *pAdsState,
+			 unsigned short *pDeviceState)
+{
 
-	ADSConnection *dc;
-	dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
- 	ADSreadState(dc, pAdsState, pDeviceState);
-	AdsSocketDisconnect(&socket_fd);
-	freeADSConnection (dc);
+    ADSConnection *dc;
+    dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
+    ADSreadState(dc, pAdsState, pDeviceState);
+    AdsSocketDisconnect(&socket_fd);
+    freeADSConnection(dc);
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -205,18 +210,18 @@ long AdsSyncReadStateReq( PAmsAddr  pAddr,
  * \param pVersion Address of a variable of type AdsVersion, which will receive the version number, revision number and the build number.
  * \return Returns the function's error status.
  */
-long AdsSyncReadDeviceInfoReq( PAmsAddr  pAddr, 
-			char * pDevName, 
-			PAdsVersion pVersion ){
+long AdsSyncReadDeviceInfoReq(PAmsAddr pAddr,
+			      char *pDevName, PAdsVersion pVersion)
+{
 
-	ADSConnection *dc;
-	dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
-	socket_fd = dc->iface->fd.rfd;
- 	ADSreadDeviceInfo(dc, pDevName, pVersion );
-	AdsSocketDisconnect(&socket_fd);
-	freeADSConnection (dc);
+    ADSConnection *dc;
+    dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
+    socket_fd = dc->iface->fd.rfd;
+    ADSreadDeviceInfo(dc, pDevName, pVersion);
+    AdsSocketDisconnect(&socket_fd);
+    freeADSConnection(dc);
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -230,21 +235,22 @@ long AdsSyncReadDeviceInfoReq( PAmsAddr  pAddr,
  * \param pWriteData Buffer with data written to the ADS device.
  * \return Returns the function's error status.
  */
-long AdsSyncReadWriteReq( PAmsAddr pAddr,
-			unsigned long nIndexGroup,
-			unsigned long nIndexOffset,
-			unsigned long nReadLength,
-			void *pReadData,
-			unsigned long nWriteLength,
-			void *pWriteData ) { 
-	ADSConnection *dc;
-	dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
-	socket_fd = dc->iface->fd.rfd;
- 	ADSreadWriteBytes(dc, nIndexGroup, nIndexOffset, nReadLength, pReadData, nWriteLength, pWriteData);
-	AdsSocketDisconnect(&socket_fd);
-	freeADSConnection (dc);
+long AdsSyncReadWriteReq(PAmsAddr pAddr,
+			 unsigned long nIndexGroup,
+			 unsigned long nIndexOffset,
+			 unsigned long nReadLength,
+			 void *pReadData,
+			 unsigned long nWriteLength, void *pWriteData)
+{
+    ADSConnection *dc;
+    dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
+    socket_fd = dc->iface->fd.rfd;
+    ADSreadWriteBytes(dc, nIndexGroup, nIndexOffset, nReadLength,
+		      pReadData, nWriteLength, pWriteData);
+    AdsSocketDisconnect(&socket_fd);
+    freeADSConnection(dc);
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -259,21 +265,24 @@ function) is invoked in the ADS client (C program).
  * \param pNotification Address of the variable that will receive the handle of the notification.
  * \return Returns the function's error status.
  */
-long AdsSyncAddDeviceNotificationReq( PAmsAddr pAddr,
-				unsigned long nIndexGroup,
-				unsigned long nIndexOffset,
-				PAdsNotificationAttrib pNoteAttrib,
-				PAdsNotificationFunc   pNoteFunc,
-				unsigned long hUser,
-				unsigned long *pNotification ) { 
-	ADSConnection *dc;
-	dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
-	socket_fd = dc->iface->fd.rfd;
- 	ADSaddDeviceNotification(dc, nIndexGroup, nIndexOffset, pNoteAttrib->cbLength,pNoteAttrib->nTransMode,
-					pNoteAttrib->nMaxDelay, pNoteAttrib->nCycleTime);
-	AdsSocketDisconnect(&socket_fd);
-	freeADSConnection (dc);
+long AdsSyncAddDeviceNotificationReq(PAmsAddr pAddr,
+				     unsigned long nIndexGroup,
+				     unsigned long nIndexOffset,
+				     PAdsNotificationAttrib pNoteAttrib,
+				     PAdsNotificationFunc pNoteFunc,
+				     unsigned long hUser,
+				     unsigned long *pNotification)
+{
+    ADSConnection *dc;
+    dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
+    socket_fd = dc->iface->fd.rfd;
+    ADSaddDeviceNotification(dc, nIndexGroup, nIndexOffset,
+			     pNoteAttrib->cbLength,
+			     pNoteAttrib->nTransMode,
+			     pNoteAttrib->nMaxDelay,
+			     pNoteAttrib->nCycleTime);
+    AdsSocketDisconnect(&socket_fd);
+    freeADSConnection(dc);
 
-	return 0;
+    return 0;
 }
-

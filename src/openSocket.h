@@ -33,18 +33,18 @@ extern "C" {
 #else
 #define EXPORTSPEC __declspec (dllimport)
 #endif
-EXPORTSPEC HANDLE __stdcall openSocket(const int port, const char * peer);
+    EXPORTSPEC HANDLE __stdcall openSocket(const int port,
+					   const char *peer);
 #endif
 
 #ifdef LINUX
 #define EXPORTSPEC
-int openSocket(const int port, const char * peer);
+    int openSocket(const int port, const char *peer);
 #endif
 
 #ifdef __cplusplus
- }
+}
 #endif
-
 #endif
 /*
     Changes: 

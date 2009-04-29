@@ -27,53 +27,45 @@
 
 #define ADSAPIERR_NOERROR			0x0000
 #include "AdsDEF.h"
-
 int AdsPortOpen(void);
 
 long AdsPortClose(void);
 
-long AdsSyncWriteControlReq( PAmsAddr pAddr,
-							unsigned short nAdsState,
-							unsigned short nDeviceState,
-							unsigned long nLength,
-							void *pData );
+long AdsSyncWriteControlReq(PAmsAddr pAddr,
+			    unsigned short nAdsState,
+			    unsigned short nDeviceState,
+			    unsigned long nLength, void *pData);
 
-long AdsSyncWriteReq( PAmsAddr pAddr,
-						unsigned long nIndexGroup,
-						unsigned long nIndexOffset,
-						unsigned long nLength,
-						void *pData );
+long AdsSyncWriteReq(PAmsAddr pAddr,
+		     unsigned long nIndexGroup,
+		     unsigned long nIndexOffset,
+		     unsigned long nLength, void *pData);
 
-long AdsSyncReadReq( PAmsAddr pAddr,
-						unsigned long nIndexGroup,
-						unsigned long nIndexOffset,
-						unsigned long nLength,
-						void *pData );
+long AdsSyncReadReq(PAmsAddr pAddr,
+		    unsigned long nIndexGroup,
+		    unsigned long nIndexOffset,
+		    unsigned long nLength, void *pData);
 
-long AdsSyncReadStateReq(   PAmsAddr  pAddr, 
-							unsigned short *pAdsState, 
-							unsigned short *pDeviceState );
+long AdsSyncReadStateReq(PAmsAddr pAddr,
+			 unsigned short *pAdsState,
+			 unsigned short *pDeviceState);
 
-long AdsSyncReadDeviceInfoReq( PAmsAddr  pAddr, 
-			char * pDevName, 
-			PAdsVersion pVersion );
+long AdsSyncReadDeviceInfoReq(PAmsAddr pAddr,
+			      char *pDevName, PAdsVersion pVersion);
 
-long AdsSyncReadWriteReq( PAmsAddr pAddr,
-			unsigned long nIndexGroup,
-			unsigned long nIndexOffset,
-			unsigned long nReadLength,
-			void *pReadData,
-			unsigned long nWriteLength,
-			void *pWriteData );
+long AdsSyncReadWriteReq(PAmsAddr pAddr,
+			 unsigned long nIndexGroup,
+			 unsigned long nIndexOffset,
+			 unsigned long nReadLength,
+			 void *pReadData,
+			 unsigned long nWriteLength, void *pWriteData);
 
-long AdsSyncAddDeviceNotificationReq( PAmsAddr pAddr,
-				unsigned long nIndexGroup,
-				unsigned long nIndexOffset,
-				PAdsNotificationAttrib pNoteAttrib,
-				PAdsNotificationFunc   pNoteFunc,
-				unsigned long hUser,
-				unsigned long *pNotification );
+long AdsSyncAddDeviceNotificationReq(PAmsAddr pAddr,
+				     unsigned long nIndexGroup,
+				     unsigned long nIndexOffset,
+				     PAdsNotificationAttrib pNoteAttrib,
+				     PAdsNotificationFunc pNoteFunc,
+				     unsigned long hUser,
+				     unsigned long *pNotification);
 
-#endif /* __ADSDEF_H__ */
-
-
+#endif				/* __ADSDEF_H__ */
