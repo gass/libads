@@ -283,7 +283,7 @@ int _ADSReadOne(ADSInterface * di, uc *b) {
 };
 #endif
 
-#ifdef BCCWIN
+#ifdef WIN32
 EXPORTSPEC int DECL2 _ADSReadOne(ADSInterface * di, uc * b ) {
     unsigned long i;
     ReadFile(di->fd.rfd, b, maxDataLen, &i, NULL);

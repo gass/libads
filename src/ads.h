@@ -49,7 +49,7 @@ typedef struct dost {
 #define OS_KNOWN	// get rid of nested ifdefs.
 #endif    
 
-#ifdef BCCWIN
+#ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdio.h>
