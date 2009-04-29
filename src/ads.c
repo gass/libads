@@ -37,6 +37,7 @@
 
 #include "ads.h"
 #include "AdsDEF.h"
+
 int ADSDebug;
 
 EXPORTSPEC char *DECL2 ADSCommandName(int c)
@@ -321,6 +322,7 @@ ADSNewInterface(_ADSOSserialType nfd, AMSNetID me, int port, char *nname)
 int freeADSInterface(ADSInterface * di)
 {
     free(di);
+	return 0;
 }
 
 /**
@@ -330,6 +332,7 @@ int freeADSConnection(ADSConnection * dc)
 {
     freeADSInterface(dc->iface);
     free(dc);
+	return 0;
 }
 
 /** 
@@ -587,9 +590,9 @@ ADSreadWriteBytes(ADSConnection * dc,
 	    _ADSDump(" readpacket", dc->msgIn, dc->AnswLen);
 	    rr = (ADSreadWriteResponse *) (dc->msgIn + 38);
 	    printf("this  is it %d\n", *rr->data);
-	    printf("this  is it %d\n", readBuffer);
+	    printf("this  is it %d\n", *(int *)readBuffer);
 	    memcpy(readBuffer, rr->data, readLength);
-	    printf("this  is it %d\n", readBuffer);
+	    printf("this  is it %d\n", *(int *)readBuffer);
 	}
     }
 
@@ -828,8 +831,8 @@ EXPORTSPEC int DECL2 ADSparseNetID(const char *netIDstring, AMSNetID * id)
 {
     const char *p;
     char *q;
-    int i, pi;
-    q = (uc *) id;
+    int i;
+    q = (char *) id;
     p = netIDstring;
     for (i = 0; i < 6; i++) {
 	q[i] = atoi(p);
@@ -881,7 +884,7 @@ ADSConnection *AdsSocketConnect(int *socket_fd, PAmsAddr pAddr,
 
     /* connect to plc */
     if (connect(*socket_fd, (struct sockaddr *) &addr, addrlen)) {
-	printf("Socket error: %s \n", 0000);
+	printf("Socket error: %s \n", "0000");
 	return NULL;
     }
     if (ADSDebug & ADSDebugOpen) {
