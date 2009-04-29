@@ -3,7 +3,7 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: libanjuta-1.0
+Name: libads
 Description: Libraries to develop BECKHOFF's ADS clients and servers
 Version: @VERSION@
 Libs: -L${libdir} -llibads
