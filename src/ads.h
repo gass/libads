@@ -36,7 +36,7 @@ extern "C" {
     Some simple types:
 */
 
-#ifdef LINUX
+#ifdef __linux__
 #define DECL2
 #define EXPORTSPEC
     typedef struct dost {

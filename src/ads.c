@@ -22,7 +22,7 @@
  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.  
 */
 
-#ifdef LINUX
+#ifdef __linux__
 #include <unistd.h>
 #endif
 
@@ -368,7 +368,7 @@ EXPORTSPEC void DECL2 _ADSDump(char *name, void *v, int len)
     LOG1("\n");
 };
 
-#ifdef LINUX
+#ifdef __linux__
 int _ADSReadOne(ADSInterface * di, uc * b)
 {
     fd_set FDS;

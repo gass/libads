@@ -3,7 +3,7 @@ AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_PROG_LIBTOOL
 AC_PROG_CC
 
-CFLAGS="${CFLAGS} -Wall -DLINUX" 
+CFLAGS="${CFLAGS} -Wall" 
 
 AC_CONFIG_SRCDIR ([src])
 AC_CONFIG_HEADERS([config.h])
