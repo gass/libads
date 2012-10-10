@@ -8,6 +8,15 @@ ADS stands for "Automation Device Specification".
 
 This is a library that was started by Thomas Hergenhahn, as part of Visual[3].
 
+BUILD
+-----
+clone the git repository present in github: https://github.com/gass/libads
+build with:
+autoreconf -i -s
+./configure
+make
+make install
+
 CONTACT AND DISCUSSION
 -----------------------
 
