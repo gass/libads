@@ -31,6 +31,8 @@ int AdsPortOpen(void);
 
 long AdsPortClose(void);
 
+long AdsGetLocalAddress(PAmsAddr pAddr);
+
 long AdsSyncWriteControlReq(PAmsAddr pAddr,
 			    unsigned short nAdsState,
 			    unsigned short nDeviceState,
