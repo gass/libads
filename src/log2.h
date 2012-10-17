@@ -1,7 +1,7 @@
 #ifndef __log
 #define __log
 
-#ifdef LINUX
+#ifdef __linux__
 #define HAVE_PRINTF
 #define logout stdout
 #endif

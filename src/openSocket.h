@@ -2,6 +2,7 @@
  Part of Libnodave, a free communication libray for Siemens S7 300/400.
  
  (C) Thomas Hergenhahn (thomas.hergenhahn@web.de) 2002, 2003.2004
+ Copyright (C) Luis Matos (gass@otiliamatos.ath.cx) 2012.
 
  Libnodave is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -37,7 +38,7 @@ extern "C" {
 					   const char *peer);
 #endif
 
-#ifdef LINUX
+#ifdef __linux__
 #define EXPORTSPEC
     int openSocket(const int port, const char *peer);
 #endif
