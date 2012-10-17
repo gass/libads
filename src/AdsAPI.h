@@ -5,7 +5,7 @@
  TwinCAT, ADS and maybe other terms used herein are registered trademarks of BECKHOFF 
  Company. www.beckhoff.de
 
- Copyright (C) Luis Matos (gass@otiliamatos.ath.cx) 2009.
+ Copyright (C) Luis Matos (gass@otiliamatos.ath.cx) 2009, 2012.
 
  This is free software; you can redistribute it and/or modify
  it under the terms of the GNU Library General Public License as published by
@@ -68,4 +68,4 @@ long AdsSyncAddDeviceNotificationReq(PAmsAddr pAddr,
 				     unsigned long hUser,
 				     unsigned long *pNotification);
 
-#endif				/* __ADSDEF_H__ */
+#endif				/* __ADSAPI_H__ */
