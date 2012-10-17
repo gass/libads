@@ -23,8 +23,6 @@
  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.  
 */
 
-#include "ads.h"
-#include "AdsDEF.h"
 #include <stdio.h>
 #include <sys/socket.h>
 #include <errno.h>
@@ -34,6 +32,9 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <net/if.h>
+
+#include "ads.h"
+#include "AdsDEF.h"
 
 static int socket_fd = 0;
 
