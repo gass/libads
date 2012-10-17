@@ -76,7 +76,7 @@ long AdsGetLocalAddress(PAmsAddr pAddr)
     struct sockaddr_in *addrStruct;
 
     if (getifaddrs(&list) < 0) {
-	return 0;
+	    return 0x01;
     }
 
     struct ifaddrs *cur;
