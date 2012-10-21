@@ -491,14 +491,12 @@ ADSreadBytes(ADSConnection * dc, int indexGroup, int offset, int length,
 	     void *buffer)
 {
     AMSheader *h1;
-    AMS_TCPheader *h2;
     ADSpacket *p2;
     ADSreadResponse *rr;
     ADSreadRequest *rq;
     ADSpacket *p1 = (ADSpacket *) dc->msgOut;
 
     h1 = &(p1->amsHeader);
-    h2 = &(p1->adsHeader);
     _ADSsetupHeader(dc, h1);
     h1->commandId = cmdADSread;
     h1->dataLength = sizeof(ADSreadRequest);
@@ -572,7 +570,7 @@ ADSreadWriteBytes(ADSConnection * dc,
 
     h2->length = h1->dataLength + sizeof(AMSheader);
     h2->reserved = 0;
-    printf("lenght: %d\n", h2->length);
+    ads_debug(ADSDebug, "lenght: %d\n", h2->length);
     rq = (ADSreadWriteRequest *) & p1->data;
     rq->indexGroup = indexGroup;
     rq->indexOffset = offset;
@@ -618,12 +616,10 @@ EXPORTSPEC int DECL2
 ADSreadDeviceInfo(ADSConnection * dc, char *pDevName, PAdsVersion pVersion)
 {
     AMSheader *h1;
-    AMS_TCPheader *h2;
     ADSpacket *p1 = (ADSpacket *) dc->msgOut;
     ADSpacket *p2;
     ADSdeviceInfo *DeviceInfo;
     h1 = &(p1->amsHeader);
-    h2 = &(p1->adsHeader);
     _ADSsetupHeader(dc, h1);
     h1->commandId = cmdADSreadDevInfo;
     h1->dataLength = 0;
@@ -661,11 +657,9 @@ ADSwriteBytes(ADSConnection * dc, int indexGroup, int offset, int length,
 	      void *data)
 {
     AMSheader *h1;
-    AMS_TCPheader *h2;
     ADSwriteRequest *rq;
     ADSpacket *p1 = (ADSpacket *) dc->msgOut;
     h1 = &(p1->amsHeader);
-    h2 = &(p1->adsHeader);
     _ADSsetupHeader(dc, h1);
     h1->commandId = cmdADSwrite;
     h1->dataLength = sizeof(ADSwriteRequest) - maxDataLen + length;
@@ -710,14 +704,12 @@ ADSreadState(ADSConnection * dc, unsigned short *ADSstate,
 	     unsigned short *devState)
 {
     AMSheader *h1;
-    AMS_TCPheader *h2;
     ADSpacket *p1 = (ADSpacket *) dc->msgOut;
     ADSpacket *p2;
     ADSstateResponse *StateResponse;
 
     /* Build the comunication headers */
     h1 = &(p1->amsHeader);
-    h2 = &(p1->adsHeader);
     _ADSsetupHeader(dc, h1);
     h1->commandId = cmdADSreadState;
     h1->dataLength = 0;
@@ -754,11 +746,9 @@ ADSwriteControl(ADSConnection * dc, int ADSstate, int devState, void *data,
 		int length)
 {
     AMSheader *h1;
-    AMS_TCPheader *h2;
     ADSwriteControlRequest *rq;
     ADSpacket *p1 = (ADSpacket *) dc->msgOut;
     h1 = &(p1->amsHeader);
-    h2 = &(p1->adsHeader);
     _ADSsetupHeader(dc, h1);
     h1->commandId = cmdADSwriteControl;
     h1->dataLength = sizeof(ADSwriteControlRequest);
@@ -798,11 +788,9 @@ ADSaddDeviceNotification(ADSConnection * dc,
 			 int transmissionMode, int maxDelay, int cycleTime)
 {
     AMSheader *h1;
-    AMS_TCPheader *h2;
     ADSaddDeviceNotificationRequest *rq;
     ADSpacket *p1 = (ADSpacket *) dc->msgOut;
     h1 = &(p1->amsHeader);
-    h2 = &(p1->adsHeader);
     _ADSsetupHeader(dc, h1);
     h1->commandId = cmdADSaddDeviceNotification;
     h1->dataLength = sizeof(ADSaddDeviceNotificationRequest);

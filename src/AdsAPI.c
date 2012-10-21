@@ -86,11 +86,18 @@ long AdsGetLocalAddress(PAmsAddr pAddr)
 	    addrStruct = (struct sockaddr_in *) cur->ifa_addr;
 	    netAddr = ntohl(addrStruct->sin_addr.s_addr);
 	    memcpy((char *) &b, (char *) &netAddr, 4);
-	    pAddr->netId = (AmsNetId) {b[3], b[2], b[1], b[0], 1, 1};
+	    pAddr->netId = (AmsNetId) {{b[3], b[2], b[1], b[0], 1, 1}};
+	    ads_debug (ADSDebug, "Local Ams Net Id: %d , %d, %d, %d, %d, %d", 
+	                pAddr->netId.b[0], 
+	                pAddr->netId.b[1], 
+	                pAddr->netId.b[2],
+	                pAddr->netId.b[3],
+	                pAddr->netId.b[4],
+	                pAddr->netId.b[5]);
 	    break;
 	}
 	if (cur->ifa_next == NULL)
-	    pAddr->netId = (AmsNetId) {127, 0, 0, 1, 1, 1};
+	    pAddr->netId = (AmsNetId) {{127, 0, 0, 1, 1, 1}};
     }
     freeifaddrs(list);
 
