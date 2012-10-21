@@ -27,7 +27,8 @@
 
 #ifndef	ANYSIZE_ARRAY
 #define	ANYSIZE_ARRAY					1
-#endif	/*  */
+#endif	/* 
+ */
 
 /*
  * ADS Available Ports
@@ -103,47 +104,92 @@ typedef struct _AmsAddr {
  * The structure contains the version number, revision number and build number.
  * TODO: not used
  */
-typedef struct  {
-    unsigned char version;	// < Version number.
+typedef struct 
+ {
+    
+unsigned char version;	// < Version number.
     unsigned char revision;	// < Revision number.
     unsigned short build;	// < Build number
 } AdsVersion;
-typedef AdsVersion *PAdsVersion;
+
+
+typedef AdsVersion *PAdsVersion;
 
 /**
   *
   */
 typedef enum nAdsTransMode 
-    { ADSTRANS_NOTRANS = 0, ADSTRANS_CLIENTCYCLE =
-1, ADSTRANS_CLIENT1REQ = 2, ADSTRANS_SERVERCYCLE = 3, ADSTRANS_SERVERONCHA = 4 
+    { 
+ADSTRANS_NOTRANS = 0, 
+ADSTRANS_CLIENTCYCLE =
+1, 
+ADSTRANS_CLIENT1REQ = 2, 
+ADSTRANS_SERVERCYCLE = 3, 
+ADSTRANS_SERVERONCHA = 4 
 } ADSTRANSMODE;
-typedef enum nAdsState 
-    { ADSSTATE_INVALID = 0, ADSSTATE_IDLE = 1, ADSSTATE_RESET =
-2, ADSSTATE_INIT = 3, ADSSTATE_START = 4, ADSSTATE_RUN = 5, ADSSTATE_STOP =
-6, ADSSTATE_SAVECFG = 7, ADSSTATE_LOADCFG = 8, ADSSTATE_POWERFAILURE =
-9, ADSSTATE_POWERGOOD = 10, ADSSTATE_ERROR = 11, ADSSTATE_SHUTDOWN =
-12, ADSSTATE_SUSPEND = 13, ADSSTATE_RESUME = 14, ADSSTATE_MAXSTATES 
+
+
+typedef enum nAdsState 
+    { 
+ADSSTATE_INVALID = 0, 
+ADSSTATE_IDLE = 1, 
+ADSSTATE_RESET =
+2, 
+ADSSTATE_INIT = 3, 
+ADSSTATE_START = 4, 
+ADSSTATE_RUN = 5, 
+ADSSTATE_STOP =
+6, 
+ADSSTATE_SAVECFG = 7, 
+ADSSTATE_LOADCFG = 8, 
+ADSSTATE_POWERFAILURE =
+9, 
+ADSSTATE_POWERGOOD = 10, 
+ADSSTATE_ERROR = 11, 
+ADSSTATE_SHUTDOWN =
+12, 
+ADSSTATE_SUSPEND = 13, 
+ADSSTATE_RESUME = 14, 
+ADSSTATE_MAXSTATES 
 } ADSSTATE;
 
-typedef struct  {
-    unsigned long cbLength;
-     ADSTRANSMODE nTransMode;
-     unsigned long nMaxDelay;
-     union  {
-	unsigned long nCycleTime;
-	 unsigned long dwChangeFilter;
-    };
-} AdsNotificationAttrib, *PAdsNotificationAttrib;
+typedef struct 
+ {
+    
+unsigned long cbLength;
+    
+ ADSTRANSMODE nTransMode;
+    
+ unsigned long nMaxDelay;
+    
+ union 
+ {
+	
+unsigned long nCycleTime;
+	
+ unsigned long dwChangeFilter;
+    
+};
 
-typedef struct  {
-    unsigned long hNotification;
-     unsigned long long nTimeStamp;
-     unsigned long cbSampleSize;
-     unsigned char data[ANYSIZE_ARRAY];
-} AdsNotificationHeader, *PAdsNotificationHeader;
-typedef void (*PAdsNotificationFunc) (AmsAddr * Addr, 
+} AdsNotificationAttrib, *PAdsNotificationAttrib;
+
+typedef struct 
+ {
+    
+unsigned long hNotification;
+    
+ unsigned long long nTimeStamp;
+    
+ unsigned long cbSampleSize;
+    
+ unsigned char data[ANYSIZE_ARRAY];
+
+} AdsNotificationHeader, *PAdsNotificationHeader;
+
+typedef void (*PAdsNotificationFunc) (AmsAddr * Addr, 
 				       AdsNotificationHeader *
 				       pNotification,
-				        unsigned long hUser);
+				       
+ unsigned long hUser);
 
 #endif				// __ADSDEF_H__

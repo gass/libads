@@ -6,6 +6,7 @@
  Company. www.beckhoff.de
 
  (C) Thomas Hergenhahn (thomas.hergenhahn@web.de) 2003.
+ Copyright (C) Luis Matos (gass@otiliamatos.ath.cx) 2012.
 
  This is free software; you can redistribute it and/or modify
  it under the terms of the GNU Library General Public License as published by
