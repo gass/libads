@@ -38,7 +38,7 @@
 #include "ads.h"
 #include "AdsDEF.h"
 
-EXPORTSPEC char *DECL2 ADSCommandName(int c)
+char * ADSCommandName(int c)
 {
     switch (c) {
     case 0:
@@ -83,12 +83,12 @@ void ads_debug (int type, const char *fmt, ...)
     }
 }
 
-EXPORTSPEC void DECL2 _ADSDumpAMSNetId(AMSNetID * id)
+void _ADSDumpAMSNetId(AMSNetID * id)
 {
     _ADSDump("AMSNetID: ", (uc *) id, sizeof(AMSNetID));
 }
 
-EXPORTSPEC void DECL2 _ADSDumpAMSheader(AMSheader * h)
+void _ADSDumpAMSheader(AMSheader * h)
 {
     if (!ADSDebug)
         return;
@@ -108,7 +108,7 @@ EXPORTSPEC void DECL2 _ADSDumpAMSheader(AMSheader * h)
     printf("invokeId:   %d\n", h->invokeId);
 }
 
-EXPORTSPEC char *DECL2 ADSerrorText(int err)
+char * ADSerrorText(int err)
 {
     switch (err) {
     case 0:
@@ -259,7 +259,7 @@ EXPORTSPEC char *DECL2 ADSerrorText(int err)
     }
 }
 
-EXPORTSPEC void DECL2 analyze(uc * p1)
+void analyze(uc * p1)
 {
     ADSreadResponse *rr;
     ADSdeviceInfo *di;
@@ -320,7 +320,7 @@ EXPORTSPEC void DECL2 analyze(uc * p1)
 	}
 }
 
-EXPORTSPEC ADSInterface *DECL2
+ADSInterface *
 ADSNewInterface(_ADSOSserialType nfd, AMSNetID me, int port, char *nname)
 {
     ADSInterface *di = (ADSInterface *) calloc(1, sizeof(ADSInterface));
@@ -357,7 +357,7 @@ int freeADSConnection(ADSConnection * dc)
     This will setup a new connection structure using an initialized
     ADSInterface.
 */
-EXPORTSPEC ADSConnection *DECL2
+ADSConnection *
 ADSNewConnection(ADSInterface * di, AMSNetID partner, int port)
 {
     ADSConnection *dc = (ADSConnection *) calloc(1, sizeof(ADSConnection));
@@ -373,7 +373,7 @@ ADSNewConnection(ADSInterface * di, AMSNetID partner, int port)
 /**
     Hex dump:
 */
-EXPORTSPEC void DECL2 _ADSDump(char *name, void *v, int len)
+void _ADSDump(char *name, void *v, int len)
 {
     if (!ADSDebug)
         return;
@@ -408,7 +408,7 @@ int _ADSReadOne(ADSInterface * di, uc * b)
 #endif
 
 #ifdef WIN32
-EXPORTSPEC int DECL2 _ADSReadOne(ADSInterface * di, uc * b)
+int _ADSReadOne(ADSInterface * di, uc * b)
 {
     unsigned long i;
     ReadFile(di->fd.rfd, b, maxDataLen, &i, NULL);
@@ -421,7 +421,7 @@ EXPORTSPEC int DECL2 _ADSReadOne(ADSInterface * di, uc * b)
 /**
     Read one complete packet. First bytes contain length information.
 */
-EXPORTSPEC int DECL2 _ADSReadPacket(ADSInterface * di, uc * b)
+int _ADSReadPacket(ADSInterface * di, uc * b)
 {
     AMS_TCPheader *h = (AMS_TCPheader *) b;
     int i, res = 0;
@@ -460,7 +460,7 @@ EXPORTSPEC int DECL2 _ADSReadPacket(ADSInterface * di, uc * b)
     return (res);
 };
 
-EXPORTSPEC void DECL2 _ADSsetupHeader(ADSConnection * dc, AMSheader * h)
+void _ADSsetupHeader(ADSConnection * dc, AMSheader * h)
 {
     h->targetId = dc->partner;
     h->targetPort = dc->AMSport;
@@ -471,7 +471,7 @@ EXPORTSPEC void DECL2 _ADSsetupHeader(ADSConnection * dc, AMSheader * h)
     h->invokeId = ++dc->invokeId;	//user-defined 32-bit field. Usually it is used to identify
 };
 
-EXPORTSPEC int DECL2 _ADSwrite2(ADSInterface * di, void *buffer, int len)
+int _ADSwrite2(ADSInterface * di, void *buffer, int len)
 {
     int res;
     if (di == NULL)
@@ -486,13 +486,13 @@ EXPORTSPEC int DECL2 _ADSwrite2(ADSInterface * di, void *buffer, int len)
     return res;
 }
 
-EXPORTSPEC int DECL2 _ADSwrite(ADSConnection * dc)
+int _ADSwrite(ADSConnection * dc)
 {
     ADSpacket *p1 = (ADSpacket *) dc->msgOut;
     return _ADSwrite2(dc->iface, dc->msgOut, p1->adsHeader.length + 6);
 }
 
-EXPORTSPEC int DECL2
+int
 ADSreadBytes(ADSConnection * dc, int indexGroup, int offset, int length,
 	     void *buffer)
 {
@@ -551,7 +551,7 @@ ADSreadBytes(ADSConnection * dc, int indexGroup, int offset, int length,
     return -1;
 }
 
-EXPORTSPEC int DECL2
+int
 ADSreadWriteBytes(ADSConnection * dc,
 		  int indexGroup,
 		  int offset,
@@ -618,7 +618,7 @@ ADSreadWriteBytes(ADSConnection * dc,
     return 0;
 }
 
-EXPORTSPEC int DECL2
+int
 ADSreadDeviceInfo(ADSConnection * dc, char *pDevName, PAdsVersion pVersion)
 {
     AMSheader *h1;
@@ -658,7 +658,7 @@ ADSreadDeviceInfo(ADSConnection * dc, char *pDevName, PAdsVersion pVersion)
     return 0;
 }
 
-EXPORTSPEC int DECL2
+int
 ADSwriteBytes(ADSConnection * dc, int indexGroup, int offset, int length,
 	      void *data)
 {
@@ -705,7 +705,7 @@ ADSwriteBytes(ADSConnection * dc, int indexGroup, int offset, int length,
  * \param devState Address of a variable that will receive the device status. 
  * \return Error code
  */
-EXPORTSPEC int DECL2
+int
 ADSreadState(ADSConnection * dc, unsigned short *ADSstate,
 	     unsigned short *devState)
 {
@@ -747,7 +747,7 @@ ADSreadState(ADSConnection * dc, unsigned short *ADSstate,
     return 0;
 }
 
-EXPORTSPEC int DECL2
+int
 ADSwriteControl(ADSConnection * dc, int ADSstate, int devState, void *data,
 		int length)
 {
@@ -788,7 +788,7 @@ ADSwriteControl(ADSConnection * dc, int ADSstate, int devState, void *data,
     return 0;
 }
 
-EXPORTSPEC int DECL2
+int
 ADSaddDeviceNotification(ADSConnection * dc,
 			 int indexGroup, int offset, int length,
 			 int transmissionMode, int maxDelay, int cycleTime)
@@ -827,7 +827,7 @@ ADSaddDeviceNotification(ADSConnection * dc,
     return 0;
 }
 
-EXPORTSPEC int DECL2 ADSparseNetID(const char *netIDstring, AMSNetID * id)
+int ADSparseNetID(const char *netIDstring, AMSNetID * id)
 {
     const char *p;
     char *q;

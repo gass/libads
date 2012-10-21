@@ -6,6 +6,7 @@
  Company. www.beckhoff.de
 
  (C) Thomas Hergenhahn (thomas.hergenhahn@web.de) 2003.
+ (C) Luis Matos (gass@otiliamatos.ath.cx) 2012.
 
  This is free software; you can redistribute it and/or modify
  it under the terms of the GNU Library General Public License as published by
@@ -37,8 +38,6 @@ extern "C" {
 */
 
 #ifdef __linux__
-#define DECL2
-#define EXPORTSPEC
     typedef struct dost {
 	int rfd;
 	int wfd;
@@ -46,63 +45,8 @@ extern "C" {
     } _ADSOSserialType;
 #include <stdlib.h>
 #define tmotype int
-#define OS_KNOWN		// get rid of nested ifdefs.
 #endif
 
-#ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <stdio.h>
-#include <stdlib.h>
-#define DECL2 __stdcall
-#define tmotype int
-
-#ifdef DOEXPORT
-#define EXPORTSPEC __declspec (dllexport)
-#else
-#define EXPORTSPEC __declspec (dllimport)
-#endif
-
-    typedef struct dost {
-	HANDLE rfd;
-	HANDLE wfd;
-//    int connectionType;
-    } _ADSOSserialType;
-
-#define OS_KNOWN
-#endif
-
-#ifdef DOS
-#include <stdio.h>
-#include <stdlib.h>
-//#define DECL2 WINAPI
-// #define DECL2
-#define DECL2 __cedcl
-#define EXPORTSPEC
-
-    typedef struct dost {
-	int rfd;
-	int wfd;
-    } _ADSOSserialType;
-#define OS_KNOWN
-#endif
-
-#ifdef AVR
-#include <stdio.h>
-#include <stdlib.h>
-#define DECL2
-#define EXPORTSPEC
-    typedef struct dost {
-	int rfd;
-	int wfd;
-    } _ADSOSserialType;
-#define tmotype long
-#define OS_KNOWN
-#endif
-
-#ifndef OS_KNOWN
-#error Fill in what you need for your OS or API.
-#endif
 
 #define uc unsigned char	//characters
 #define us unsigned short
@@ -328,7 +272,7 @@ extern "C" {
     This will setup a new interface structure from an initialized
     serial interface's handle and a name.
 */
-    EXPORTSPEC ADSInterface *DECL2 ADSNewInterface(_ADSOSserialType nfd,
+    ADSInterface *ADSNewInterface(_ADSOSserialType nfd,
 						   AMSNetID me, int port,
 						   char *nname);
 
@@ -336,62 +280,62 @@ extern "C" {
     This will setup a new connection structure using an initialized
     ADSInterface and PLC's MPI address.
 */
-    EXPORTSPEC ADSConnection *DECL2 ADSNewConnection(ADSInterface * di,
+    ADSConnection *ADSNewConnection(ADSInterface * di,
 						     AMSNetID partner,
 						     int port);
 
 /**
     Hex dump:
 */
-    EXPORTSPEC void DECL2 _ADSDump(char *name, void *v, int len);
+    void _ADSDump(char *name, void *v, int len);
 
 
-    EXPORTSPEC void DECL2 _ADSDumpAMSNetId(AMSNetID * id);
+    void _ADSDumpAMSNetId(AMSNetID * id);
 
-    EXPORTSPEC void DECL2 _ADSDumpAMSheader(AMSheader * h);
+    void _ADSDumpAMSheader(AMSheader * h);
 
 /**
     Naming
 */
-    EXPORTSPEC char *DECL2 ADSCommandName(int c);
+    char *ADSCommandName(int c);
 
-    EXPORTSPEC char *DECL2 ADSerrorText(int err);
+    char *ADSerrorText(int err);
 
-    EXPORTSPEC int DECL2 _ADSReadOne(ADSInterface * di, uc * b);
+    int _ADSReadOne(ADSInterface * di, uc * b);
 
-    EXPORTSPEC int DECL2 _ADSReadPacket(ADSInterface * di, uc * b);
+    int _ADSReadPacket(ADSInterface * di, uc * b);
 
-    EXPORTSPEC void DECL2 analyze(uc * p1);
+    void analyze(uc * p1);
 
-    EXPORTSPEC int DECL2 ADSreadBytes(ADSConnection * dc, int indexGroup,
+    int ADSreadBytes(ADSConnection * dc, int indexGroup,
 				      int offset, int length,
 				      void *buffer);
-    EXPORTSPEC int DECL2 ADSreadDeviceInfo(ADSConnection * dc,
+    int ADSreadDeviceInfo(ADSConnection * dc,
 					   char *pDevName,
 					   PAdsVersion pVersion);
-    EXPORTSPEC int DECL2 ADSwriteBytes(ADSConnection * dc, int indexGroup,
+    int ADSwriteBytes(ADSConnection * dc, int indexGroup,
 				       int offset, int length, void *data);
-    EXPORTSPEC int DECL2 ADSreadState(ADSConnection * dc,
+    int ADSreadState(ADSConnection * dc,
 				      unsigned short *ADSstate,
 				      unsigned short *devState);
-    EXPORTSPEC int DECL2 ADSwriteControl(ADSConnection * dc, int ADSstate,
+    int ADSwriteControl(ADSConnection * dc, int ADSstate,
 					 int devState, void *data,
 					 int length);
-    EXPORTSPEC int DECL2 ADSaddDeviceNotification(ADSConnection * dc,
+    int ADSaddDeviceNotification(ADSConnection * dc,
 						  int indexGroup,
 						  int offset, int length,
 						  int transmissionMode,
 						  int maxDelay,
 						  int cycleTime);
-    EXPORTSPEC int DECL2 ADSreadWriteBytes(ADSConnection * dc,
+    int ADSreadWriteBytes(ADSConnection * dc,
 					   int indexGroup, int offset,
 					   int readLength,
 					   void *readBuffer,
 					   int writeLength,
 					   void *writeBuffer);
-    EXPORTSPEC int DECL2 _ADSwrite(ADSConnection * dc);
+    int _ADSwrite(ADSConnection * dc);
 
-    EXPORTSPEC int DECL2 ADSparseNetID(const char *NetIDstring,
+    int ADSparseNetID(const char *NetIDstring,
 				       AMSNetID * id);
 
     ADSConnection *AdsSocketConnect(int *socket_fd, PAmsAddr pAddr,
