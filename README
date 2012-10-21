@@ -17,6 +17,19 @@ autoreconf -i -s
 make
 make install
 
+if you want to activate debug, please use:
+./configure CFLAGS='-DADSDebug=ADSDebugAll'
+or some more selective debug:
+ ADSDebugOpen
+ ADSDebugPacket
+ ADSDebugByte
+ ADSDebugAnalyze
+ ADSDebugPrintErrors
+
+by default debug is:
+ ADSDebugNone
+ 
+
 CONTACT AND DISCUSSION
 -----------------------
 
