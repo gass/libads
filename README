@@ -29,6 +29,8 @@ or some more selective debug:
 by default debug is:
  ADSDebugNone
  
+To make a full test, it should be configured with:
+./configure CFLAGS='-DADSDebug=ADSDebugAll -Wall -Werror'
 
 CONTACT AND DISCUSSION
 -----------------------
