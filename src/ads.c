@@ -870,11 +870,6 @@ ADSConnection *AdsSocketConnect(int *socket_fd, PAmsAddr pAddr,
     ADSInterface *di;
     ADSConnection *dc;
     _ADSOSserialType fds;
-    if (pMeAddr == NULL) {
-	AmsAddr tempAddr;
-	pMeAddr = &tempAddr;
-	AdsGetLocalAddress(pMeAddr);
-    }
     if (*socket_fd == 0)
 	*socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 
