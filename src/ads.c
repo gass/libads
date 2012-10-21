@@ -904,7 +904,3 @@ int AdsSocketDisconnect(int *fd)
     return 0;
 }
 
-/*
-    Changes:
-    03/12/2005 	added ADSparseNetID
-*/
