@@ -37,8 +37,6 @@
 #include "ads.h"
 #include "AdsDEF.h"
 
-int ADSDebug;
-
 EXPORTSPEC char *DECL2 ADSCommandName(int c)
 {
     switch (c) {
@@ -375,7 +373,7 @@ EXPORTSPEC void DECL2 _ADSDump(char *name, void *v, int len)
 {
     uc *b = (uc *) v;
     int j;
-    ads_debug("%s: ", name);
+    ads_debug(ADSDebug, "%s: ", name);
     if (len > maxDataLen)
 	len = maxDataLen;	// this will avoid to dump zillions of chars
     for (j = 0; j < len; j++) {

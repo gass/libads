@@ -282,15 +282,17 @@ extern "C" {
     Library specific stuff:
 */
 
-    extern int ADSDebug;
-
 #define ADSDebugOpen 0x10
 #define ADSDebugPacket 0x20
 #define ADSDebugByte 0x40
 #define ADSDebugAnalyze 0x80
 #define ADSDebugPrintErrors 0x8
-#define ADSDebugAll ADSDebugOpen|ADSDebugPacket|ADSDebugByte|ADSDebugAnalyze|ADSDebugPrintErrors
+#define ADSDebugAll (ADSDebugOpen|ADSDebugPacket|ADSDebugByte|ADSDebugAnalyze|ADSDebugPrintErrors)
 #define ADSDebugNone 0x0
+
+#ifndef ADSDebug
+#define ADSDebug ADSDebugNone
+#endif
 
 
 /* 

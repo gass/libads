@@ -42,8 +42,6 @@
 
 #include "ads.h"
 
-extern int ADSDebug;
-
 int openSocket(const int port, const char *peer)
 {
     int fd, res, opt;

@@ -42,13 +42,11 @@
 #include <errno.h>
 //#include <unistd.h>
 #include <fcntl.h>
-#include "log2.h"
 #include "ads.h"
 
 #include <winsock2.h>
 
 
-extern int ADSDebug;
 #define DONT_USE_GETHOSTBYNAME
 
 __declspec(dllexport)
@@ -64,12 +62,12 @@ HANDLE __stdcall openSocket(const int port, const char *peer)
     struct hostent *he;
 #endif
     if (ADSDebug & ADSDebugOpen) {
-	LOG1(ThisModule "enter OpenSocket\n");
+	ads_debug(ADSDebugOpen, ThisModule "enter OpenSocket\n");
 	FLUSH;
     }
     addr.sin_family = AF_INET;
     if (ADSDebug & ADSDebugOpen) {
-	LOG1(ThisModule "1\n");
+	ads_debug(ADSDebugOpen, ThisModule "1\n");
 	FLUSH;
     }
 
@@ -81,59 +79,58 @@ HANDLE __stdcall openSocket(const int port, const char *peer)
     }
 #ifndef DONT_USE_GETHOSTBYNAME
     if (ADSDebug & ADSDebugOpen) {
-	LOG1(ThisModule "3\n");
+	ads_debug(ADSDebugOpen, ThisModule "3\n");
 	FLUSH;
     }
 
     he = gethostbyname(peer);
-    LOG1(ThisModule "4\n");
+    ads_debug(ADSDebugOpen, ThisModule "4\n");
     FLUSH;
 
     memcpy(&addr.sin_addr, he->h_addr_list[0], sizeof(addr.sin_addr));
     if (ADSDebug & ADSDebugOpen) {
-	LOG1(ThisModule "5\n");
+	ads_debug(ADSDebugOpen, ThisModule "5\n");
 	FLUSH;
     }
 #else
     // inet_aton(peer, &addr.sin_addr);
     addr.sin_addr.s_addr = inet_addr(peer);
     if (ADSDebug & ADSDebugOpen) {
-	printf(ThisModule "peer:%s=%d\n", peer, inet_addr(peer));
+	ads_debug(ADSDebugOpen, , ThisModule "peer:%s=%d\n", peer, inet_addr(peer));
 	FLUSH;
     }
 
 
     if (ADSDebug & ADSDebugOpen) {
-	LOG1(ThisModule "6\n");
+	ads_debug(ADSDebugOpen, ThisModule "6\n");
 	FLUSH;
     }
 #endif
 
     fd = socket(AF_INET, SOCK_STREAM, 6);
     if (ADSDebug & ADSDebugOpen) {
-	LOG1(ThisModule "7\n");
+	ads_debug(ADSDebugOpen, ThisModule "7\n");
 	FLUSH;
     }
 
+	ads_debug(ADSDebugOpen, ThisModule "socket is %d\n", fd);
+
     if (ADSDebug & ADSDebugOpen) {
-	LOG2(ThisModule "socket is %d\n", fd);
-    }
-    if (ADSDebug & ADSDebugOpen) {
-	LOG3(ThisModule "setsockopt %s %d\n", strerror(WSAGetLastError()),
+	ads_debug(ADSDebugOpen, ThisModule "setsockopt %s %d\n", strerror(WSAGetLastError()),
 	     WSAGetLastError());
     }
 
     addrlen = sizeof(addr);
     if (ADSDebug & ADSDebugOpen) {
-	LOG1(ThisModule "8\n");
+	ads_debug(ADSDebugOpen, ThisModule "8\n");
 	FLUSH;
     }
     if (bind(fd, (struct sockaddr *) &addr, addrlen)) {
-	LOG2(ThisModule "bind Socket error: %s \n", strerror(errno));
+	ads_debug(ADSDebugOpen, ThisModule "bind Socket error: %s \n", strerror(errno));
     }
     if (connect(fd, (struct sockaddr *) &addr, addrlen)) {
 	if (ADSDebug & ADSDebugOpen) {
-	    LOG2(ThisModule "connect Socket error: %s \n",
+	    ads_debug(ADSDebugOpen, ThisModule "connect Socket error: %s \n",
 		 strerror(errno));
 	}
 //      socketClose(fd);
@@ -141,7 +138,7 @@ HANDLE __stdcall openSocket(const int port, const char *peer)
 	fd = 0;
     } else {
 //      if (ADSDebug & ADSDebugOpen) {
-	LOG2(ThisModule "Connected to host: %s \n", peer);
+	ads_debug(ADSDebugOpen, ThisModule "Connected to host: %s \n", peer);
 //      }    
 /*
 	Need this, so we can read a packet with a single read call and make
@@ -151,7 +148,7 @@ HANDLE __stdcall openSocket(const int port, const char *peer)
 /*
 	res=fcntl(fd, F_SETFL, O_NONBLOCK);
 	if (ADSDebug & ADSDebugOpen) 
-	    LOG3(ThisModule "Set mode to O_NONBLOCK %s %d\n", strerror(errno),res);
+	    ads_debug(ThisModule "Set mode to O_NONBLOCK %s %d\n", strerror(errno),res);
 */
 /*
 	I thought this might solve Marc's problem with the CP closing
@@ -160,7 +157,7 @@ HANDLE __stdcall openSocket(const int port, const char *peer)
 	errno=0;
 	opt=1;
 	res=setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &opt, 4);
-	LOG3(ThisModule "setsockopt %s %d\n", strerror(errno),res);
+	ads_debug(ThisModule "setsockopt %s %d\n", strerror(errno),res);
 */
     }
     FLUSH;
