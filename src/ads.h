@@ -290,6 +290,7 @@ extern "C" {
 #define ADSDebugAnalyze 0x80
 #define ADSDebugPrintErrors 0x8
 #define ADSDebugAll ADSDebugOpen|ADSDebugPacket|ADSDebugByte|ADSDebugAnalyze|ADSDebugPrintErrors
+#define ADSDebugNone 0x0
 
 
 /* 
@@ -320,6 +321,7 @@ extern "C" {
 	int invokeId;
     } ADSConnection;
 
+    void ads_debug (int type, const char *fmt, ...);
 /** 
     This will setup a new interface structure from an initialized
     serial interface's handle and a name.
@@ -405,7 +407,4 @@ extern "C" {
 //#ifdef CPLUSPLUS
 }
 #endif
-/*
-    Changes:
-    03/12/2005 	added ADSparseNetID
-*/
+

@@ -28,12 +28,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <errno.h>
-
-#include "log2.h"
 
 #include "ads.h"
 #include "AdsDEF.h"
@@ -68,6 +67,23 @@ EXPORTSPEC char *DECL2 ADSCommandName(int c)
     }
 }
 
+/*
+ * Debug function.
+ * sends some output to stdout if you define DEBUG
+ */
+void ads_debug (int type, const char *fmt, ...)
+{
+    va_list args;
+    char tmp_str[1000] = {0,};
+    if (ADSDebug & type)
+    {
+        va_start (args, fmt);
+        vsnprintf (tmp_str, 1000, fmt, args);
+        printf("LOG: %s\n", tmp_str);
+        va_end(args);
+    }
+}
+
 EXPORTSPEC void DECL2 _ADSDumpAMSNetId(AMSNetID * id)
 {
     _ADSDump("AMSNetID: ", (uc *) id, sizeof(AMSNetID));
@@ -75,19 +91,19 @@ EXPORTSPEC void DECL2 _ADSDumpAMSNetId(AMSNetID * id)
 
 EXPORTSPEC void DECL2 _ADSDumpAMSheader(AMSheader * h)
 {
-    LOG1("targetId");
+    ads_debug(ADSDebug, "targetId");
     _ADSDumpAMSNetId(&(h->targetId));
-    LOG2("targetPort: %d\n", h->targetPort);
-    LOG1("sourceId");
+    ads_debug(ADSDebug,"targetPort: %d\n", h->targetPort);
+    ads_debug(ADSDebug,"sourceId");
     _ADSDumpAMSNetId(&(h->sourceId));
-    LOG2("sourcePort: %d\n", h->sourcePort);
-    LOG3("commandId: %d=%s\n", h->commandId, ADSCommandName(h->commandId));
-//    LOG3("stateFlags: %d=%s\n", h->stateFlags,ADSstateFlagsName(h->stateFlags));
-    LOG2("stateFlags: %d\n", h->stateFlags);
-    LOG2("dataLength: %d\n", h->dataLength);
-    LOG3("errorCode:  %04x %s\n", h->errorCode,
+    ads_debug(ADSDebug,"sourcePort: %d\n", h->sourcePort);
+    ads_debug(ADSDebug,"commandId: %d=%s\n", h->commandId, ADSCommandName(h->commandId));
+//    ads_debug(ADSDebug,"stateFlags: %d=%s\n", h->stateFlags,ADSstateFlagsName(h->stateFlags));
+    ads_debug(ADSDebug,"stateFlags: %d\n", h->stateFlags);
+    ads_debug(ADSDebug,"dataLength: %d\n", h->dataLength);
+    ads_debug(ADSDebug,"errorCode:  %04x %s\n", h->errorCode,
 	 ADSerrorText(h->errorCode));
-    LOG2("invokeId:   %d\n", h->invokeId);
+    ads_debug(ADSDebug,"invokeId:   %d\n", h->invokeId);
 }
 
 EXPORTSPEC char *DECL2 ADSerrorText(int err)
@@ -249,8 +265,8 @@ EXPORTSPEC void DECL2 analyze(uc * p1)
     ADSaddDeviceNotificationResponse *adnr;
     int i;
     ADSpacket *p = (ADSpacket *) p1;
-    LOG2("ADS_TCP.header.reserved: %d\n", p->adsHeader.reserved);
-    LOG2("ADS_TCPheader.length: %d\n", p->adsHeader.length);
+    ads_debug(ADSDebugAnalyze, "ADS_TCP.header.reserved: %d\n", p->adsHeader.reserved);
+    ads_debug(ADSDebugAnalyze, "ADS_TCPheader.length: %d\n", p->adsHeader.length);
     _ADSDumpAMSheader(&(p->amsHeader));
 
     if ((p->amsHeader.stateFlags && 1) == 0) {
@@ -260,43 +276,43 @@ EXPORTSPEC void DECL2 analyze(uc * p1)
 	switch (p->amsHeader.commandId) {
 	case cmdADSreadDevInfo:
 	    di = (ADSdeviceInfo *) (p1 + 38);
-	    LOG3("Error: %d %s\n", di->ADSerror,
+	    ads_debug(ADSDebugAnalyze, "Error: %d %s\n", di->ADSerror,
 		 ADSerrorText(di->ADSerror));
-	    LOG3("Version: %d.%d\n", di->Version.version,
+	    ads_debug(ADSDebugAnalyze, "Version: %d.%d\n", di->Version.version,
 		 di->Version.revision);
-	    LOG2("Build: %d\n", di->Version.build);
-	    LOG1("Device name: ");
+	    ads_debug(ADSDebugAnalyze, "Build: %d\n", di->Version.build);
+	    ads_debug(ADSDebugAnalyze, "Device name: ");
 	    for (i = 0; i < 15; i++) {
-		LOG2("%c", di->name[i]);
+		ads_debug(ADSDebugAnalyze, "%c", di->name[i]);
 	    }
-	    LOG1("\n");
+	    ads_debug(ADSDebugAnalyze, "\n");
 	    break;
 
 	case cmdADSread:
 	    rr = (ADSreadResponse *) (p1 + 38);
-	    LOG3("Result: %d %s\n", rr->result, ADSerrorText(rr->result));
-	    LOG2("Data length: %d\n", rr->length);
+	    ads_debug(ADSDebugAnalyze, "Result: %d %s\n", rr->result, ADSerrorText(rr->result));
+	    ads_debug(ADSDebugAnalyze, "Data length: %d\n", rr->length);
 	    _ADSDump("Data: ", (uc *) p1 + 44, rr->length);
 	    break;
 
 	case cmdADSwrite:
 	    rr = (ADSreadResponse *) (p1 + 38);
-	    LOG3("Result: %d %s\n", rr->result, ADSerrorText(rr->result));
-	    LOG2("Data length: %d\n", rr->length);
+	    ads_debug(ADSDebugAnalyze, "Result: %d %s\n", rr->result, ADSerrorText(rr->result));
+	    ads_debug(ADSDebugAnalyze, "Data length: %d\n", rr->length);
 	    break;
 
 	case cmdADSreadState:
 	    sr = (ADSstateResponse *) (p1 + 38);
-	    LOG3("Result: %d %s\n", sr->result, ADSerrorText(sr->result));
-	    LOG2("ADS state: %d\n", sr->ADSstate);
-	    LOG2("Device state: %d\n", sr->devState);
+	    ads_debug(ADSDebugAnalyze, "Result: %d %s\n", sr->result, ADSerrorText(sr->result));
+	    ads_debug(ADSDebugAnalyze, "ADS state: %d\n", sr->ADSstate);
+	    ads_debug(ADSDebugAnalyze, "Device state: %d\n", sr->devState);
 	    break;
 
 	case cmdADSaddDeviceNotification:
 	    adnr = (ADSaddDeviceNotificationResponse *) (p1 + 38);
-	    LOG3("Result: %d %s\n", adnr->result,
+	    ads_debug(ADSDebugAnalyze, "Result: %d %s\n", adnr->result,
 		 ADSerrorText(adnr->result));
-	    LOG2("Handle: %d\n", adnr->notificationHandle);
+	    ads_debug(ADSDebugAnalyze, "Handle: %d\n", adnr->notificationHandle);
 	    break;
 
 	}
@@ -359,13 +375,13 @@ EXPORTSPEC void DECL2 _ADSDump(char *name, void *v, int len)
 {
     uc *b = (uc *) v;
     int j;
-    LOG2("%s: ", name);
+    ads_debug("%s: ", name);
     if (len > maxDataLen)
 	len = maxDataLen;	// this will avoid to dump zillions of chars
     for (j = 0; j < len; j++) {
-	LOG2("%02X,", b[j]);
+	ads_debug(ADSDebug, "%02X,", b[j]);
     }
-    LOG1("\n");
+    ads_debug(ADSDebug, "\n");
 };
 
 #ifdef __linux__
@@ -379,9 +395,8 @@ int _ADSReadOne(ADSInterface * di, uc * b)
     t.tv_sec = di->timeout / 1000000;
     t.tv_usec = di->timeout % 1000000;
     if (select(di->fd.rfd + 1, &FDS, NULL, NULL, &t) <= 0) {
-	if (ADSDebug & ADSDebugPrintErrors)
-	    LOG1("timeout in readOne.\n");
-	return (0);
+        ads_debug(ADSDebugPrintErrors, "timeout in readOne.\n");
+	    return (0);
     } else {
 	return read(di->fd.rfd, b, 1);
     }
@@ -393,8 +408,7 @@ EXPORTSPEC int DECL2 _ADSReadOne(ADSInterface * di, uc * b)
 {
     unsigned long i;
     ReadFile(di->fd.rfd, b, maxDataLen, &i, NULL);
-//    if (ADSDebug & ADSDebugByte)
-//      _ADSDump("got",buffer,i);
+//  _ADSDump(ADSDebugByte, "got",buffer,i);
     return i;
 }
 #endif
@@ -419,7 +433,7 @@ EXPORTSPEC int DECL2 _ADSReadPacket(ADSInterface * di, uc * b)
 	res += _ADSReadOne(di, b + res);
     if (res < 6) {
 	if (ADSDebug & ADSDebugByte) {
-	    LOG2("res %d ", res);
+	    ads_debug(ADSDebugByte, "res %d ", res);
 	    _ADSDump("_ADSReadIBHpacket: short packet", b, res);
 	}
 	return (0);		// short packet
@@ -430,16 +444,14 @@ EXPORTSPEC int DECL2 _ADSReadPacket(ADSInterface * di, uc * b)
     So do it byte by byte.
     Somebody might have a better solution using non-blocking something.
 */
-    if (ADSDebug & ADSDebugByte)
-	LOG2("h.length %d\n", h->length);
+	ads_debug(ADSDebugByte, "h.length %d\n", h->length);
     while (res < h->length + 6) {
 	i = _ADSReadOne(di, b + res);	//length +8 -3 already read
 	if (i < 1)
 	    return (0);
 	res += i;
     }
-    if (ADSDebug & ADSDebugByte)
-	LOG3("readADSpacket: %d bytes read, %d needed\n", res,
+	ads_debug(ADSDebugByte, "readADSpacket: %d bytes read, %d needed\n", res,
 	     h->length + 6);
     return (res);
 };
@@ -463,7 +475,7 @@ EXPORTSPEC int DECL2 _ADSwrite2(ADSInterface * di, void *buffer, int len)
     if (di->error)
 	return -1;
     if (ADSDebug & ADSDebugByte)
-	_ADSDump("I send: ", buffer, len);
+	    _ADSDump("I send: ", buffer, len);
     res = write(di->fd.wfd, buffer, len);
     if (res < 0)
 	di->error |= 1;
@@ -503,11 +515,11 @@ ADSreadBytes(ADSConnection * dc, int indexGroup, int offset, int length,
     rq->indexGroup = indexGroup;
     rq->indexOffset = offset;
     rq->length = length;
-    if (ADSDebug & ADSDebugPacket) {
-	LOG2("Index Group:   %x\n", rq->indexGroup);
-	LOG2("Index Offset:  %d\n", rq->indexOffset);
-	LOG2("Data length:  %d\n", rq->length);
-    }
+    
+	ads_debug(ADSDebugPacket, "Index Group:   %x\n", rq->indexGroup);
+	ads_debug(ADSDebugPacket, "Index Offset:  %d\n", rq->indexOffset);
+	ads_debug(ADSDebugPacket, "Data length:  %d\n", rq->length);
+	
     _ADSwrite(dc);
     dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn);
     if (dc->AnswLen > 0) {
@@ -524,7 +536,7 @@ ADSreadBytes(ADSConnection * dc, int indexGroup, int offset, int length,
 	    rr = (ADSreadResponse *) (dc->msgIn + 38);
 	    if (rr->result != 0)
 		return rr->result;
-//          LOG1("Here we are\n");
+//          ads_debug("Here we are\n");
 //          _ADSDump("Data: ", (uc*) (dc->msgIn+44), rr->length);
 	    dc->dataPointer = dc->msgIn + 46;
 	    dc->AnswLen = rr->length;
@@ -573,11 +585,9 @@ ADSreadWriteBytes(ADSConnection * dc,
     }
     _ADSDump("packet", dc->msgOut, p1->adsHeader.length + 6);
 
-    if ((ADSDebug & ADSDebugPacket) != 0) {
-	LOG2("Index Group:   %x\n", rq->indexGroup);
-	LOG2("Index Offset:  %d\n", rq->indexOffset);
-	LOG2("Data length:  %d\n", rq->writeLength);
-    }
+	ads_debug(ADSDebugPacket, "Index Group:   %x\n", rq->indexGroup);
+	ads_debug(ADSDebugPacket, "Index Offset:  %d\n", rq->indexOffset);
+	ads_debug(ADSDebugPacket, "Data length:  %d\n", rq->writeLength);
     _ADSwrite(dc);
     /*Reads the answer */
     dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn);
@@ -673,11 +683,9 @@ ADSwriteBytes(ADSConnection * dc, int indexGroup, int offset, int length,
     if (data != NULL) {
 	memcpy(rq->data, data, length);
     }
-    if ((ADSDebug & ADSDebugPacket) != 0) {
-	LOG2("Index Group:   %x\n", rq->indexGroup);
-	LOG2("Index Offset:  %d\n", rq->indexOffset);
-	LOG2("Data length:  %d\n", rq->length);
-    }
+	ads_debug(ADSDebugPacket, "Index Group:   %x\n", rq->indexGroup);
+	ads_debug(ADSDebugPacket, "Index Offset:  %d\n", rq->indexOffset);
+	ads_debug(ADSDebugPacket, "Data length:  %d\n", rq->length);
     _ADSwrite(dc);
     dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn);
     if (dc->AnswLen > 0) {
@@ -757,7 +765,7 @@ ADSwriteControl(ADSConnection * dc, int ADSstate, int devState, void *data,
     h1->commandId = cmdADSwriteControl;
     h1->dataLength = sizeof(ADSwriteControlRequest);
 
-    LOG2("SIZE:  %d\n", h1->dataLength);
+    ads_debug(ADSDebug, "SIZE:  %d\n", h1->dataLength);
     _ADSDumpAMSheader(h1);
 
     p1->adsHeader.length = h1->dataLength + 32;
@@ -801,7 +809,7 @@ ADSaddDeviceNotification(ADSConnection * dc,
     h1->commandId = cmdADSaddDeviceNotification;
     h1->dataLength = sizeof(ADSaddDeviceNotificationRequest);
 
-    LOG2("SIZE:  %d\n", h1->dataLength);
+    ads_debug(ADSDebug, "SIZE:  %d\n", h1->dataLength);
     _ADSDumpAMSheader(h1);
 
     p1->adsHeader.length = h1->dataLength + 32;
@@ -836,7 +844,7 @@ EXPORTSPEC int DECL2 ADSparseNetID(const char *netIDstring, AMSNetID * id)
     p = netIDstring;
     for (i = 0; i < 6; i++) {
 	q[i] = atoi(p);
-	LOG3("%d:  %d\n", i, q[i]);
+	ads_debug(ADSDebug, "%d:  %d\n", i, q[i]);
 	p = strchr(p, '.');
 	if (p == NULL)
 	    return 5 - i;
@@ -887,15 +895,11 @@ ADSConnection *AdsSocketConnect(int *socket_fd, PAmsAddr pAddr,
 	printf("Socket error: %s \n", "0000");
 	return NULL;
     }
-    if (ADSDebug & ADSDebugOpen) {
-	printf("connected to %s", peer);
-    }
+	ads_debug(ADSDebugOpen, "connected to %s", peer);
     errno = 0;
     opt = 1;
     setsockopt(*socket_fd, SOL_SOCKET, SO_KEEPALIVE, &opt, 4);
-    if (ADSDebug & ADSDebugOpen) {
-	printf("setsockopt %s %d\n", strerror(errno), 0);
-    }
+	ads_debug(ADSDebugOpen, "setsockopt %s %d\n", strerror(errno), 0);
 
     fds.rfd = *socket_fd;
     fds.wfd = *socket_fd;

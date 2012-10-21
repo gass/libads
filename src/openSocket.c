@@ -40,7 +40,6 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 
-#include "log2.h"
 #include "ads.h"
 
 extern int ADSDebug;
@@ -54,8 +53,8 @@ int openSocket(const int port, const char *peer)
     struct hostent *he;
 #endif
     if (ADSDebug & ADSDebugOpen) {
-	LOG1(ThisModule "enter OpenSocket");
-	FLUSH;
+	    ads_debug(ADSDebugOpen, ThisModule "enter OpenSocket");
+	    FLUSH;
     }
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
@@ -68,30 +67,23 @@ int openSocket(const int port, const char *peer)
 #endif
 
     fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (ADSDebug & ADSDebugOpen) {
-	LOG2(ThisModule "OpenSocket: socket is %d\n", fd);
-    }
-    if (ADSDebug & ADSDebugOpen) {
-	LOG3(ThisModule "setsockopt %s %d\n", strerror(errno), res);
-    }
+	ads_debug(ADSDebugOpen, ThisModule "OpenSocket: socket is %d\n", fd);
+	ads_debug(ADSDebugOpen, ThisModule "setsockopt %s %d\n", strerror(errno), res);
 
     addrlen = sizeof(addr);
     if (connect(fd, (struct sockaddr *) &addr, addrlen)) {
-	LOG2(ThisModule "Socket error: %s \n", strerror(errno));
+	    ads_debug(ADSDebug, ThisModule "Socket error: %s \n", strerror(errno));
 	close(fd);
 	fd = 0;
     } else {
-	if (ADSDebug & ADSDebugOpen) {
-	    LOG2(ThisModule "Connected to host: %s \n", peer);
-	}
+	    ads_debug(ADSDebugOpen, ThisModule "Connected to host: %s \n", peer);
 /*
 	Need this, so we can read a packet with a single read call and make
 	read return if there are too few bytes.
 */
 	errno = 0;
 //      res=fcntl(fd, F_SETFL, O_NONBLOCK);
-//      if (ADSDebug & ADSDebugOpen) 
-//          LOG3(ThisModule "Set mode to O_NONBLOCK %s %d\n", strerror(errno),res);
+//      ads_debug(ADSDebugOpen, ThisModule "Set mode to O_NONBLOCK %s %d\n", strerror(errno),res);
 /*
 	I thought this might solve Marc's problem with the CP closing
 	a connection after 30 seconds or so, but the Standrad keepalive time
@@ -100,9 +92,7 @@ int openSocket(const int port, const char *peer)
 	errno = 0;
 	opt = 1;
 	res = setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &opt, 4);
-	if (ADSDebug & ADSDebugOpen) {
-	    LOG3(ThisModule "setsockopt %s %d\n", strerror(errno), res);
-	}
+    ads_debug(ADSDebugOpen, ThisModule "setsockopt %s %d\n", strerror(errno), res);
     }
     FLUSH;
     return fd;
