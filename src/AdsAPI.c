@@ -87,13 +87,8 @@ long AdsGetLocalAddress(PAmsAddr pAddr)
 	    netAddr = ntohl(addrStruct->sin_addr.s_addr);
 	    memcpy((char *) &b, (char *) &netAddr, 4);
 	    pAddr->netId = (AmsNetId) {{b[3], b[2], b[1], b[0], 1, 1}};
-	    ads_debug (ADSDebug, "Local Ams Net Id: %d , %d, %d, %d, %d, %d", 
-	                pAddr->netId.b[0], 
-	                pAddr->netId.b[1], 
-	                pAddr->netId.b[2],
-	                pAddr->netId.b[3],
-	                pAddr->netId.b[4],
-	                pAddr->netId.b[5]);
+	    if (ADSDebug)
+	        _ADSDumpAMSNetId(&(pAddr->netId));
 	    break;
 	}
 	if (cur->ifa_next == NULL)
