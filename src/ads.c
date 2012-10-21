@@ -89,19 +89,22 @@ EXPORTSPEC void DECL2 _ADSDumpAMSNetId(AMSNetID * id)
 
 EXPORTSPEC void DECL2 _ADSDumpAMSheader(AMSheader * h)
 {
-    ads_debug(ADSDebug, "targetId");
+    if (!ADSDebug)
+        return;
+    printf("DumpAMS header:\n");
+    printf("targetId");
     _ADSDumpAMSNetId(&(h->targetId));
-    ads_debug(ADSDebug,"targetPort: %d\n", h->targetPort);
-    ads_debug(ADSDebug,"sourceId");
+    printf("targetPort: %d\n", h->targetPort);
+    printf("sourceId");
     _ADSDumpAMSNetId(&(h->sourceId));
-    ads_debug(ADSDebug,"sourcePort: %d\n", h->sourcePort);
-    ads_debug(ADSDebug,"commandId: %d=%s\n", h->commandId, ADSCommandName(h->commandId));
-//    ads_debug(ADSDebug,"stateFlags: %d=%s\n", h->stateFlags,ADSstateFlagsName(h->stateFlags));
-    ads_debug(ADSDebug,"stateFlags: %d\n", h->stateFlags);
-    ads_debug(ADSDebug,"dataLength: %d\n", h->dataLength);
-    ads_debug(ADSDebug,"errorCode:  %04x %s\n", h->errorCode,
-	 ADSerrorText(h->errorCode));
-    ads_debug(ADSDebug,"invokeId:   %d\n", h->invokeId);
+    printf("sourcePort: %d\n", h->sourcePort);
+    printf("commandId: %d=%s\n", h->commandId, ADSCommandName(h->commandId));
+//    printf("stateFlags: %d=%s\n", h->stateFlags,ADSstateFlagsName(h->stateFlags));
+    printf("stateFlags: %d\n", h->stateFlags);
+    printf("dataLength: %d\n", h->dataLength);
+    printf("errorCode:  %04x %s\n", h->errorCode,
+	ADSerrorText(h->errorCode));
+    printf("invokeId:   %d\n", h->invokeId);
 }
 
 EXPORTSPEC char *DECL2 ADSerrorText(int err)
@@ -371,15 +374,17 @@ ADSNewConnection(ADSInterface * di, AMSNetID partner, int port)
 */
 EXPORTSPEC void DECL2 _ADSDump(char *name, void *v, int len)
 {
+    if (!ADSDebug)
+        return;
     uc *b = (uc *) v;
     int j;
-    ads_debug(ADSDebug, "%s: ", name);
+    printf("%s: ", name);
     if (len > maxDataLen)
-	len = maxDataLen;	// this will avoid to dump zillions of chars
+	    len = maxDataLen;	// this will avoid to dump zillions of chars
     for (j = 0; j < len; j++) {
-	ads_debug(ADSDebug, "%02X,", b[j]);
+	    printf("%02X,", b[j]);
     }
-    ads_debug(ADSDebug, "\n");
+    printf("\n");
 };
 
 #ifdef __linux__
