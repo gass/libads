@@ -122,6 +122,8 @@ long AdsSyncWriteControlReq(PAmsAddr pAddr,
 
     ADSConnection *dc;
     dc = AdsSocketConnect(&socket_fd, pAddr, &MeAddr);
+    if (dc == NULL)
+        return 0x01;
     ADSwriteControl(dc, nAdsState, nDeviceState, pData, nLength);
     AdsSocketDisconnect(&socket_fd);
     freeADSConnection(dc);
@@ -146,6 +148,8 @@ long AdsSyncWriteReq(PAmsAddr pAddr,
 
     ADSConnection *dc;
     dc = AdsSocketConnect(&socket_fd, pAddr, &MeAddr);
+    if (dc == NULL)
+        return 0x01;
     ADSwriteBytes(dc, nIndexGroup, nIndexOffset, nLength, pData);
     AdsSocketDisconnect(&socket_fd);
     freeADSConnection(dc);
@@ -170,6 +174,8 @@ long AdsSyncReadReq(PAmsAddr pAddr,
 
     ADSConnection *dc;
     dc = AdsSocketConnect(&socket_fd, pAddr, &MeAddr);
+    if (dc == NULL)
+        return 0x01;
     socket_fd = dc->iface->fd.rfd;
     ADSreadBytes(dc, nIndexGroup, nIndexOffset, nLength, pData);
     AdsSocketDisconnect(&socket_fd);
@@ -191,9 +197,10 @@ long AdsSyncReadStateReq(PAmsAddr pAddr,
 			 unsigned short *pAdsState,
 			 unsigned short *pDeviceState)
 {
-
     ADSConnection *dc;
     dc = AdsSocketConnect(&socket_fd, pAddr, &MeAddr);
+    if (dc == NULL)
+        return 0x01;
     ADSreadState(dc, pAdsState, pDeviceState);
     AdsSocketDisconnect(&socket_fd);
     freeADSConnection(dc);
@@ -214,6 +221,8 @@ long AdsSyncReadDeviceInfoReq(PAmsAddr pAddr,
 
     ADSConnection *dc;
     dc = AdsSocketConnect(&socket_fd, pAddr, &MeAddr);
+    if (dc == NULL)
+        return 0x01;
     ADSreadDeviceInfo(dc, pDevName, pVersion);
     AdsSocketDisconnect(&socket_fd);
     freeADSConnection(dc);
@@ -241,6 +250,8 @@ long AdsSyncReadWriteReq(PAmsAddr pAddr,
 {
     ADSConnection *dc;
     dc = AdsSocketConnect(&socket_fd, pAddr, &MeAddr);
+    if (dc == NULL)
+        return 0x01;
     ADSreadWriteBytes(dc, nIndexGroup, nIndexOffset, nReadLength,
 		      pReadData, nWriteLength, pWriteData);
     AdsSocketDisconnect(&socket_fd);
@@ -271,6 +282,8 @@ long AdsSyncAddDeviceNotificationReq(PAmsAddr pAddr,
 {
     ADSConnection *dc;
     dc = AdsSocketConnect(&socket_fd, pAddr, &MeAddr);
+    if (dc == NULL)
+        return 0x01;
     ADSaddDeviceNotification(dc, nIndexGroup, nIndexOffset,
 			     pNoteAttrib->cbLength,
 			     pNoteAttrib->nTransMode,
