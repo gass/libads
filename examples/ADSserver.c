@@ -29,36 +29,26 @@
 
 #include <pthread.h>
 
-#include "log2.h"
-
 #include <sys/time.h>
 #include <sys/socket.h>
 
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <errno.h>
-
-#define ThisModule "ADSserver : "
-
-#include "accepter.c"
-
-#include "ads.h"
-
-#define debug 12
-
-
-#ifdef LINUX
 #include <byteswap.h>
 #include <unistd.h>
 #include <sys/time.h>
 #include <fcntl.h>
-#else    
-#error Fill in what you need for your OS or API.
-#endif
 
-AMSNetID me   ={172,16,17,5,1,1};
+#define ThisModule "ADSserver : "
 
-AMSNetID partner  ={172,16,17,1,1,1};
+#include "ads.h"
+#include "accepter.h"
+
+
+AMSNetID me   = {{172,16,17,5,1,1}};
+
+AMSNetID partner  ={{172,16,17,1,1,1}};
 
 /*
     many bytes. hopefully enough to serve any read request.
@@ -134,8 +124,8 @@ int _ADSwrite22(ADSInterface * di, void * buffer, int len) {
 
 void ranalyze(ADSConnection * dc) {
     ADSpacket * p=(ADSpacket *)(dc->msgIn);
-    LOG2("ADS_TCP.header.reserved: %d\n", p->adsHeader.reserved);
-    LOG2("ADS_TCPheader.length: %d\n", p->adsHeader.length);
+    ads_debug(ADSDebug, "ADS_TCP.header.reserved: %d\n", p->adsHeader.reserved);
+    ads_debug(ADSDebug, "ADS_TCPheader.length: %d\n", p->adsHeader.length);
     _ADSDumpAMSheader(&(p->amsHeader));
     uc * b=(uc*) p->data;
     ADSreadWriteRequest * rwrq;
@@ -151,9 +141,9 @@ void ranalyze(ADSConnection * dc) {
     switch (p->amsHeader.commandId) {
 	case cmdADSreadDevInfo:
 	    di=(ADSdeviceInfo*) pr->data;
-	    di->majorVersion=185;
-	    di->minorVersion=0;
-	    di->build=0;
+	    di->Version.version=185;
+	    di->Version.revision=0;
+	    di->Version.build=0;
 	    di->name[0]='P';
 	    di->name[1]='L';
 	    di->name[2]='C';
@@ -170,9 +160,9 @@ void ranalyze(ADSConnection * dc) {
 	
 	case cmdADSwrite:
 	    wrq=(ADSwriteRequest*) p->data;
-	    LOG2("Index Group:   %04x\n", wrq->indexGroup);
-	    LOG2("Index Offset:  %d\n", wrq->indexOffset);
-	    LOG2("Data length:  %d\n", wrq->length);
+	    ads_debug(ADSDebug, "Index Group:   %04x\n", wrq->indexGroup);
+	    ads_debug(ADSDebug, "Index Offset:  %d\n", wrq->indexOffset);
+	    ads_debug(ADSDebug, "Data length:  %d\n", wrq->length);
 	    _ADSDump("Data: ", wrq->data, wrq->length);
 	    wrs =(ADSwriteResponse *) (pr->data);
 	    wrs->result=0;
@@ -180,10 +170,10 @@ void ranalyze(ADSConnection * dc) {
 	break;
 	case cmdADSreadWrite:
 	    rwrq =(ADSreadWriteRequest *) (p->data);
-	    LOG2("Index Group:   %04x\n", rwrq->indexGroup);
-	    LOG2("Index Offset:  %d\n", rwrq->indexOffset);
-	    LOG2("Read data length:  %d\n", rwrq->readLength);
-	    LOG2("Write data length: %d\n", rwrq->writeLength);
+	    ads_debug(ADSDebug, "Index Group:   %04x\n", rwrq->indexGroup);
+	    ads_debug(ADSDebug, "Index Offset:  %d\n", rwrq->indexOffset);
+	    ads_debug(ADSDebug, "Read data length:  %d\n", rwrq->readLength);
+	    ads_debug(ADSDebug, "Write data length: %d\n", rwrq->writeLength);
 	    _ADSDump("WriteData: ", rwrq->data, rwrq->writeLength);    
 	    
 	    rwrs =(ADSreadWriteResponse *) (pr->data);
@@ -192,7 +182,7 @@ void ranalyze(ADSConnection * dc) {
 	    
 	    pr->amsHeader.dataLength= 8 + rwrq->readLength;
 	    *(int*)(rwrs->data+0)=p->amsHeader.invokeId;
-	    LOG2("Response data length: %d\n", pr->amsHeader.dataLength);
+	    ads_debug(ADSDebug, "Response data length: %d\n", pr->amsHeader.dataLength);
 	    _ADSDump("Response ", rwrs->data, rwrq->writeLength);    
 	break;
 	default:
@@ -202,8 +192,8 @@ void ranalyze(ADSConnection * dc) {
     
 //    pr->adsHeader.length=36;	// 76-32-8;
     pr->adsHeader.length=pr->amsHeader.dataLength+32;
-    LOG2("Response data length: %d\n", pr->amsHeader.dataLength);
-    LOG2("Response packet length: %d\n", pr->adsHeader.length);
+    ads_debug(ADSDebug, "Response data length: %d\n", pr->amsHeader.dataLength);
+    ads_debug(ADSDebug, "Response packet length: %d\n", pr->adsHeader.length);
     
     pr->amsHeader.targetId=p->amsHeader.sourceId;
     pr->amsHeader.targetPort=p->amsHeader.sourcePort;
@@ -222,8 +212,8 @@ void ranalyze(ADSConnection * dc) {
     
     ADSwriteResponse * rp=(ADSwriteResponse*) pr->data;
     rp->result=0;
-    LOG2("ADS_TCP.header.reserved: %d\n", pr->adsHeader.reserved);
-    LOG3("ADS_TCPheader.length: %d total:%d\n", pr->adsHeader.length, sizeof(AMS_TCPheader)+
+    ads_debug(ADSDebug, "ADS_TCP.header.reserved: %d\n", pr->adsHeader.reserved);
+    ads_debug(ADSDebug, "ADS_TCPheader.length: %d total:%d\n", pr->adsHeader.length, sizeof(AMS_TCPheader)+
     sizeof( AMSheader)+4);
     _ADSDumpAMSheader(&(pr->amsHeader));
     _ADSwrite(dc);
@@ -238,10 +228,10 @@ typedef struct _portInfo {
 void *portServer(void *arg)
 {
     portInfo * pi=(portInfo *) arg;
-    LOG2("portMy fd is:%d\n", pi->fd);
-    FLUSH;
+    ads_debug(ADSDebug, "portMy fd is:%d\n", pi->fd);
+    ;
     int waitCount = 0;
-    ADSDebug=ADSDebugAll;
+    //ADSDebug=ADSDebugAll;
     int res;
     int pcount=0;
     _ADSOSserialType s;
@@ -254,7 +244,7 @@ void *portServer(void *arg)
 	dc->AnswLen=_ADSReadPacket(dc->iface, dc->msgIn);
 	if (dc->AnswLen>0) {
 	    res=dc->AnswLen;
-	    LOG2("%d ", pcount);		
+	    ads_debug(ADSDebug, "%d ", pcount);		
 	    _ADSDump("packet", dc->msgIn, dc->AnswLen);
 	    waitCount = 0;
 	    ranalyze(dc);
@@ -266,8 +256,8 @@ void *portServer(void *arg)
 	    waitCount++;
 	}    
     }
-    LOG1("portserver: I closed my fd.\n");
-    FLUSH;
+    ads_debug(ADSDebug, "portserver: I closed my fd.\n");
+    ;
     return NULL;
 }
 
@@ -289,12 +279,12 @@ int main(int argc, char **argv)
 //    writeCallBack=myWrite;
     
     int filedes[2], res, newfd;
-    char * s,s2;
+    char * s, *s2;
     s = argv[1];
     s2 = argv[2];
-    LOG2("Main serv: %s\n", s);
+    ads_debug(ADSDebug, "Main serv: %s\n", s);
     
-    LOG2("Main serv: %s\n", s2);
+    ads_debug(ADSDebug, "Main serv: %s\n", s2);
     
     portInfo pi;
 
@@ -304,8 +294,8 @@ int main(int argc, char **argv)
     pthread_t ac, ps;
     accepter_info ai;
     ai.port = atol(s2);
-    LOG2("Main serv: %d\n", ai.port);
-    LOG2("Main serv: Accepter pipe fd: %d\n", ai.fd);
+    ads_debug(ADSDebug, "Main serv: %d\n", ai.port);
+    ads_debug(ADSDebug, "Main serv: Accepter pipe fd: %d\n", ai.fd);
     ai.fd = filedes[1];
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr,PTHREAD_CREATE_DETACHED);
@@ -314,18 +304,18 @@ int main(int argc, char **argv)
 	FD_ZERO(&FDS);
 	FD_SET(filedes[0], &FDS);
 
-	LOG2("Main serv: about to select on %d\n",
+	ads_debug(ADSDebug, "Main serv: about to select on %d\n",
 	       filedes[0]);
-	FLUSH;
+	;
 	if (select(filedes[0] + 1, &FDS, NULL, &FDS, NULL) > 0) {
-	    LOG1("Main serv: about to read\n");
+	    ads_debug(ADSDebug, "Main serv: about to read\n");
 	    res = read(filedes[0], &pi.fd, sizeof(pi.fd));
 	    ps=0;		   
 	    pthread_attr_init(&attr);
 	    pthread_attr_setdetachstate(&attr,PTHREAD_CREATE_DETACHED);
 	    res=pthread_create(&ps, &attr, portServer, &pi);
 	    if(res) {
-		LOG2("Main serv: create error:%s\n", strerror(res));		   
+		ads_debug(ADSDebug, "Main serv: create error:%s\n", strerror(res));		   
 		close(newfd);
 		usleep(100000);
 	    }	   
@@ -335,9 +325,3 @@ int main(int argc, char **argv)
     return 0;
 }
 
-
-/*
-    Changes:
-    
-    14/07/2003 give a hint about usage
-*/

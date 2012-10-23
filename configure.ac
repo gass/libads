@@ -12,5 +12,6 @@ AC_CONFIG_FILES([
 	tests/Makefile
 	src/Makefile
 	src/libads.pc
+	examples/Makefile
 ])
 AC_OUTPUT
