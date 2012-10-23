@@ -46,9 +46,9 @@
 #include "accepter.h"
 
 
-AMSNetID me   = {{172,16,17,5,1,1}};
+AMSNetID me;
 
-AMSNetID partner  ={{172,16,17,1,1,1}};
+AMSNetID partner;
 
 /*
     many bytes. hopefully enough to serve any read request.
@@ -269,12 +269,15 @@ void *portServer(void *arg)
 
 int main(int argc, char **argv)
 {
-    if (argc<1) {
-	printf("Usage: ADSserver port\n");
+    if (argc<=1) {
+   	printf("Usage: ADSserver port\n");
 	printf("Example: ADSserver 48898\n");
 	return -1;
-    }
+	}
     
+    ADSGetLocalAMSId(&me);
+    ADSGetLocalAMSId(&partner);
+
 //    readCallBack=dummyRead;
 //    writeCallBack=myWrite;
     
