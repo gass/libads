@@ -24,14 +24,6 @@
 */
 
 #include <stdio.h>
-#include <sys/socket.h>
-#include <errno.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <ifaddrs.h>
-#include <arpa/inet.h>
-#include <string.h>
-#include <net/if.h>
 
 #include "ads.h"
 #include "AdsDEF.h"
@@ -69,33 +61,7 @@ long AdsPortClose(void)
   */
 long AdsGetLocalAddress(PAmsAddr pAddr)
 {
-    struct ifaddrs *list;
-    unsigned char b[4];
-    unsigned long int netAddr;
-    struct sockaddr_in *addrStruct;
-
-    if (getifaddrs(&list) < 0) {
-	    return 0x01;
-    }
-
-    struct ifaddrs *cur;
-    for (cur = list; cur != NULL; cur = cur->ifa_next) {
-	if ((cur->ifa_addr->sa_family == AF_INET)
-	    && (strcmp(cur->ifa_name, "lo") != 0)) {
-	    addrStruct = (struct sockaddr_in *) cur->ifa_addr;
-	    netAddr = ntohl(addrStruct->sin_addr.s_addr);
-	    memcpy((char *) &b, (char *) &netAddr, 4);
-	    pAddr->netId = (AmsNetId) {{b[3], b[2], b[1], b[0], 1, 1}};
-	    if (ADSDebug)
-	        _ADSDumpAMSNetId(&(pAddr->netId));
-	    break;
-	}
-	if (cur->ifa_next == NULL)
-	    pAddr->netId = (AmsNetId) {{127, 0, 0, 1, 1, 1}};
-    }
-    freeifaddrs(list);
-
-    return 0;
+    return ADSGetLocalAMSId (&pAddr->netId);
 }
 
 /** \brief Changes the ADS status and the device status of an ADS server.

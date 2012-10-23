@@ -338,6 +338,8 @@ extern "C" {
     int ADSparseNetID(const char *NetIDstring,
 				       AMSNetID * id);
 
+    int ADSGetLocalAMSId(AMSNetID * id);
+    
     ADSConnection *AdsSocketConnect(int *socket_fd, PAmsAddr pAddr,
 				    PAmsAddr pMeAddr);
 

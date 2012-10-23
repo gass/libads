@@ -34,6 +34,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <errno.h>
+#include <ifaddrs.h>
 
 #include "ads.h"
 #include "AdsDEF.h"
@@ -845,6 +846,36 @@ int ADSparseNetID(const char *netIDstring, AMSNetID * id)
     return 0;
 }
 
+int ADSGetLocalAMSId(AMSNetID * id)
+{
+    struct ifaddrs *list;
+    unsigned char b[4];
+    unsigned long int netAddr;
+    struct sockaddr_in *addrStruct;
+    
+    if (getifaddrs(&list) < 0) {
+	    return 0x01;
+    }
+
+    struct ifaddrs *cur;
+    for (cur = list; cur != NULL; cur = cur->ifa_next) {
+	if ((cur->ifa_addr->sa_family == AF_INET)
+	    && (strcmp(cur->ifa_name, "lo") != 0)) {
+	    addrStruct = (struct sockaddr_in *) cur->ifa_addr;
+	    netAddr = ntohl(addrStruct->sin_addr.s_addr);
+	    memcpy((char *) &b, (char *) &netAddr, 4);
+	    *id = (AMSNetID){b[3], b[2], b[1], b[0], 1, 1};
+	    if (ADSDebug)
+	        _ADSDumpAMSNetId(id);
+	    break;
+	}
+	if (cur->ifa_next == NULL)
+	    *id = (AMSNetID){127, 0, 0, 1, 1, 1};
+    }
+    freeifaddrs(list);
+    return 0;
+    
+}
 /**
  * \brief Opens a new onnection to the Ads client.
  * This is an auxiliar function.
