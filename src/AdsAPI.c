@@ -35,8 +35,10 @@
 
 #include "ads.h"
 #include "AdsDEF.h"
+#include "AdsAPI.h"
 
 static int socket_fd = 0;
+static AmsAddr MeAddr = {{127, 0, 0, 0, 1, 1, 1}};
 
 /**
   * \brief Establishes a connection (communication port) to the TwinCAT message router.
@@ -45,11 +47,8 @@ static int socket_fd = 0;
   */
 int AdsPortOpen(void)
 {
-
-    /*
-     * TODO: Should return a Port number. But ...
-     */
-    return 101;
+    PAmsAddr pMeAddr = &MeAddr;
+    return AdsGetLocalAddress(pMeAddr);
 }
 
 
@@ -122,8 +121,7 @@ long AdsSyncWriteControlReq(PAmsAddr pAddr,
 {
 
     ADSConnection *dc;
-    dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
-    socket_fd = dc->iface->fd.rfd;
+    dc = AdsSocketConnect(&socket_fd, pAddr, &MeAddr);
     ADSwriteControl(dc, nAdsState, nDeviceState, pData, nLength);
     AdsSocketDisconnect(&socket_fd);
     freeADSConnection(dc);
@@ -147,8 +145,7 @@ long AdsSyncWriteReq(PAmsAddr pAddr,
 {
 
     ADSConnection *dc;
-    dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
-    socket_fd = dc->iface->fd.rfd;
+    dc = AdsSocketConnect(&socket_fd, pAddr, &MeAddr);
     ADSwriteBytes(dc, nIndexGroup, nIndexOffset, nLength, pData);
     AdsSocketDisconnect(&socket_fd);
     freeADSConnection(dc);
@@ -172,7 +169,7 @@ long AdsSyncReadReq(PAmsAddr pAddr,
 {
 
     ADSConnection *dc;
-    dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
+    dc = AdsSocketConnect(&socket_fd, pAddr, &MeAddr);
     socket_fd = dc->iface->fd.rfd;
     ADSreadBytes(dc, nIndexGroup, nIndexOffset, nLength, pData);
     AdsSocketDisconnect(&socket_fd);
@@ -196,7 +193,7 @@ long AdsSyncReadStateReq(PAmsAddr pAddr,
 {
 
     ADSConnection *dc;
-    dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
+    dc = AdsSocketConnect(&socket_fd, pAddr, &MeAddr);
     ADSreadState(dc, pAdsState, pDeviceState);
     AdsSocketDisconnect(&socket_fd);
     freeADSConnection(dc);
@@ -216,8 +213,7 @@ long AdsSyncReadDeviceInfoReq(PAmsAddr pAddr,
 {
 
     ADSConnection *dc;
-    dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
-    socket_fd = dc->iface->fd.rfd;
+    dc = AdsSocketConnect(&socket_fd, pAddr, &MeAddr);
     ADSreadDeviceInfo(dc, pDevName, pVersion);
     AdsSocketDisconnect(&socket_fd);
     freeADSConnection(dc);
@@ -244,8 +240,7 @@ long AdsSyncReadWriteReq(PAmsAddr pAddr,
 			 unsigned long nWriteLength, void *pWriteData)
 {
     ADSConnection *dc;
-    dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
-    socket_fd = dc->iface->fd.rfd;
+    dc = AdsSocketConnect(&socket_fd, pAddr, &MeAddr);
     ADSreadWriteBytes(dc, nIndexGroup, nIndexOffset, nReadLength,
 		      pReadData, nWriteLength, pWriteData);
     AdsSocketDisconnect(&socket_fd);
@@ -275,8 +270,7 @@ long AdsSyncAddDeviceNotificationReq(PAmsAddr pAddr,
 				     unsigned long *pNotification)
 {
     ADSConnection *dc;
-    dc = AdsSocketConnect(&socket_fd, pAddr, NULL);
-    socket_fd = dc->iface->fd.rfd;
+    dc = AdsSocketConnect(&socket_fd, pAddr, &MeAddr);
     ADSaddDeviceNotification(dc, nIndexGroup, nIndexOffset,
 			     pNoteAttrib->cbLength,
 			     pNoteAttrib->nTransMode,
