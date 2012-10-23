@@ -30,7 +30,7 @@
 #include "AdsAPI.h"
 
 static int socket_fd = 0;
-static AmsAddr MeAddr = {{127, 0, 0, 0, 1, 1, 1}};
+static AmsAddr MeAddr;
 
 /**
   * \brief Establishes a connection (communication port) to the TwinCAT message router.
