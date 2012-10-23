@@ -112,7 +112,7 @@ char * ADSerrorText(int err)
 {
     switch (err) {
     case 0:
-	return "ok";
+	return "no error";
     case 0x0001:
 	return "Internal error";
     case 0x0002:
