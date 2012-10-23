@@ -879,7 +879,7 @@ ADSConnection *AdsSocketConnect(int *socket_fd, PAmsAddr pAddr,
 
     /* connect to plc */
     if (connect(*socket_fd, (struct sockaddr *) &addr, addrlen)) {
-	printf("Socket error: %s \n", "0000");
+	ads_debug(ADSDebugOpen, "Socket error: %s \n", "0000");
 	return NULL;
     }
 	ads_debug(ADSDebugOpen, "connected to %s", peer);
