@@ -46,11 +46,8 @@
 
 #define ThisModule "Accepter : "
 #include "ads.h"
+#include "accepter.h"
 
-typedef struct  {
-    int fd;
-    int port;
-} accepter_info;
 
 void *accepter(void *arg)
 {
