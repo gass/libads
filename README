@@ -32,6 +32,18 @@ by default debug is:
 To make a full test, it should be configured with:
 ./configure CFLAGS='-DADSDebug=ADSDebugAll -Wall -Werror'
 
+TESTS AND EXAMPLES
+---------------------
+
+There are a few test cases in the test directory.
+In the examples directory there is a working ADS server: ADSserver.
+Must be called: ./ADSserver 48898 48898
+
+The client is AdsClient: ./AdsClient
+
+It connects to it self, so the server must be running.
+
+
 CONTACT AND DISCUSSION
 -----------------------
 
