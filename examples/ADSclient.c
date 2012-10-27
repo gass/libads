@@ -43,10 +43,9 @@
 #define UNIX_STYLE
 #endif
 
-
 #include "openSocket.h"
 
-#define debug 10    
+#define debug 10
 
 #define ADSPtEmpty -2
 #define ADSPtMPIAck -3
@@ -55,105 +54,107 @@
 #define ADSPtReadResponse 1
 #define ADSPtWriteResponse 2
 
-AMSNetID me   ={172,16,17,1,1,1};
-AMSNetID other={172,16,17,3,1,1};
+AMSNetID me = { 172, 16, 17, 1, 1, 1 };
+AMSNetID other = { 172, 16, 17, 3, 1, 1 };
 
-void readIndexGroup(ADSConnection *dc, int igr) {
-    int res;
-    printf("Trying to read from index group %04x\n",igr);
-    res=ADSreadBytes(dc, igr,0,20,NULL);
-    if (res==0)
-	_ADSDump("data",dc->dataPointer,dc->AnswLen);
-    else
-	printf(" Error %s ",ADSerrorText(res));	
-    printf("\n");	
-}	
+void readIndexGroup(ADSConnection * dc, int igr)
+{
+	int res;
+	printf("Trying to read from index group %04x\n", igr);
+	res = ADSreadBytes(dc, igr, 0, 20, NULL);
+	if (res == 0)
+		_ADSDump("data", dc->dataPointer, dc->AnswLen);
+	else
+		printf(" Error %s ", ADSerrorText(res));
+	printf("\n");
+}
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 //    ADSDebug=ADSDebugAll;
-    
+
 //    ADSDebug=ADSDebugAnalyze;
-    _ADSOSserialType fds;
-    ADSInterface * di;
-    ADSConnection * dc;
-#ifdef UNIX_STYLE    
+	_ADSOSserialType fds;
+	ADSInterface *di;
+	ADSConnection *dc;
+#ifdef UNIX_STYLE
 	struct timeval t1, t2;
 	int netFd;
-#endif    
-#ifdef BCCWIN    
+#endif
+#ifdef BCCWIN
 	clock_t t1, t2;
 	HANDLE netFd;
 #endif
-    int i,apn,k, port;
-    FILE * logFile;
-    uc buffer[maxDataLen];
-    int res;
-    uc *b;
+	int i, apn, k, port;
+	FILE *logFile;
+	uc buffer[maxDataLen];
+	int res;
+	uc *b;
 
+	int log = 0;
+	ADSDebug = 0;
 
-    int log=0;
-    ADSDebug=0;
-    
-    if (argc<3) {
-	printf("Usage: ADSclient host port \n");
-	printf("Example: ADSclient 192.168.17.110 48898\n");
-	return -1;
-    }
-    
-    port = atol(argv[2]);
-    
-    LOG3("host: %s port %d\n", argv[1], port);
-    netFd=openSocket(port, argv[1]);
-    if (netFd<=0) {
-	printf("Could not connect to host!\n");
-	return -1;
-    }
-    LOG2("netFd: %d\n", netFd);
-    fds.rfd=netFd;
-    fds.wfd=netFd;
-    di=ADSNewInterface(fds,me, 800,"test");
-    dc=ADSNewConnection(di,other, 800);
-    b =buffer;
-    
-    LOG1("device info:\n");
-    ADSreadDeviceInfo(dc);
-    LOG1("read state:\n");
+	if (argc < 3) {
+		printf("Usage: ADSclient host port \n");
+		printf("Example: ADSclient 192.168.17.110 48898\n");
+		return -1;
+	}
+
+	port = atol(argv[2]);
+
+	LOG3("host: %s port %d\n", argv[1], port);
+	netFd = openSocket(port, argv[1]);
+	if (netFd <= 0) {
+		printf("Could not connect to host!\n");
+		return -1;
+	}
+	LOG2("netFd: %d\n", netFd);
+	fds.rfd = netFd;
+	fds.wfd = netFd;
+	di = ADSNewInterface(fds, me, 800, "test");
+	dc = ADSNewConnection(di, other, 800);
+	b = buffer;
+
+	LOG1("device info:\n");
+	ADSreadDeviceInfo(dc);
+	LOG1("read state:\n");
 //    ADSreadBytes(dc,igr,0,100,NULL);
 //    ADSwriteBytes(dc,igr,0,100,NULL);
-    ADSreadState(dc,NULL,NULL);
-    LOG1("write control:\n");
-    ADSwriteControl(dc,4,0,NULL,0);
-    
-    readIndexGroup(dc, 0x4020);
-    readIndexGroup(dc, 0x4021);
+	ADSreadState(dc, NULL, NULL);
+	LOG1("write control:\n");
+	ADSwriteControl(dc, 4, 0, NULL, 0);
+
+	readIndexGroup(dc, 0x4020);
+	readIndexGroup(dc, 0x4021);
 //    readIndexGroup(dc, 0x4025);
-    readIndexGroup(dc, 0x4030);
-    readIndexGroup(dc, 0x4031);
-    readIndexGroup(dc, 0x4040);
-    
-    readIndexGroup(dc, 0xf003);
-    readIndexGroup(dc, 0xf004);
-    readIndexGroup(dc, 0xf020);
-    readIndexGroup(dc, 0xf021);
-    readIndexGroup(dc, 0xf030);
-    readIndexGroup(dc, 0xf031);
-    readIndexGroup(dc, 0xf060);
+	readIndexGroup(dc, 0x4030);
+	readIndexGroup(dc, 0x4031);
+	readIndexGroup(dc, 0x4040);
+
+	readIndexGroup(dc, 0xf003);
+	readIndexGroup(dc, 0xf004);
+	readIndexGroup(dc, 0xf020);
+	readIndexGroup(dc, 0xf021);
+	readIndexGroup(dc, 0xf030);
+	readIndexGroup(dc, 0xf031);
+	readIndexGroup(dc, 0xf060);
 //    ADSaddDeviceNotification(dc, igr, 0, 10, ADS_TRANS_NOTRANS, 100000, 120000);
-    ADSaddDeviceNotification(dc, 0x4020, 0, 10, ADS_TRANS_CLIENTCYCLE, 100000, 120000);
+	ADSaddDeviceNotification(dc, 0x4020, 0, 10, ADS_TRANS_CLIENTCYCLE,
+				 100000, 120000);
 //    ADSaddDeviceNotification(dc, igr, 0, 10, ADS_TRANS_CLIENT1REQ, 100000, 120000);
 //    ADSaddDeviceNotification(dc, igr, 0, 10, ADS_TRANS_SERVERCYCLE, 100000, 120000);
 //    ADSaddDeviceNotification(dc, igr, 0, 10, ADS_TRANS_SERVERONCHA, 100000, 120000);
 //    ADSaddDeviceNotification(dc, 0x801f, 0, 10, 6, 100000, 120000);
-    ADSaddDeviceNotification(dc, 0x4020, 0, 10, ADSTRANS_SERVERONCHA, 100000, 120000);
+	ADSaddDeviceNotification(dc, 0x4020, 0, 10, ADSTRANS_SERVERONCHA,
+				 100000, 120000);
 /*    
     k=0x4000;
     for (i=k; i<k+60; i++)
 	ADSreadBytes(dc,i,0,100,NULL);
 //    double usec = (t2.tv_sec - t1.tv_sec) + (t2.tv_usec - t1.tv_usec)*1e-6;
 */
-    return 0;
+	return 0;
 }
-    
 
 /*
     Changes:

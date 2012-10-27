@@ -26,11 +26,11 @@ using std::string;
 #define from(x) substr(x)
 #define after(x) substr(1+x)
 #define before(x) substr(0,x)
-#define Find find  
+#define Find find
 #else
 #include <String.h>
-#define erase del  
-#define Find index  
+#define erase del
+#define Find index
 #define substr(x,y) at(x,y)
 #define string String
 #define c_str chars
