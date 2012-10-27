@@ -475,7 +475,7 @@ void _ADSsetupHeader(ADSConnection * dc, AMSheader * h)
 	h->targetPort = dc->AMSport;
 	h->sourceId = dc->iface->me;
 	h->sourcePort = dc->iface->AMSport;
-	h->stateFlags = 4;
+	h->stateFlags = 0x0004;	/* command and tcp connection TODO: this shpuld be configured */
 	h->errorCode = 0;
 	h->invokeId = ++dc->invokeId;	//user-defined 32-bit field. Usually it is used to identify
 };
@@ -638,7 +638,7 @@ int ADSreadDeviceInfo(ADSConnection * dc, char *pDevName, PAdsVersion pVersion)
 	h1->dataLength = 0;
 	_ADSDumpAMSheader(h1);
 
-	p1->adsHeader.length = h1->dataLength + 32;
+	p1->adsHeader.length = h1->dataLength + AMSHeaderSIZE;
 	p1->adsHeader.reserved = 0;
 
 	_ADSwrite(dc);
@@ -646,21 +646,29 @@ int ADSreadDeviceInfo(ADSConnection * dc, char *pDevName, PAdsVersion pVersion)
 	dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn);
 
 	/* Analises the received packet */
+	if ((ADSDebug & ADSDebugAnalyze) != 0)
+		analyze(dc->msgIn);
+	if ((ADSDebug & ADSDebugPacket) != 0)
+		_ADSDump("packet ", dc->msgIn, dc->AnswLen);
+
 	if (dc->AnswLen > 0) {
 		p2 = (ADSpacket *) dc->msgIn;
 		if (p2->amsHeader.commandId == cmdADSreadDevInfo) {
-			DeviceInfo = (ADSdeviceInfo *) (dc->msgIn + 38);
+			DeviceInfo =
+			    (ADSdeviceInfo *) (dc->msgIn + ADSTCPDataStart);
+			if (DeviceInfo->ADSerror != 0) {
+				ads_debug(ADSDebug,
+					  "Error in the received packet: %s",
+					  ADSerrorText(DeviceInfo->ADSerror));
+				return 0x01;
+			}
 			*pVersion = DeviceInfo->Version;
 			memcpy(pDevName, DeviceInfo->name, 16);
 		}
-	}
-
-	else {			/* if there is an error */
-		if ((ADSDebug & ADSDebugPacket) != 0)
-			_ADSDump("packet", dc->msgIn, dc->AnswLen);
-
+	} else {
 		if ((ADSDebug & ADSDebugAnalyze) != 0)
 			analyze(dc->msgIn);
+		return 0x01;
 	}
 	return 0;
 }
@@ -927,15 +935,17 @@ ADSConnection *AdsSocketConnect(int *socket_fd, PAmsAddr pAddr,
 	addrlen = sizeof(addr);
 
 	/* connect to plc */
-	if (connect(*socket_fd, (struct sockaddr *)&addr, addrlen)) {
-		ads_debug(ADSDebugOpen, "Socket error: %s \n", "0000");
+	if (connect(*socket_fd, (struct sockaddr *)&addr, addrlen) < 0) {
+		ads_debug(ADSDebugOpen, "Socket error: %s \n", strerror(errno));
 		return NULL;
 	}
 	ads_debug(ADSDebugOpen, "connected to %s", peer);
 	errno = 0;
 	opt = 1;
-	setsockopt(*socket_fd, SOL_SOCKET, SO_KEEPALIVE, &opt, 4);
-	ads_debug(ADSDebugOpen, "setsockopt %s %d\n", strerror(errno), 0);
+	if (setsockopt(*socket_fd, SOL_SOCKET, SO_KEEPALIVE, &opt, 4) < 0) {
+		ads_debug(ADSDebugOpen, "setsockopt %s\n", strerror(errno));
+		return NULL;
+	}
 
 	fds.rfd = *socket_fd;
 	fds.wfd = *socket_fd;

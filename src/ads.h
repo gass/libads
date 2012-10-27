@@ -54,6 +54,10 @@ extern "C" {
 #define USHORT unsigned short
 #define DWORD unsigned int
 
+/* define heade sizes aond positions */
+#define AMSTCPHeaderSIZE 6
+#define AMSHeaderSIZE 32
+#define ADSTCPDataStart (AMSTCPHeaderSIZE + AMSHeaderSIZE)
 #pragma pack (1)
 
 	typedef struct _AMS_TCPheader {
