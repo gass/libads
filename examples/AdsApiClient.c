@@ -30,24 +30,22 @@ int main(int argc, char **argv)
 {
 	short unsigned int nAdsState;
 	short unsigned int nDeviceState;
-    AdsVersion Version;
-    AdsVersion *pVersion = &Version;
-    char pDevName[16];
+	AdsVersion Version;
+	AdsVersion *pVersion = &Version;
+	char pDevName[16];
 	long nErr;
 	AmsAddr Addr;
 	PAmsAddr pAddr = &Addr;
-	
 
 	/* Open communication port on the ADS router */
 	AdsPortOpen();
-    /* set the target ip AMS Net Id	 */
-    AdsGetLocalAddress(pAddr);
-    
+	/* set the target ip AMS Net Id      */
+	AdsGetLocalAddress(pAddr);
+
 	/* PLC Port */
 	pAddr->port = AMSPORT_R0_PLC_RTS1;
 
-
-    /* example, read state */
+	/* example, read state */
 	nErr = AdsSyncReadStateReq(pAddr, &nAdsState, &nDeviceState);
 	if (nErr)
 		printf("Error: AdsSyncReadStateReq: %ld\n", nErr);
@@ -61,11 +59,11 @@ int main(int argc, char **argv)
 	if (nErr)
 		printf("Error: AdsSyncReadDeviceInfoReq: %ld\n", nErr);
 	else {
-	    printf("Name: %s\n", pDevName);
-	    printf("Version: %d\n", (int)pVersion->version);
-	    printf("Revision: %d\n", (int)pVersion->revision );
-	    printf("Build: %d\n", pVersion->build);
-    }
+		printf("Name: %s\n", pDevName);
+		printf("Version: %d\n", (int)pVersion->version);
+		printf("Revision: %d\n", (int)pVersion->revision);
+		printf("Build: %d\n", pVersion->build);
+	}
 
 	/* Close communication port */
 	nErr = AdsPortClose();
