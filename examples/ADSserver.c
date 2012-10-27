@@ -103,6 +103,7 @@ void ranalyze(ADSConnection * dc)
 	ADSwriteRequest *wrq;
 	ADSwriteResponse *wrs;
 	ADSdeviceInfo *di;
+	ADSstateResponse *asr;
 //     p->data;
 
 	memset(dc->msgOut, 0, 500);
@@ -126,6 +127,13 @@ void ranalyze(ADSConnection * dc)
 		di->name[9] = 'E';
 		di->name[10] = 'R';
 		pr->amsHeader.dataLength = sizeof(ADSdeviceInfo);
+		break;
+	case cmdADSreadState:
+		asr = (ADSstateResponse *) pr->data;
+		asr->result = 0x0000;
+		asr->ADSstate = ADSSTATE_RUN;
+		asr->devState = 0xA;
+		pr->amsHeader.dataLength = sizeof(ADSstateResponse);
 		break;
 
 	case cmdADSwrite:
