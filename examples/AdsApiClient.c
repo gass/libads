@@ -1,17 +1,18 @@
 
+#include <stdio.h>
 #include "AdsAPI.h"
 #include "AdsDEF.h"
 
-void main()
+int main(int argc, char **argv)
 {
-	ADSSTATE nAdsState;
-	int nDeviceState;
-	long nErr, nPort;
+	short unsigned int nAdsState;
+	short unsigned int nDeviceState;
+	long nErr;
 	AmsAddr Addr;
 	PAmsAddr pAddr = &Addr;
 
 	// Open communication port on the ADS router
-	nPort = AdsPortOpen();
+	AdsPortOpen();
 	nErr = AdsGetLocalAddress(pAddr);
 	if (nErr)
 		printf("Error: AdsGetLocalAddress %ld\n", nErr);
@@ -31,5 +32,7 @@ void main()
 	// Close communication port
 	nErr = AdsPortClose();
 	if (nErr)
-		printf("Error: AdsPortClose: ", nErr);
+		printf("Error: AdsPortClose: %ld", nErr);
+
+	return 0;
 }

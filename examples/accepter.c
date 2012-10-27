@@ -54,7 +54,6 @@ void *accepter(void *arg)
 	int newfd, pipefd;
 	socklen_t addrlen;
 	struct sockaddr_in addr;
-	int i;
 	int opt;
 	usleep(10000);
 	pipefd = ((accepter_info *) arg)->fd;
@@ -75,7 +74,7 @@ void *accepter(void *arg)
 //    ads_debug(ADSDebug, ThisModule"Accepter : port %d\n",addr.sin_port);
 	inet_aton("0.0.0.0", &addr.sin_addr);
 	opt = 1;
-	i = setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &opt, 4);
+	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &opt, 4);
 	ads_debug(ADSDebug, ThisModule "Accepter : setsockopt %s\n",
 		  strerror(errno));
 	addrlen = sizeof(addr);

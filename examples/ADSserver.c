@@ -97,7 +97,7 @@ void ranalyze(ADSConnection * dc)
 		  p->adsHeader.reserved);
 	ads_debug(ADSDebug, "ADS_TCPheader.length: %d\n", p->adsHeader.length);
 	_ADSDumpAMSheader(&(p->amsHeader));
-	uc *b = (uc *) p->data;
+//      uc *b = (uc *) p->data;
 	ADSreadWriteRequest *rwrq;
 	ADSreadWriteResponse *rwrs;
 	ADSwriteRequest *wrq;
@@ -208,7 +208,6 @@ void *portServer(void *arg)
 	;
 	int waitCount = 0;
 	//ADSDebug=ADSDebugAll;
-	int res;
 	int pcount = 0;
 	_ADSOSserialType s;
 	s.rfd = pi->fd;
@@ -219,13 +218,10 @@ void *portServer(void *arg)
 	while (waitCount < 1000) {
 		dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn);
 		if (dc->AnswLen > 0) {
-			res = dc->AnswLen;
 			ads_debug(ADSDebug, "%d ", pcount);
 			_ADSDump("packet", dc->msgIn, dc->AnswLen);
 			waitCount = 0;
 			ranalyze(dc);
-
-			int r2 = 2 * res;
 
 			pcount++;
 		} else {
@@ -256,7 +252,7 @@ int main(int argc, char **argv)
 //    readCallBack=dummyRead;
 //    writeCallBack=myWrite;
 
-	int filedes[2], res, newfd;
+	int filedes[2], res, newfd = 0;
 	char *s, *s2;
 	s = argv[1];
 	s2 = argv[2];

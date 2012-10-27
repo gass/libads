@@ -876,15 +876,18 @@ int ADSGetLocalAMSId(AMSNetID * id)
 			addrStruct = (struct sockaddr_in *)cur->ifa_addr;
 			netAddr = ntohl(addrStruct->sin_addr.s_addr);
 			memcpy((char *)&b, (char *)&netAddr, 4);
-			*id = (AMSNetID) {{
+			*id = (AMSNetID) {
+				{
 			b[3], b[2], b[1], b[0], 1, 1}};
 			if (ADSDebug)
 				_ADSDumpAMSNetId(id);
 			break;
 		}
 		if (cur->ifa_next == NULL)
-			*id = (AMSNetID) {{
-			127, 0, 0, 1, 1, 1}};
+			*id = (AMSNetID) {
+			{
+			127, 0, 0, 1, 1, 1}
+			};
 	}
 	freeifaddrs(list);
 	return 0;
