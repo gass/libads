@@ -852,6 +852,12 @@ int ADSparseNetID(const char *netIDstring, AMSNetID * id)
 	return 0;
 }
 
+/**
+ * \brief Gets the local network address.
+ * Fills the local AMSNetif.
+ * \param id Structure with local AMSNetId.
+ * \return error code.
+ */
 int ADSGetLocalAMSId(AMSNetID * id)
 {
 	struct ifaddrs *list;
@@ -870,15 +876,15 @@ int ADSGetLocalAMSId(AMSNetID * id)
 			addrStruct = (struct sockaddr_in *)cur->ifa_addr;
 			netAddr = ntohl(addrStruct->sin_addr.s_addr);
 			memcpy((char *)&b, (char *)&netAddr, 4);
-			*id = (AMSNetID) {
-			b[3], b[2], b[1], b[0], 1, 1};
+			*id = (AMSNetID) {{
+			b[3], b[2], b[1], b[0], 1, 1}};
 			if (ADSDebug)
 				_ADSDumpAMSNetId(id);
 			break;
 		}
 		if (cur->ifa_next == NULL)
-			*id = (AMSNetID) {
-			127, 0, 0, 1, 1, 1};
+			*id = (AMSNetID) {{
+			127, 0, 0, 1, 1, 1}};
 	}
 	freeifaddrs(list);
 	return 0;
