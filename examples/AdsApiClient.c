@@ -40,10 +40,11 @@ int main(int argc, char **argv)
 	/* Open communication port on the ADS router */
 	AdsPortOpen();
 	/* set the target ip AMS Net Id      */
-    /* When the address is defined */
-    //pAddr->netId = (AmsNetId) {{192, 168, 1, 72, 1, 1}};
-    /* if the server runs on the local address */
-	AdsGetLocalAddress(pAddr);
+	/* When the address is defined */
+	pAddr->netId = (AmsNetId) { {
+	192, 168, 1, 72, 1, 1}};
+	/* if the server runs on the local address */
+	//AdsGetLocalAddress(pAddr);
 
 	/* PLC Port */
 	pAddr->port = AMSPORT_R0_PLC_RTS1;
