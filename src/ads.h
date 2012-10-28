@@ -224,7 +224,14 @@ extern "C" {
 #define ADSDebugByte 0x40
 #define ADSDebugAnalyze 0x80
 #define ADSDebugPrintErrors 0x8
-#define ADSDebugAll (ADSDebugOpen|ADSDebugPacket|ADSDebugByte|ADSDebugAnalyze|ADSDebugPrintErrors)
+
+/* debug by command */
+#define ADSDebugReadState 0x90
+#define ADSDebugDeviceInfo 0x91
+#define ADSDebugCommands (ADSDebugReadState|ADSDebugDeviceInfo)
+
+/* all or none */
+#define ADSDebugAll (ADSDebugOpen|ADSDebugPacket|ADSDebugByte|ADSDebugAnalyze|ADSDebugPrintErrors|ADSDebugCommands)
 #define ADSDebugNone 0x0
 
 #ifndef ADSDebug
