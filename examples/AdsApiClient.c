@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 	//AdsGetLocalAddress(pAddr);
 
 	/* PLC Port */
-	pAddr->port = AMSPORT_R0_PLC_RTS1;
+	pAddr->port = AMSPORT_LOGGER;
 
 	/* example, read state */
 	nErr = AdsSyncReadStateReq(pAddr, &nAdsState, &nDeviceState);
