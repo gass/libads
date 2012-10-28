@@ -729,48 +729,48 @@ ADSreadState(ADSConnection * dc, unsigned short *ADSstate,
 	ADSpacket *p2;
 	ADSstateResponse *StateResponse;
 
+    /******* Send ******/
 	/* Build the comunication headers */
 	h1 = &(p1->amsHeader);
 	_ADSsetupHeader(dc, h1);
 	h1->commandId = cmdADSreadState;
 	h1->dataLength = 0;
-	_ADSDumpAMSheader(h1);
+	if (ADSDebug & ADSDebugReadState)
+		_ADSDumpAMSheader(h1);
+
 	p1->adsHeader.length = h1->dataLength + AMSHeaderSIZE;
 	p1->adsHeader.reserved = 0;
 	/* sends the the packet */
 	_ADSwrite(dc);
+
+	/******* Receive ******/
 	/*Reads the answer */
 	dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn);
-	if ((ADSDebug & ADSDebugAnalyze) != 0)
+	if (ADSDebug & ADSDebugReadState)
 		analyze(dc->msgIn);
-	if ((ADSDebug & ADSDebugPacket) != 0)
-		_ADSDump("packet", dc->msgIn, dc->AnswLen);
-	if (h1->errorCode != 0) {
-		ads_debug(ADSDebug,
-			  "Error in the received packet: %s",
-			  ADSerrorText(h1->errorCode));
-		return h1->errorCode;
-	}
+
+	if (ADSDebug & ADSDebugReadState & ADSDebugPacket)
+		_ADSDump("ADSreadState Packet", dc->msgIn, dc->AnswLen);
+
 	/* Analises the received packet */
-	if (dc->AnswLen > 0) {
-		p2 = (ADSpacket *) dc->msgIn;
-		if (p2->amsHeader.errorCode != 0) {
-			ads_debug(ADSDebug,
-				  "Error in the received packet: %s",
-				  ADSerrorText(p2->amsHeader.errorCode));
-			return p2->amsHeader.errorCode;
-		}
-		if (p2->amsHeader.commandId == cmdADSreadState) {
-			StateResponse =
-			    (ADSstateResponse *) (dc->msgIn + ADSTCPDataStart);
-			*ADSstate = StateResponse->ADSstate;;
-			*devState = StateResponse->devState;
-		}
+	if (dc->AnswLen <= 0) {
+		ads_debug(ADSDebugPrintErrors, "Read State Error: %s", 0xE);
+		return 0xE;
+	}
+	p2 = (ADSpacket *) dc->msgIn;
+	if (p2->amsHeader.errorCode != 0) {
+		ads_debug(ADSDebugPrintErrors,
+			  "ADSreadState Error: %s",
+			  ADSerrorText(p2->amsHeader.errorCode));
+		return p2->amsHeader.errorCode;
+	}
+	if (p2->amsHeader.commandId == cmdADSreadState) {
+		StateResponse =
+		    (ADSstateResponse *) (dc->msgIn + ADSTCPDataStart);
+		*ADSstate = StateResponse->ADSstate;;
+		*devState = StateResponse->devState;
 	}
 
-	else {			/* if there is an error */
-		return 0x01;
-	}
 	return 0;
 }
 
