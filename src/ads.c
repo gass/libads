@@ -78,7 +78,7 @@ void ads_debug(int type, const char *fmt, ...)
 	if (ADSDebug & type) {
 		va_start(args, fmt);
 		vsnprintf(tmp_str, 1000, fmt, args);
-		printf("LOG: %s\n", tmp_str);
+		printf("%s\n", tmp_str);
 		va_end(args);
 	}
 }
@@ -408,7 +408,7 @@ int _ADSReadOne(ADSInterface * di, uc * b)
 	t.tv_sec = di->timeout / 1000000;
 	t.tv_usec = di->timeout % 1000000;
 	if (select(di->fd.rfd + 1, &FDS, NULL, NULL, &t) <= 0) {
-		ads_debug(ADSDebugPrintErrors, "timeout in readOne.\n");
+		ads_debug(ADSDebugPrintErrors, "timeout in readOne.");
 		return (0);
 	} else {
 		return read(di->fd.rfd, b, 1);

@@ -301,8 +301,6 @@ extern "C" {
 
 	int _ADSReadPacket(ADSInterface * di, uc * b);
 
-	void analyze(uc * p1);
-
 	int ADSreadBytes(ADSConnection * dc, int indexGroup,
 			 int offset, int length, void *buffer);
 	int ADSreadDeviceInfo(ADSConnection * dc,
