@@ -735,29 +735,41 @@ ADSreadState(ADSConnection * dc, unsigned short *ADSstate,
 	h1->commandId = cmdADSreadState;
 	h1->dataLength = 0;
 	_ADSDumpAMSheader(h1);
-	p1->adsHeader.length = h1->dataLength + 32;
+	p1->adsHeader.length = h1->dataLength + AMSHeaderSIZE;
 	p1->adsHeader.reserved = 0;
 	/* sends the the packet */
 	_ADSwrite(dc);
 	/*Reads the answer */
 	dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn);
-
+	if ((ADSDebug & ADSDebugAnalyze) != 0)
+		analyze(dc->msgIn);
+	if ((ADSDebug & ADSDebugPacket) != 0)
+		_ADSDump("packet", dc->msgIn, dc->AnswLen);
+	if (h1->errorCode != 0) {
+		ads_debug(ADSDebug,
+			  "Error in the received packet: %s",
+			  ADSerrorText(h1->errorCode));
+		return h1->errorCode;
+	}
 	/* Analises the received packet */
 	if (dc->AnswLen > 0) {
 		p2 = (ADSpacket *) dc->msgIn;
+		if (p2->amsHeader.errorCode != 0) {
+			ads_debug(ADSDebug,
+				  "Error in the received packet: %s",
+				  ADSerrorText(p2->amsHeader.errorCode));
+			return p2->amsHeader.errorCode;
+		}
 		if (p2->amsHeader.commandId == cmdADSreadState) {
-			StateResponse = (ADSstateResponse *) (dc->msgIn + 38);
+			StateResponse =
+			    (ADSstateResponse *) (dc->msgIn + ADSTCPDataStart);
 			*ADSstate = StateResponse->ADSstate;;
 			*devState = StateResponse->devState;
 		}
 	}
 
 	else {			/* if there is an error */
-		if ((ADSDebug & ADSDebugPacket) != 0)
-			_ADSDump("packet", dc->msgIn, dc->AnswLen);
-
-		if ((ADSDebug & ADSDebugAnalyze) != 0)
-			analyze(dc->msgIn);
+		return 0x01;
 	}
 	return 0;
 }
