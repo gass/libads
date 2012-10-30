@@ -41,10 +41,10 @@ int main(int argc, char **argv)
 	AdsPortOpen();
 	/* set the target ip AMS Net Id      */
 	/* When the address is defined */
-	pAddr->netId = (AmsNetId) { {
-	192, 168, 1, 72, 1, 1}};
+	//pAddr->netId = (AmsNetId) { {
+	//192, 168, 1, 72, 1, 1}};
 	/* if the server runs on the local address */
-	//AdsGetLocalAddress(pAddr);
+	AdsGetLocalAddress(pAddr);
 
 	/* PLC Port */
 	pAddr->port = AMSPORT_LOGGER;
