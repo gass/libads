@@ -76,20 +76,6 @@ uc dummyRes[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
 	1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
 };
 
-int _ADSwrite22(ADSInterface * di, void *buffer, int len)
-{
-	int res;
-	if (di == NULL)
-		return -2;
-	if (di->error)
-		return -1;
-	_ADSDump("I send: ", buffer, len);
-	res = write(di->fd.wfd, buffer, len);
-	if (res < 0)
-		di->error |= 1;
-	return res;
-}
-
 void ranalyze(ADSConnection * dc)
 {
 	ADSpacket *p = (ADSpacket *) (dc->msgIn);
@@ -97,14 +83,12 @@ void ranalyze(ADSConnection * dc)
 		  p->adsHeader.reserved);
 	ads_debug(ADSDebug, "ADS_TCPheader.length: %d\n", p->adsHeader.length);
 	_ADSDumpAMSheader(&(p->amsHeader));
-//      uc *b = (uc *) p->data;
 	ADSreadWriteRequest *rwrq;
 	ADSreadWriteResponse *rwrs;
 	ADSwriteRequest *wrq;
 	ADSwriteResponse *wrs;
 	ADSdeviceInfo *di;
 	ADSstateResponse *asr;
-//     p->data;
 
 	memset(dc->msgOut, 0, 500);
 	ADSpacket *pr = (ADSpacket *) (dc->msgOut);
@@ -169,9 +153,6 @@ void ranalyze(ADSConnection * dc)
 	default:
 		pr->amsHeader.dataLength = 4;
 	}
-//    ADSwriteRequest * rq=(ADSwriteRequest*) p->data;
-
-//    pr->adsHeader.length=36;  // 76-32-8;
 	pr->adsHeader.length = pr->amsHeader.dataLength + 32;
 	ads_debug(ADSDebug, "Response data length: %d\n",
 		  pr->amsHeader.dataLength);
@@ -184,12 +165,7 @@ void ranalyze(ADSConnection * dc)
 	pr->amsHeader.sourcePort = p->amsHeader.targetPort;
 
 	pr->amsHeader.commandId = p->amsHeader.commandId;
-//    pr->amsHeader.commandId=0;
-//    pr->amsHeader.stateFlags=p->amsHeader.stateFlags|1;
-
 	pr->amsHeader.stateFlags = 0x5;
-
-//    pr->amsHeader.dataLength=4;
 	pr->amsHeader.errorCode = 0;
 	pr->amsHeader.invokeId = p->amsHeader.invokeId;
 
@@ -204,20 +180,15 @@ void ranalyze(ADSConnection * dc)
 	_ADSwrite(dc);
 };
 
-typedef struct _portInfo {
-	int fd;
-} portInfo;
-
-#define mymemcmp _ADSMemcmp
 void *portServer(void *arg)
 {
-	portInfo *pi = (portInfo *) arg;
-	ads_debug(ADSDebug, "portMy fd is:%d\n", pi->fd);
+	int *fd = (int *)arg;
+	ads_debug(ADSDebug, "portMy fd is:%d\n", fd);
 	int waitCount = 0;
 	int pcount = 0;
 	_ADSOSserialType s;
-	s.rfd = pi->fd;
-	s.wfd = pi->fd;
+	s.rfd = *fd;
+	s.wfd = *fd;
 	ADSInterface *di = ADSNewInterface(s, me, 0x800, "IF");
 	di->timeout = 900000;
 	ADSConnection *dc = ADSNewConnection(di, partner, 800);
@@ -260,7 +231,7 @@ int main(int argc, char **argv)
 	s = argv[1];
 	ads_debug(ADSDebug, "Main serv: %s\n", s);
 
-	portInfo pi;
+	int fd;
 
 	fd_set FDS;
 	pipe(filedes);
@@ -283,12 +254,12 @@ int main(int argc, char **argv)
 		;
 		if (select(filedes[0] + 1, &FDS, NULL, &FDS, NULL) > 0) {
 			ads_debug(ADSDebug, "Main serv: about to read\n");
-			res = read(filedes[0], &pi.fd, sizeof(pi.fd));
+			res = read(filedes[0], &fd, sizeof(fd));
 			ps = 0;
 			pthread_attr_init(&attr);
 			pthread_attr_setdetachstate(&attr,
 						    PTHREAD_CREATE_DETACHED);
-			res = pthread_create(&ps, &attr, portServer, &pi);
+			res = pthread_create(&ps, &attr, portServer, &fd);
 			if (res) {
 				ads_debug(ADSDebug,
 					  "Main serv: create error:%s\n",
