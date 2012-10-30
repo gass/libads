@@ -213,9 +213,7 @@ void *portServer(void *arg)
 {
 	portInfo *pi = (portInfo *) arg;
 	ads_debug(ADSDebug, "portMy fd is:%d\n", pi->fd);
-	;
 	int waitCount = 0;
-	//ADSDebug=ADSDebugAll;
 	int pcount = 0;
 	_ADSOSserialType s;
 	s.rfd = pi->fd;
@@ -257,16 +255,10 @@ int main(int argc, char **argv)
 	ADSGetLocalAMSId(&me);
 	ADSGetLocalAMSId(&partner);
 
-//    readCallBack=dummyRead;
-//    writeCallBack=myWrite;
-
 	int filedes[2], res, newfd = 0;
-	char *s, *s2;
+	char *s;
 	s = argv[1];
-	s2 = argv[2];
 	ads_debug(ADSDebug, "Main serv: %s\n", s);
-
-	ads_debug(ADSDebug, "Main serv: %s\n", s2);
 
 	portInfo pi;
 
@@ -275,7 +267,7 @@ int main(int argc, char **argv)
 	pthread_attr_t attr;
 	pthread_t ac, ps;
 	accepter_info ai;
-	ai.port = atol(s2);
+	ai.port = atol(s);
 	ads_debug(ADSDebug, "Main serv: %d\n", ai.port);
 	ads_debug(ADSDebug, "Main serv: Accepter pipe fd: %d\n", ai.fd);
 	ai.fd = filedes[1];
