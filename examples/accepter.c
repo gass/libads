@@ -58,45 +58,45 @@ void *accepter(void *arg)
 	int opt;
 	usleep(10000);
 	pipefd = ((accepter_info *) arg)->fd;
-	ads_debug(ADSDebug, ThisModule "Accepter : My pipe is:%d\n", pipefd);
+	ads_debug(ADSDebug, ThisModule "My pipe is:%d\n", pipefd);
 	;
 	s = socket(AF_INET, SOCK_STREAM, 0);
 	if (errno != 0) {
-		ads_debug(ADSDebug, ThisModule "Accepter : socket %s\n",
+		ads_debug(ADSDebug, ThisModule "socket %s\n",
 			  strerror(errno));
 		;
 	}
-	ads_debug(ADSDebug, ThisModule "Accepter : port %d\n",
+	ads_debug(ADSDebug, ThisModule "port %d\n",
 		  ((accepter_info *) arg)->port);
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(((accepter_info *) arg)->port);
 	inet_aton("0.0.0.0", &addr.sin_addr);
 	opt = 1;
 	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &opt, 4);
-	ads_debug(ADSDebug, ThisModule "Accepter : setsockopt %s\n",
+	ads_debug(ADSDebug, ThisModule "setsockopt %s\n",
 		  strerror(errno));
 	addrlen = sizeof(addr);
 	bind(s, (struct sockaddr *)&addr, addrlen);
-	ads_debug(ADSDebug, ThisModule "Accepter : bind %s\n", strerror(errno));
+	ads_debug(ADSDebug, ThisModule "bind %s\n", strerror(errno));
 	listen(s, 1);
-	ads_debug(ADSDebug, ThisModule "Accepter : listen: %s\n",
+	ads_debug(ADSDebug, ThisModule "listen: %s\n",
 		  strerror(errno));
 	while (1) {
 		addrlen = sizeof(addr);
-		ads_debug(ADSDebug, ThisModule "Accepter : before accept\n");
+		ads_debug(ADSDebug, ThisModule "before accept\n");
 		newfd = (accept(s, (struct sockaddr *)&addr, &addrlen));
 		ads_debug(ADSDebug,
-			  ThisModule "Accepter: after accept. New fd:%d\n",
+			  ThisModule "after accept. New fd:%d\n",
 			  newfd);
 		;
-		ads_debug(ADSDebug, ThisModule "Accepter: PID(%d) client:%s\n",
+		ads_debug(ADSDebug, ThisModule "PID(%d) client:%s\n",
 			  getpid(), inet_ntoa(addr.sin_addr));
 		;
 		write(pipefd, &newfd, sizeof(newfd));
 	}
 	shutdown(s, 2);
 	ads_debug(ADSDebug,
-		  ThisModule "Accepter : %d shutdown done. Socket is: %d\n",
+		  ThisModule "%d shutdown done. Socket is: %d\n",
 		  getpid(), s);
 }
 
