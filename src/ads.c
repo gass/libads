@@ -842,20 +842,19 @@ int ADSGetLocalAMSId(AMSNetID * id)
 
 	struct ifaddrs *cur;
 	for (cur = list; cur != NULL; cur = cur->ifa_next) {
-		if (cur->ifa_addr == NULL) {
-			continue;
-		}
-		if ((cur->ifa_addr->sa_family == AF_INET)
-		    && (strcmp(cur->ifa_name, "lo") != 0)) {
-			addrStruct = (struct sockaddr_in *)cur->ifa_addr;
-			netAddr = ntohl(addrStruct->sin_addr.s_addr);
-			memcpy((char *)&b, (char *)&netAddr, 4);
-			*id = (AMSNetID) {
+		if (cur->ifa_addr != NULL) {
+			if ((cur->ifa_addr->sa_family == AF_INET)
+		    	&& (strcmp(cur->ifa_name, "lo") != 0)) {
+				addrStruct = (struct sockaddr_in *)cur->ifa_addr;
+				netAddr = ntohl(addrStruct->sin_addr.s_addr);
+				memcpy((char *)&b, (char *)&netAddr, 4);
+				*id = (AMSNetID) {
 				{
-			b[3], b[2], b[1], b[0], 1, 1}};
-			if (ADSDebug)
-				_ADSDumpAMSNetId(id);
-			break;
+				b[3], b[2], b[1], b[0], 1, 1}};
+				if (ADSDebug)
+					_ADSDumpAMSNetId(id);
+				break;
+			}
 		}
 		if (cur->ifa_next == NULL)
 			*id = (AMSNetID) {
