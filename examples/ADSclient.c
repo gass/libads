@@ -25,25 +25,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "log2.h"
-
 #include <fcntl.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <errno.h>
 
 #include "ads.h"
+#include "AdsDEF.h"
 
-#ifdef BCCWIN
-#include <time.h>
-//    void usage(void);
-//    void wait(void);
-#define WIN_STYLE
-#endif
-
-#ifdef LINUX
 #include <sys/time.h>
-#define UNIX_STYLE
-#endif
 
-#include "openSocket.h"
+#define ThisModule "ADSclient : "
 
 #define debug 10
 
@@ -77,22 +69,22 @@ int main(int argc, char **argv)
 	_ADSOSserialType fds;
 	ADSInterface *di;
 	ADSConnection *dc;
-#ifdef UNIX_STYLE
 	struct timeval t1, t2;
 	int netFd;
-#endif
-#ifdef BCCWIN
-	clock_t t1, t2;
-	HANDLE netFd;
-#endif
 	int i, apn, k, port;
 	FILE *logFile;
 	uc buffer[maxDataLen];
 	int res;
 	uc *b;
-
+	struct sockaddr_in addr;
+	struct hostent *he;
 	int log = 0;
-	ADSDebug = 0;
+	int opt;
+	socklen_t addrlen;
+	AdsVersion Version;
+	PAdsVersion pVersion = &Version;
+	char pDevName[16];
+	unsigned short ADSstate, devState;
 
 	if (argc < 3) {
 		printf("Usage: ADSclient host port \n");
@@ -102,26 +94,50 @@ int main(int argc, char **argv)
 
 	port = atol(argv[2]);
 
-	LOG3("host: %s port %d\n", argv[1], port);
-	netFd = openSocket(port, argv[1]);
+	ads_debug(ADSDebug,"host: %s port %d\n", argv[1], port);
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(port);
+	inet_aton(argv[1], &addr.sin_addr);
+	netFd=socket(AF_INET, SOCK_STREAM, 0);
+	if (errno != 0) {
+		ads_debug(ADSDebug, ThisModule "socket %s\n",
+			  strerror(errno));
+	}
 	if (netFd <= 0) {
 		printf("Could not connect to host!\n");
 		return -1;
 	}
-	LOG2("netFd: %d\n", netFd);
+	ads_debug(ADSDebug,"netFd: %d\n", netFd);
+	
+	
+	
+	addrlen = sizeof(addr);
+	
+	if (connect(netFd, (struct sockaddr *) & addr, addrlen)) {
+		ads_debug(ADSDebug,ThisModule "Socket error: %s \n", strerror(errno));
+		close(netFd);
+		return 0;
+    	} else {
+		ads_debug(ADSDebug,ThisModule "Connected to host: %s \n", argv[1]);
+	} 
+	
+	errno=0;
+	opt = 1;
+	res=setsockopt(netFd, SOL_SOCKET, SO_KEEPALIVE, &opt, 4);
+	//BUG HERE: ads_debug(ADSDebug, ThisModule "setsockopt %s\n", strerror(errno));
 	fds.rfd = netFd;
 	fds.wfd = netFd;
 	di = ADSNewInterface(fds, me, 800, "test");
 	dc = ADSNewConnection(di, other, 800);
 	b = buffer;
+	ads_debug(ADSDebug,"device info:\n");
 
-	LOG1("device info:\n");
-	ADSreadDeviceInfo(dc);
-	LOG1("read state:\n");
+	ADSreadDeviceInfo(dc, &pDevName, pVersion);
+	ads_debug(ADSDebug,"read state:\n");
 //    ADSreadBytes(dc,igr,0,100,NULL);
 //    ADSwriteBytes(dc,igr,0,100,NULL);
-	ADSreadState(dc, NULL, NULL);
-	LOG1("write control:\n");
+	ADSreadState(dc, &ADSstate, &devState);
+	//ads_debug(ADSDebug,"write control:");
 	ADSwriteControl(dc, 4, 0, NULL, 0);
 
 	readIndexGroup(dc, 0x4020);
@@ -139,14 +155,16 @@ int main(int argc, char **argv)
 	readIndexGroup(dc, 0xf031);
 	readIndexGroup(dc, 0xf060);
 //    ADSaddDeviceNotification(dc, igr, 0, 10, ADS_TRANS_NOTRANS, 100000, 120000);
+	/* something is missing here TODO 
 	ADSaddDeviceNotification(dc, 0x4020, 0, 10, ADS_TRANS_CLIENTCYCLE,
 				 100000, 120000);
+	*/
 //    ADSaddDeviceNotification(dc, igr, 0, 10, ADS_TRANS_CLIENT1REQ, 100000, 120000);
 //    ADSaddDeviceNotification(dc, igr, 0, 10, ADS_TRANS_SERVERCYCLE, 100000, 120000);
 //    ADSaddDeviceNotification(dc, igr, 0, 10, ADS_TRANS_SERVERONCHA, 100000, 120000);
 //    ADSaddDeviceNotification(dc, 0x801f, 0, 10, 6, 100000, 120000);
-	ADSaddDeviceNotification(dc, 0x4020, 0, 10, ADSTRANS_SERVERONCHA,
-				 100000, 120000);
+//	ADSaddDeviceNotification(dc, 0x4020, 0, 10, ADSTRANS_SERVERONCHA,
+//				 100000, 120000);
 /*    
     k=0x4000;
     for (i=k; i<k+60; i++)
@@ -156,9 +174,3 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-/*
-    Changes:
-    
-    05/12/2002 created
-    23/12/2002 added sys/time.h
-*/
