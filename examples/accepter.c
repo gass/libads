@@ -11,6 +11,7 @@
  Part of Libnodave, a free communication libray for Siemens S7 300/400.
  
  (C) Thomas Hergenhahn (thomas.hergenhahn@web.de) 2001..2005.
+ (C) Luis Matos (gass@otiliamatos.ath.cx) 2013.
 
  LIBNDAVE is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -69,9 +70,6 @@ void *accepter(void *arg)
 		  ((accepter_info *) arg)->port);
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(((accepter_info *) arg)->port);
-//      (((((accepter_info *) arg)->port) & 0xff) << 8) |
-//      (((((accepter_info *) arg)->port) & 0xff00) >> 8);
-//    ads_debug(ADSDebug, ThisModule"Accepter : port %d\n",addr.sin_port);
 	inet_aton("0.0.0.0", &addr.sin_addr);
 	opt = 1;
 	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &opt, 4);
@@ -102,7 +100,3 @@ void *accepter(void *arg)
 		  getpid(), s);
 }
 
-struct abstr {
-	int fd;
-	int mask;
-};
