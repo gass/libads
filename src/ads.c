@@ -843,7 +843,7 @@ int ADSGetLocalAMSId(AMSNetID * id)
 	struct ifaddrs *cur;
 	for (cur = list; cur != NULL; cur = cur->ifa_next) {
 		if (cur->ifa_addr == NULL) {
-			break;
+			continue;
 		}
 		if ((cur->ifa_addr->sa_family == AF_INET)
 		    && (strcmp(cur->ifa_name, "lo") != 0)) {
