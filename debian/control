@@ -1,0 +1,22 @@
+Source: libads
+Section: unknown
+Priority: extra
+Maintainer: Luis Matos <gass@otiliamatos.ath.cx>
+Build-Depends: debhelper (>= 8.0.0), autotools-dev
+Standards-Version: 3.9.3
+Homepage: https://github.com/gass/libads
+Vcs-Git: git://github.com/gass/libads.git
+Vcs-Browser: https://github.com/gass/libads
+
+Package: libads
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Implementation of the Beckhoff's ADS protocol
+ libads's purpose is to provide a way to comunicate with the Beckhoff's Automation modules.
+ They comunicate via TCP/IP packets, using an open specification format: ADS.
+ ADS stands for "Automation Device Specification". 
+
+Package: libads-doc
+Architecture: all
+Description: documentation for libads
+ Support documentation.
