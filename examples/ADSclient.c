@@ -46,8 +46,8 @@
 #define ADSPtReadResponse 1
 #define ADSPtWriteResponse 2
 
-AMSNetID me = { 172, 16, 17, 1, 1, 1 };
-AMSNetID other = { 172, 16, 17, 3, 1, 1 };
+AMSNetID me = { 127, 0, 0, 1, 1, 1 };
+AMSNetID other = { 127, 0, 0, 1, 1, 1 };
 
 void readIndexGroup(ADSConnection * dc, int igr)
 {
