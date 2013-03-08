@@ -872,7 +872,6 @@ int ADSGetLocalAMSId(AMSNetID * id)
  * This is an auxiliar function.
  * \param pAddr Structure with NetId and port number of the ADS server.
  * \param pMeAddr Structure with NetId and port number of the ADS client (local).
- * If the supplied pointer is NULL, then the address is automatically found and used.
  * \return An ADSConnection pointer.
  */
 ADSConnection *AdsSocketConnect(int *socket_fd, PAmsAddr pAddr,
