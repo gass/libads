@@ -101,6 +101,10 @@ int main(int argc, char **argv)
 	ADSGetLocalAMSId(&pMeAddr->netId);
 	/* connect */
 	dc = AdsSocketConnect(&netFd, pAddr, pMeAddr);
+	if (dc == NULL) {
+		fprintf(stderr, "Could not connect to ADS server\n");
+		return 1;
+	}
 
 	/* start communicating */
 	ads_debug(ADSDebug,"device info:\n");
