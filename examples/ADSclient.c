@@ -46,9 +46,6 @@
 #define ADSPtReadResponse 1
 #define ADSPtWriteResponse 2
 
-AMSNetID me = { 127, 0, 0, 1, 1, 1 };
-AMSNetID other = { 127, 0, 0, 1, 1, 1 };
-
 void readIndexGroup(ADSConnection * dc, int igr)
 {
 	int res;
@@ -66,73 +63,32 @@ int main(int argc, char **argv)
 //    ADSDebug=ADSDebugAll;
 
 //    ADSDebug=ADSDebugAnalyze;
-	_ADSOSserialType fds;
-	ADSInterface *di;
 	ADSConnection *dc;
-	struct timeval t1, t2;
-	int netFd;
-	int i, apn, k, port;
-	FILE *logFile;
-	uc buffer[maxDataLen];
-	int res;
-	uc *b;
-	struct sockaddr_in addr;
-	struct hostent *he;
-	int log = 0;
-	int opt;
-	socklen_t addrlen;
+	struct timeval;
+	int netFd=0;
 	AdsVersion Version;
 	PAdsVersion pVersion = &Version;
 	char pDevName[16];
 	unsigned short ADSstate, devState;
+	AmsAddr Addr, MeAddr;
+	PAmsAddr pAddr = &Addr, pMeAddr = &MeAddr;
 
-	if (argc < 3) {
+	if (argc < 2) {
 		printf("Usage: ADSclient host port \n");
-		printf("Example: ADSclient 192.168.17.110 48898\n");
+		printf("Example: ADSclient 192.168.17.110 800\n");
 		return -1;
 	}
+	/* set the local and remote netId */
+	ADSparseNetID("127.0.0.1.1.1", &pAddr->netId);
+	Addr.port = atol(argv[2]);
+	ADSGetLocalAMSId(&pMeAddr->netId);
+	/* connect */
+	dc = AdsSocketConnect(&netFd, pAddr, pMeAddr);
 
-	port = atol(argv[2]);
-
-	ads_debug(ADSDebug,"host: %s port %d\n", argv[1], port);
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(port);
-	inet_aton(argv[1], &addr.sin_addr);
-	netFd=socket(AF_INET, SOCK_STREAM, 0);
-	if (errno != 0) {
-		ads_debug(ADSDebug, ThisModule "socket %s\n",
-			  strerror(errno));
-	}
-	if (netFd <= 0) {
-		printf("Could not connect to host!\n");
-		return -1;
-	}
-	ads_debug(ADSDebug,"netFd: %d\n", netFd);
-	
-	
-	
-	addrlen = sizeof(addr);
-	
-	if (connect(netFd, (struct sockaddr *) & addr, addrlen)) {
-		ads_debug(ADSDebug,ThisModule "Socket error: %s \n", strerror(errno));
-		close(netFd);
-		return 0;
-    	} else {
-		ads_debug(ADSDebug,ThisModule "Connected to host: %s \n", argv[1]);
-	} 
-	
-	errno=0;
-	opt = 1;
-	res=setsockopt(netFd, SOL_SOCKET, SO_KEEPALIVE, &opt, 4);
-	//BUG HERE: ads_debug(ADSDebug, ThisModule "setsockopt %s\n", strerror(errno));
-	fds.rfd = netFd;
-	fds.wfd = netFd;
-	di = ADSNewInterface(fds, me, 800, "test");
-	dc = ADSNewConnection(di, other, 800);
-	b = buffer;
+	/* start communicating */
 	ads_debug(ADSDebug,"device info:\n");
+	ADSreadDeviceInfo(dc, pDevName, pVersion);
 
-	ADSreadDeviceInfo(dc, &pDevName, pVersion);
 	ads_debug(ADSDebug,"read state:\n");
 //    ADSreadBytes(dc,igr,0,100,NULL);
 //    ADSwriteBytes(dc,igr,0,100,NULL);
@@ -171,6 +127,8 @@ int main(int argc, char **argv)
 	ADSreadBytes(dc,i,0,100,NULL);
 //    double usec = (t2.tv_sec - t1.tv_sec) + (t2.tv_usec - t1.tv_usec)*1e-6;
 */
+	AdsSocketDisconnect(&netFd);
+	freeADSConnection(dc);
 	return 0;
 }
 
