@@ -46,17 +46,32 @@
 #define ADSPtReadResponse 1
 #define ADSPtWriteResponse 2
 
-void readIndexGroup(ADSConnection * dc, int igr)
+void readIndexGroup(ADSConnection * dc, int igr, int off)
 {
 	int res;
-	printf("Trying to read from index group %04x\n", igr);
-	res = ADSreadBytes(dc, igr, 0, 20, NULL);
-	if (res == 0)
-		_ADSDump("data", dc->dataPointer, dc->AnswLen);
+	printf("Trying to read from index group 0x%04x, offset 0x%01x\n", igr, off);
+	res = ADSreadBytes(dc, igr, off, 20, NULL);
+	if (res == 0) {
+		printf("Dumping:\n");
+		dump("data", dc->dataPointer, dc->AnswLen);
+	}
 	else
 		printf(" Error %s ", ADSerrorText(res));
 	printf("\n");
 }
+
+void dump(char *name, void *v, int len)
+{
+        uc *b = (uc *) v;
+        int j;
+        printf("%s: ", name);
+        if (len > maxDataLen)
+                len = maxDataLen;       // this will avoid to dump zillions of chars
+        for (j = 0; j < len; j++) {
+                printf("%02X,", b[j]);
+        }
+        printf("\n");
+};
 
 int main(int argc, char **argv)
 {
@@ -98,20 +113,20 @@ int main(int argc, char **argv)
 	//ads_debug(ADSDebug,"write control:");
 	ADSwriteControl(dc, 4, 0, NULL, 0);
 
-	readIndexGroup(dc, 0x4020);
-	readIndexGroup(dc, 0x4021);
+	readIndexGroup(dc, 0x4020,0);
+	readIndexGroup(dc, 0x4020,2);
 //    readIndexGroup(dc, 0x4025);
-	readIndexGroup(dc, 0x4030);
-	readIndexGroup(dc, 0x4031);
-	readIndexGroup(dc, 0x4040);
+	readIndexGroup(dc, 0x4030,0);
+	readIndexGroup(dc, 0x4031,0);
+	readIndexGroup(dc, 0x4040,0);
 
-	readIndexGroup(dc, 0xf003);
-	readIndexGroup(dc, 0xf004);
-	readIndexGroup(dc, 0xf020);
-	readIndexGroup(dc, 0xf021);
-	readIndexGroup(dc, 0xf030);
-	readIndexGroup(dc, 0xf031);
-	readIndexGroup(dc, 0xf060);
+	readIndexGroup(dc, 0xf003,0);
+	readIndexGroup(dc, 0xf004,0);
+	readIndexGroup(dc, 0xf020,0);
+	readIndexGroup(dc, 0xf021,0);
+	readIndexGroup(dc, 0xf030,0);
+	readIndexGroup(dc, 0xf031,0);
+	readIndexGroup(dc, 0xf060,0);
 //    ADSaddDeviceNotification(dc, igr, 0, 10, ADS_TRANS_NOTRANS, 100000, 120000);
 	/* something is missing here TODO 
 	ADSaddDeviceNotification(dc, 0x4020, 0, 10, ADS_TRANS_CLIENTCYCLE,
