@@ -72,6 +72,7 @@ int main(int argc, char **argv)
 	unsigned short ADSstate, devState;
 	AmsAddr Addr, MeAddr;
 	PAmsAddr pAddr = &Addr, pMeAddr = &MeAddr;
+	char addr[19];
 
 	if (argc < 2) {
 		printf("Usage: ADSclient host port \n");
@@ -79,7 +80,8 @@ int main(int argc, char **argv)
 		return -1;
 	}
 	/* set the local and remote netId */
-	ADSparseNetID("127.0.0.1.1.1", &pAddr->netId);
+	snprintf(addr, 19, "%s.1.1", argv[1]);
+	ADSparseNetID(addr, &pAddr->netId);
 	Addr.port = atol(argv[2]);
 	ADSGetLocalAMSId(&pMeAddr->netId);
 	/* connect */
