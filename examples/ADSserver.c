@@ -83,6 +83,8 @@ void ranalyze(ADSConnection * dc)
 		  p->adsHeader.reserved);
 	ads_debug(ADSDebug, "ADS_TCPheader.length: %d\n", p->adsHeader.length);
 	_ADSDumpAMSheader(&(p->amsHeader));
+	ADSreadRequest *rrq;
+	ADSreadResponse *rrs;
 	ADSreadWriteRequest *rwrq;
 	ADSreadWriteResponse *rwrs;
 	ADSwriteRequest *wrq;
@@ -150,7 +152,20 @@ void ranalyze(ADSConnection * dc)
 			  pr->amsHeader.dataLength);
 		_ADSDump("Response ", rwrs->data, rwrq->writeLength);
 		break;
+
+	case cmdADSread:
+		rrq = (ADSreadRequest *) (p->data);
+		rrs = (ADSreadResponse *) (pr->data);
+		rrs->result = 0;
+		rrs->length = rrq->length;
+		pr->amsHeader.dataLength = 8 + rrq->length;
+		*(int *)(rrs->data + 0) = p->amsHeader.invokeId;
+		memcpy(rrs->data + 4, dummyRes + rrq->indexOffset, sizeof(dummyRes));
+		break;
+		
+		
 	default:
+		printf("Unhandeled command: %s\n", ADSCommandName(p->amsHeader.commandId));
 		pr->amsHeader.dataLength = 4;
 	}
 	pr->adsHeader.length = pr->amsHeader.dataLength + 32;

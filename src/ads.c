@@ -880,7 +880,7 @@ ADSConnection *AdsSocketConnect(int *socket_fd, PAmsAddr pAddr,
 
 	struct sockaddr_in addr;
 	socklen_t addrlen;
-	char peer[12];
+	char peer[16];
 	int opt;
 	ADSInterface *di;
 	ADSConnection *dc;
