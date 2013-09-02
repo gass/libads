@@ -920,6 +920,56 @@ ADSConnection *AdsSocketConnect(int *socket_fd, PAmsAddr pAddr,
 }
 
 /**
+ * \brief Opens a new onnection to the Ads server using a specified IP since there is no ADS router yet
+ * This is an auxiliar function.
+ * \param peer IP of the ADS server
+ * \param pAddr Structure with NetId and port number of the ADS server.
+ * \param pMeAddr Structure with NetId and port number of the ADS client (local).
+ * \return An ADSConnection pointer.
+ */
+ADSConnection *AdsSocketConnectIP(int *socket_fd, char *peer, PAmsAddr pAddr,
+				PAmsAddr pMeAddr)
+{
+
+	struct sockaddr_in addr;
+	socklen_t addrlen;
+	int opt;
+	ADSInterface *di;
+	ADSConnection *dc;
+	_ADSOSserialType fds;
+	if (*socket_fd == 0)
+		*socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+
+	/* Build socket address */
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(0xBF02);	/* ADS port 48898 */
+	/* lazy convertion from byte array to socket adress format */
+	inet_aton(peer, &addr.sin_addr);
+
+	addrlen = sizeof(addr);
+
+	/* connect to plc */
+	if (connect(*socket_fd, (struct sockaddr *)&addr, addrlen) < 0) {
+		ads_debug(ADSDebugOpen, "Socket error: %s", strerror(errno));
+		return NULL;
+	}
+	ads_debug(ADSDebugOpen, "connected to %s", peer);
+	errno = 0;
+	opt = 1;
+	if (setsockopt(*socket_fd, SOL_SOCKET, SO_KEEPALIVE, &opt, 4) < 0) {
+		ads_debug(ADSDebugOpen, "setsockopt %s", strerror(errno));
+		return NULL;
+	}
+
+	fds.rfd = *socket_fd;
+	fds.wfd = *socket_fd;
+	di = ADSNewInterface(fds, pMeAddr->netId, pAddr->port, "test");
+	dc = ADSNewConnection(di, pAddr->netId, pAddr->port);
+
+	return dc;
+}
+
+/**
  * \brief Closes the connection socket opened by AdsSocketConnect
  * \return Error code
  */
