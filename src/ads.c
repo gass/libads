@@ -606,10 +606,10 @@ ADSreadWriteBytes(ADSConnection * dc,
 
 			_ADSDump(" readpacket", dc->msgIn, dc->AnswLen);
 			rr = (ADSreadWriteResponse *) (dc->msgIn + 38);
-			printf("this  is it %d", *rr->data);
-			printf("this  is it %d", *(int *)readBuffer);
+			if (rr->result != 0)
+				return rr->result;
+
 			memcpy(readBuffer, rr->data, readLength);
-			printf("this  is it %d", *(int *)readBuffer);
 		}
 	}
 	return 0;
