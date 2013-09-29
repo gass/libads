@@ -330,6 +330,9 @@ extern "C" {
 	ADSConnection *AdsSocketConnect(int *socket_fd, PAmsAddr pAddr,
 					PAmsAddr pMeAddr);
 
+	ADSConnection *AdsSocketConnectIP(int *socket_fd, char *ip, PAmsAddr pAddr,
+					PAmsAddr pMeAddr);
+
 	int AdsSocketDisconnect(int *fd);
 
 	int freeADSInterface(ADSInterface * di);
