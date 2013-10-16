@@ -273,7 +273,7 @@ void analyze(uc * p1)
 		  p->adsHeader.length);
 	_ADSDumpAMSheader(&(p->amsHeader));
 
-	if ((p->amsHeader.stateFlags && 1) == 0) {
+	if ((p->amsHeader.stateFlags & 1) == 0) {
 		switch (p->amsHeader.commandId) {
 		}
 	} else
@@ -298,7 +298,7 @@ void analyze(uc * p1)
 				  rr->result, ADSerrorText(rr->result));
 			ads_debug(ADSDebugAnalyze, "Data length: %d",
 				  rr->length);
-			_ADSDump("Data: ", (uc *) p1 + 44, rr->length);
+			_ADSDump("Data: ", (uc *) p1 + 46, rr->length);
 			break;
 
 		case cmdADSwrite:
