@@ -41,6 +41,19 @@
 #define ADSPtReadResponse 1
 #define ADSPtWriteResponse 2
 
+void dump(char *name, void *v, int len)
+{
+        uc *b = (uc *) v;
+        int j;
+        printf("%s: ", name);
+        if (len > maxDataLen)
+                len = maxDataLen;       // this will avoid to dump zillions of chars
+        for (j = 0; j < len; j++) {
+                printf("%02X,", b[j]);
+        }
+        printf("\n");
+};
+
 void readIndexGroup(ADSConnection * dc, int igr, int off)
 {
 	int res;
@@ -54,19 +67,6 @@ void readIndexGroup(ADSConnection * dc, int igr, int off)
 		printf(" Error %s ", ADSerrorText(res));
 	printf("\n");
 }
-
-void dump(char *name, void *v, int len)
-{
-        uc *b = (uc *) v;
-        int j;
-        printf("%s: ", name);
-        if (len > maxDataLen)
-                len = maxDataLen;       // this will avoid to dump zillions of chars
-        for (j = 0; j < len; j++) {
-                printf("%02X,", b[j]);
-        }
-        printf("\n");
-};
 
 int main(int argc, char **argv)
 {
