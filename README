@@ -58,6 +58,8 @@ LibAds is a 2 layer library:
  - a low level api
  - a higher level api, compatible with the oficial Beckhoff's Api[4]
 
+LibAds is distributed under LGPLv3.
+
 STATE OF LIBADS
 ----------------
 the ADS protocol is implemented, as client, by 2 components:
