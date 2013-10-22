@@ -186,9 +186,9 @@ extern "C" {
 		u32 length;	// length in bytes to be read
 		u32 transmissionMode;	//
 		u32 maxDelay;	// after this time the notification will be called up.
-		// unit is 100ns
+		// unit is 1ms
 		u32 cycleTime;	// after this time the server teests whether values did change
-		// unit is 100ns                        
+		// unit is 1ms                        
 		uc reserved[16];
 	} ADSaddDeviceNotificationRequest;
 
