@@ -43,11 +43,6 @@ extern "C" {
 
 #define MAXDATALEN 8192
 
-/* define heade sizes aond positions */
-#define AMSTCPHeaderSIZE 6
-#define AMSHeaderSIZE 32
-#define ADSTCPDataStart (AMSTCPHeaderSIZE + AMSHeaderSIZE)
-
 typedef struct _AMS_TCPheader {
 	unsigned short	reserved;	/** must be zero */
 	unsigned int 	length;	 	/** length in bytes: AMSheader + ADS data */
