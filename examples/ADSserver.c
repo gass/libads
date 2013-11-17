@@ -38,6 +38,7 @@
 #define ThisModule "ADSserver : "
 
 #include "ads.h"
+#include "ads_io.h" //TODO: call this from ads.h
 #include "accepter.h"
 
 AMSNetID me;
@@ -47,7 +48,8 @@ AMSNetID partner;
 /*
     many bytes. hopefully enough to serve any read request.
 */
-uc dummyRes[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+unsigned char dummyRes[] =
+	{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
 	1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
 	1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
 	1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
@@ -86,7 +88,8 @@ void ranalyze(ADSConnection * dc)
 	ADSwriteResponse *wrs;
 	ADSdeviceInfo *di;
 	ADSstateResponse *asr;
-
+	int nErr;
+	
 	memset(dc->msgOut, 0, 500);
 	ADSpacket *pr = (ADSpacket *) (dc->msgOut);
 
@@ -187,23 +190,24 @@ void ranalyze(ADSConnection * dc)
 		  pr->adsHeader.length,
 		  sizeof(AMS_TCPheader) + sizeof(AMSheader) + 4);
 	_ADSDumpAMSheader(&(pr->amsHeader));
-	_ADSwrite(dc);
+	_ADSWritePacket(dc->iface, pr, &nErr);
 };
 
 void *portServer(void *arg)
 {
 	int *fd = (int *)arg;
+	int nErr;
 	ads_debug(ADSDebug, "portMy fd is:%d\n", fd);
 	int waitCount = 0;
 	int pcount = 0;
 	_ADSOSserialType s;
 	s.rfd = *fd;
 	s.wfd = *fd;
-	ADSInterface *di = ADSNewInterface(s, me, 0x800, "IF");
+	ADSInterface *di = _ADSNewInterface(*fd, me, 0x800, "IF");
 	di->timeout = 900000;
-	ADSConnection *dc = ADSNewConnection(di, partner, 800);
+	ADSConnection *dc = _ADSNewConnection(di, partner, 800);
 	while (waitCount < 1000) {
-		dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn);
+		dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn, &nErr);
 		if (dc->AnswLen > 0) {
 			ads_debug(ADSDebug, "%d ", pcount);
 			_ADSDump("packet", dc->msgIn, dc->AnswLen);

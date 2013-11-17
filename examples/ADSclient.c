@@ -27,6 +27,7 @@
 
 #include "ads.h"
 #include "AdsDEF.h"
+#include "ads_connect.h"
 
 #include <sys/time.h>
 
@@ -43,11 +44,11 @@
 
 void dump(char *name, void *v, int len)
 {
-        uc *b = (uc *) v;
+        unsigned char *b = (unsigned char *) v;
         int j;
         printf("%s: ", name);
-        if (len > maxDataLen)
-                len = maxDataLen;       // this will avoid to dump zillions of chars
+        if (len > MAXDATALEN)
+                len = MAXDATALEN;       // this will avoid to dump zillions of chars
         for (j = 0; j < len; j++) {
                 printf("%02X,", b[j]);
         }
@@ -58,7 +59,7 @@ void readIndexGroup(ADSConnection * dc, int igr, int off)
 {
 	int res;
 	printf("Trying to read from index group 0x%04x, offset 0x%01x\n", igr, off);
-	res = ADSreadBytes(dc, igr, off, 20, NULL);
+	res = ADSreadBytes(dc, igr, off, 20, NULL, NULL);
 	if (res == 0) {
 		printf("Dumping:\n");
 		dump("data", dc->dataPointer, dc->AnswLen);
@@ -76,6 +77,7 @@ int main(int argc, char **argv)
 	ADSConnection *dc;
 	struct timeval;
 	int netFd=0;
+	int nErr;
 	AdsVersion Version;
 	PAdsVersion pVersion = &Version;
 	char pDevName[16];
@@ -91,11 +93,11 @@ int main(int argc, char **argv)
 	}
 	/* set the local and remote netId */
 	snprintf(addr, 20, "%s.1.1", argv[1]);
-	ADSparseNetID(addr, &pAddr->netId);
+	_ADSparseNetID(addr, &pAddr->netId);
 	Addr.port = atol(argv[2]);
 	ADSGetLocalAMSId(&pMeAddr->netId);
 	/* connect */
-	dc = AdsSocketConnect(&netFd, pAddr, pMeAddr);
+	dc = ADSsocketConnect(pAddr, &nErr);
 	if (dc == NULL) {
 		fprintf(stderr, "Could not connect to ADS server\n");
 		return 1;
@@ -143,8 +145,8 @@ int main(int argc, char **argv)
 	ADSreadBytes(dc,i,0,100,NULL);
 //    double usec = (t2.tv_sec - t1.tv_sec) + (t2.tv_usec - t1.tv_usec)*1e-6;
 */
-	AdsSocketDisconnect(&netFd);
-	freeADSConnection(dc);
+	ADSsocketDisconnect(&netFd);
+	ADSFreeConnection(dc);
 	return 0;
 }
 
