@@ -25,8 +25,8 @@
 #include <sys/socket.h>
 #include <errno.h>
 
-#include "ads.h"
 #include "AdsDEF.h"
+#include "ads.h"
 #include "ads_connect.h"
 
 #include <sys/time.h>

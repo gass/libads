@@ -46,6 +46,7 @@
 #include <fcntl.h>
 
 #define ThisModule "Accepter : "
+#include "AdsDEF.h"
 #include "ads.h"
 #include "accepter.h"
 

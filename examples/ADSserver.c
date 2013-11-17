@@ -44,6 +44,7 @@
 
 #define ThisModule "ADSserver : "
 
+#include "AdsDEF.h"
 #include "ads.h"
 #include "ads_io.h" //TODO: call this from ads.h
 #include "debugprint.h"

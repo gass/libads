@@ -35,8 +35,8 @@
 #include <errno.h>
 #include <ifaddrs.h>
 
-#include "ads.h"
 #include "AdsDEF.h"
+#include "ads.h"
 #include "ads_io.h"
 #include "debugprint.h"
 

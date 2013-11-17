@@ -25,7 +25,8 @@
  along with libads.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <ads.h>
+#include "AdsDEF.h"
+#include "ads.h"
 
 int main(int argc, char **argv)
 {

@@ -25,9 +25,12 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <time.h>
 
-#include "ads.h"
 #include "AdsDEF.h"
+#include "ads.h"
 #include "ads_connect.h"
 #include "AdsAPI.h"
 #include "debugprint.h"

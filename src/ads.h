@@ -36,10 +36,9 @@ extern "C" {
 #pragma pack (push)
 #pragma pack (1)
 
-#include "AdsDEF.h"
-#include <stdio.h>
-#include <stdlib.h>
-#define tmotype int
+// default value according to Beckhoff specifications is 5000 msec
+// This IS NOT the timeout for an API-call, but the maximum time to read a packet!
+#define DEFAULT_TIMEOUT	3000
 
 #define MAXDATALEN 8192
 
@@ -145,6 +144,9 @@ typedef struct _ADSwriteResponse {
 	unsigned int result;		// error code
 } ADSwriteResponse;
 
+// ADSreadStateRequest doesn't use any data,
+// so there is no "ADSstateRequest" structure
+
 typedef struct _ADSstateResponse {
 	unsigned int   result;
 	unsigned short ADSstate;
@@ -189,9 +191,7 @@ typedef struct _ADSreadWriteResponse {
 	char 		 data[MAXDATALEN];
 } ADSreadWriteResponse;
 
-/*
-    Library specific stuff:
-*/
+//  Library specific stuff:
 
 #define ADSDebugOpen 0x10
 #define ADSDebugPacket 0x20
@@ -212,9 +212,8 @@ typedef struct _ADSreadWriteResponse {
 #define ADSDebug ADSDebugNone
 #endif
 
-/* 
-    This is a wrapper for the serial or network interface. 
-*/
+// 	This is a wrapper for the network interface.
+//  This holds data for a connection;
 typedef struct {
 	int			sd;			// socket descriptor for the network interface
 	int			error;		// Set when read/write errors occur.
@@ -227,9 +226,7 @@ typedef struct {
 	int			AMSport;	// local port (NOT the one open on  sd!!!)
 } ADSInterface;
 
-/* 
-    This holds data for a connection;
-*/
+
 typedef struct {
 	ADSInterface  *iface;			// pointer to used interface
 	int			  AnswLen;			// length of last message
@@ -241,59 +238,49 @@ typedef struct {
 	int			  AMSport;			// port of the device open on iface->sd
 } ADSConnection;
 
-	void ads_debug(int type, const char *fmt, ...);
-/** 
-    This will setup a new interface structure from an initialized
-    serial interface's handle and a name.
-*/
-	ADSInterface *_ADSNewInterface(int sd, AmsNetId me, int port, char *nname);
+#pragma pack (pop)
 
-/** 
-    This will setup a new connection structure using an initialized
-    ADSInterface and PLC's MPI address.
-*/
-	ADSConnection *_ADSNewConnection(ADSInterface *di, AmsNetId partner, int port);
-        
 /**
-    Naming
-*/
-	char *ADSerrorText(int err);
-
+	Prototypes, theese form the interface to AdsAPI.c
+ */
 long AdsGetMeAddress(PAmsAddr pAddr, int AmsPort);
-	int ADSreadBytes(ADSConnection *dc,
+int ADSreadBytes(ADSConnection *dc,
 				 unsigned long indexGroup, unsigned long offset,
 				 unsigned long length, void *buffer,
 				 unsigned long *pnRead);
-	int ADSreadDeviceInfo(ADSConnection * dc,
-			      char *pDevName, PAdsVersion pVersion);
-	int ADSwriteBytes(ADSConnection *dc, int indexGroup, int offset,
-								int length, void *data);
-	int ADSreadState(ADSConnection * dc,
-			 unsigned short *ADSstate, unsigned short *devState);
-	int ADSwriteControl(ADSConnection * dc, int ADSstate,
-			    int devState, void *data, int length);
-	int ADSaddDeviceNotification(ADSConnection * dc,
-				     int indexGroup,
-				     int offset, int length,
-				     int transmissionMode,
-				     int maxDelay, int cycleTime);
-	int ADSreadWriteBytes(ADSConnection * dc,
+int ADSreadDeviceInfo(ADSConnection *dc, char *pDevName, PAdsVersion pVersion);
+int ADSreadState(ADSConnection *dc, unsigned short *ADSstate,
+				 				unsigned short *devState);
+int ADSreadWriteBytes(ADSConnection * dc,
 					  unsigned long indexGroup, unsigned long offset,
 					  unsigned long readLength, void *readBuffer,
 					  unsigned long writeLength, void *writeBuffer,
 					  unsigned long *pnRead);
-	int _ADSwrite(ADSConnection * dc);
+int ADSwriteBytes(ADSConnection *dc, int indexGroup, int offset,
+								int length, void *data);
+int ADSwriteControl(ADSConnection *dc, int ADSstate, int devState,
+								void *data, int length);
 
-	int _ADSparseNetID(const char *netIDstring, AmsNetId *id);
+/**
+	Prototypes, ads.c specific stuff
+ */
+void _ADSsetupAmsHeader(ADSConnection *dc, AMSheader *h);
 
-	int ADSGetLocalAMSId(AmsNetId * id);
+int ADSGetLocalAMSId(AmsNetId * id);
 
-	int ADSFreeInterface(ADSInterface * di);
+ADSConnection *_ADSNewConnection(ADSInterface *di, AmsNetId partner, int port);
+void ADSFreeConnection(ADSConnection *dc);
 
-	void ADSFreeConnection(ADSConnection * dc);
+ADSInterface *_ADSNewInterface(int sd, AmsNetId me, int port, char *nname);
+int _ADSFreeInterface(ADSInterface *di);
+
+int _ADSparseNetID(const char *netIDstring, AmsNetId *id);
 
 int _ADStranslateWrError(int rc, int nErr);
 int _ADStranslateRdError(int rc, int nErr);
+
+void ads_debug(int type, const char *fmt, ...);
+char *ADSerrorText(int err);
 
 #endif	/* __ADS_H__ */
 
