@@ -396,7 +396,7 @@ int ADSreadBytes(ADSConnection *dc,
 				 unsigned long *pnRead)
 {
 	AMSheader 		*h1;
-	AMS_TCPheader 	*h2;
+//	AMS_TCPheader 	*h2; not used
 	ADSpacket 		*p1;
 	ADSpacket 		*p2;
 	ADSreadRequest  *rq;
@@ -408,7 +408,7 @@ int ADSreadBytes(ADSConnection *dc,
 
 	p1 = (ADSpacket *) dc->msgOut;
 	h1 = &(p1->amsHeader);
-	h2 = &(p1->adsHeader);
+//	h2 = &(p1->adsHeader); not used
 	_ADSsetupAmsHeader(dc, h1);
 
 	h1->commandId = cmdADSread;
@@ -496,7 +496,7 @@ int ADSwriteBytes(ADSConnection *dc,
 	ADSpacket			*p1;
 	ADSpacket			*p2;
 	AMSheader			*h1;
-	AMS_TCPheader		*h2;
+//	AMS_TCPheader		*h2; not used
 	ADSwriteRequest		*rq;
 	ADSwriteResponse	*wr;
 	int					rc;
@@ -506,7 +506,7 @@ int ADSwriteBytes(ADSConnection *dc,
 
 	p1 = (ADSpacket *) dc->msgOut;
 	h1 = &(p1->amsHeader);
-	h2 = &(p1->adsHeader);
+//	h2 = &(p1->adsHeader); not used
 
 	_ADSsetupAmsHeader(dc, h1);
 	h1->commandId = cmdADSwrite;
@@ -559,7 +559,7 @@ int ADSwriteBytes(ADSConnection *dc,
 int ADSreadDeviceInfo(ADSConnection * dc, char *pDevName, PAdsVersion pVersion)
 {
 	AMSheader 		*h1;
-	AMS_TCPheader 	*h2;
+//	AMS_TCPheader 	*h2; not used
 	ADSpacket 		*p1;
 	ADSpacket 		*p2;
 	ADSdeviceInfo 	*DeviceInfo;
@@ -570,7 +570,7 @@ int ADSreadDeviceInfo(ADSConnection * dc, char *pDevName, PAdsVersion pVersion)
 
 	p1 = (ADSpacket *) dc->msgOut;
 	h1 = &(p1->amsHeader);
-	h2 = &(p1->adsHeader);
+//	h2 = &(p1->adsHeader); not used
 	_ADSsetupAmsHeader(dc, h1);
 	h1->commandId = cmdADSreadDevInfo;
 	h1->dataLength = 0;
@@ -624,7 +624,7 @@ int ADSreadWriteBytes(ADSConnection * dc,
 					  unsigned long *pnRead)
 {
 	AMSheader 				*h1;
-	AMS_TCPheader 			*h2;
+//	AMS_TCPheader 			*h2; not used
 	ADSreadWriteRequest 	*rq;
 	ADSreadWriteResponse	*rr;
 	int						rc;
@@ -636,14 +636,14 @@ int ADSreadWriteBytes(ADSConnection * dc,
 	MsgOut(MSG_TRACE, "ADSreadWriteBytes() called\n");
 
 	h1 = &(p1->amsHeader);
-	h2 = &(p1->adsHeader);
+//	h2 = &(p1->adsHeader); not used
 
 	_ADSsetupAmsHeader(dc, h1);
 	h1->commandId = cmdADSreadWrite;
 	h1->dataLength = sizeof(ADSreadWriteRequest) - MAXDATALEN + writeLength;
 
-	h2->length = h1->dataLength + sizeof(AMSheader);
-	h2->reserved = 0;
+//	h2->length = h1->dataLength + sizeof(AMSheader); not used
+//	h2->reserved = 0; not used
 
 	rq = (ADSreadWriteRequest *) & p1->data;
 	rq->indexGroup = indexGroup;
@@ -709,7 +709,7 @@ int ADSreadState(ADSConnection * dc,
 				 unsigned short *devState)
 {
 	AMSheader 			*h1;
-	AMS_TCPheader 		*h2;
+//	AMS_TCPheader 		*h2; not used
 	ADSpacket 			*p1;
 	ADSpacket 			*p2;
 	ADSstateResponse 	*StateResponse;
@@ -720,7 +720,7 @@ int ADSreadState(ADSConnection * dc,
 
 	p1 = (ADSpacket *) dc->msgOut;
 	h1 = &(p1->amsHeader);
-	h2 = &(p1->adsHeader);
+//	h2 = &(p1->adsHeader); not used
 	_ADSsetupAmsHeader(dc, h1);
 	h1->commandId = cmdADSreadState;
 	h1->dataLength = 0;
@@ -769,7 +769,7 @@ int ADSwriteControl(ADSConnection *dc,
 					void *data, int length)
 {
 	AMSheader 				*h1;
-	AMS_TCPheader 			*h2;
+//	AMS_TCPheader 			*h2; not used
 	ADSpacket 				*p1;
 	ADSpacket				*p2;
 	ADSwriteControlRequest 	*rq;
@@ -781,7 +781,7 @@ int ADSwriteControl(ADSConnection *dc,
 
 	p1 = (ADSpacket *) dc->msgOut;
 	h1 = &(p1->amsHeader);
-	h2 = &(p1->adsHeader);
+//	h2 = &(p1->adsHeader); not used
 
 	_ADSsetupAmsHeader(dc, h1);
 	h1->commandId = cmdADSwriteControl;
