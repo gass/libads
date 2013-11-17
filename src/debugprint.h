@@ -57,6 +57,8 @@
 
 #else						// define DEBUGPRINT for a debug build
 // in case we include it in an application
+#include <stdbool.h>
+
 #include "AdsDEF.h"
 #include "ads.h"
 #include "ads_io.h"
@@ -73,11 +75,11 @@
 #define MsgAnalyzeHeader(t,h) 		_msgAnalyzeHeader(__FILE__, __LINE__, t, h)
 #define MsgDumpAMSaddr(t,a) 		_msgDumpAMSaddr(__FILE__, __LINE__, t, a)
 
-void  _ADSDumpAMSNetId(char *szFile, int iLineNo, int iType, AmsNetID *id);
+void  _ADSDumpAMSNetId(char *szFile, int iLineNo, int iType, AmsNetId *id);
 char* _ADSCommandName(int c);
 char* _ADSStateName(int c);
 void  _msgDumpAMSaddr(char *szFile, int iLineNo, int iType, PAmsAddr paddr);
-char *_msgAmsNetID2string(PAmsNetID pNetid);
+char *_msgAmsNetID2string(PAmsNetId pNetid);
 void  _msgout(char *szFile, int iLineNo, int iType, char *szMsg);
 void _msgcnt(int iType, char *szMsg);
 char* _msgoutp(char *fmt, ...);

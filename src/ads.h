@@ -258,16 +258,10 @@ typedef struct {
 Hex dump:
 */
         void _ADSDump(char *name, void *v, int len);
-
-        void _ADSDumpAMSNetId(AMSNetID * id);
-
-        void _ADSDumpAMSheader(AMSheader * h);
         
 /**
     Naming
 */
-	char *ADSCommandName(int c);
-
 	char *ADSerrorText(int err);
 
 long AdsGetMeAddress(PAmsAddr pAddr, int AmsPort);

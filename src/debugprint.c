@@ -92,7 +92,7 @@ void _msgDumpAMSaddr(char *szFile, int iLineNo, int iType, PAmsAddr paddr)
 }
 
 // need this with and without DEBUGPRINT
-char *_msgAmsNetID2string(PAmsNetID pNetid)
+char *_msgAmsNetID2string(PAmsNetId pNetid)
 {
 	static char buffer[64];
 	sprintf(buffer, "%d.%d.%d.%d.%d.%d",
@@ -157,9 +157,9 @@ void _msgAnalyzePacket(char *szFile, int iLineNo, char* funcName, void *pv)
 	ADSreadResponse *rresp;
 	ADSwriteResponse *wresp;
 	ADSstateResponse *sresp;
-	ADSwriteControlResponse *wcresp;
-	ADSaddDeviceNotificationResponse *adnresp;
-	ADSdeleteNotificationResponse *ddnresp;
+//	ADSwriteControlResponse *wcresp;
+//	ADSaddDeviceNotificationResponse *adnresp;
+//	ADSdeleteNotificationResponse *ddnresp;
 	ADSreadWriteResponse *rwresp;
 
 	// Requests
@@ -169,8 +169,8 @@ void _msgAnalyzePacket(char *szFile, int iLineNo, char* funcName, void *pv)
 	// state request has no data
 	ADSwriteControlRequest *wcreq;
 	ADSaddDeviceNotificationRequest *adnreq;
-	ADSdeleteDeviceNotificationRequest *ddnreq;
-	AdsDeviceNotification *dnr;
+//	ADSdeleteDeviceNotificationRequest *ddnreq;
+//	AdsDeviceNotification *dnr;
 	ADSreadWriteRequest *rwreq;
 
 	int i;
@@ -246,7 +246,7 @@ void _msgAnalyzePacket(char *szFile, int iLineNo, char* funcName, void *pv)
 				_doDump((void *)adnreq->reserved, 16, true);
 				break;
 
-			case cmdADSdeleteDeviceNotification:
+/*			case cmdADSdeleteDeviceNotification:
 				ddnreq = (ADSdeleteDeviceNotificationRequest *) (pv + 38);
 				fprintf(logout, "\t\thNotification: %d\n", ddnreq->hNotification);
 				break;
@@ -260,7 +260,7 @@ void _msgAnalyzePacket(char *szFile, int iLineNo, char* funcName, void *pv)
 							// or dnr->nLenght - 8 ?
 							// anyway, there are more bytes in "data" then needed !!!
 			break;
-
+*/
 			case cmdADSreadWrite:
 				rwreq = (ADSreadWriteRequest *) (pv + 38);
 				fprintf(logout, "\t\tindexGroup:    0x%x\n", rwreq->indexGroup);
@@ -311,12 +311,7 @@ void _msgAnalyzePacket(char *szFile, int iLineNo, char* funcName, void *pv)
 				fprintf(logout, "\t\tADS state:     %d\n", sresp->ADSstate);
 				fprintf(logout, "\t\tdevice state:  %d\n", sresp->devState);
 				break;
-
-			case cmdADSwriteControl:
-				wcresp = (ADSwriteControlResponse *) (pv + 38);
-				fprintf(logout, "\t\terrorCode:     0x%x %s\n", wcresp->result, ADSerrorText(wcresp->result));
-				break;
-
+/*
 			case cmdADSaddDeviceNotification:
 				adnresp = (ADSaddDeviceNotificationResponse *) (pv + 38);
 				fprintf(logout, "\t\terrorCode:     0x%x %s\n", adnresp->result, ADSerrorText(adnresp->result));
@@ -327,7 +322,7 @@ void _msgAnalyzePacket(char *szFile, int iLineNo, char* funcName, void *pv)
 				ddnresp = (ADSdeleteNotificationResponse *) (pv + 38);
 				fprintf(logout, "\t\terrorCode:     0x%x %s\n", ddnresp->result, ADSerrorText(ddnresp->result));
 				break;
-
+*/
 			case cmdADSreadWrite:
 				rwresp = (ADSreadWriteResponse *) (pv + 38);
 				fprintf(logout, "\t\terrorCode:     0x%x %s\n", rwresp->result, ADSerrorText(rwresp->result));
@@ -397,4 +392,15 @@ char *_fileFromPath(char * path)
 	return cp;
 }
 
+void  _ADSDumpAMSNetId(char *szFile, int iLineNo, int iType, AmsNetId *id)
+{
+	if(!(_ADSDebug & iType))
+		return;
+
+	if(szApplication)
+		fprintf(logout, "%s\t", szApplication);
+	fprintf(logout, "%s\t%d\tAMS NetId: %s",
+			_fileFromPath(szFile), iLineNo,
+			_msgAmsNetID2string(id));
+}
 #endif	//DEBUGPRINT

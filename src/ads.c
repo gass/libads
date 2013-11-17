@@ -42,34 +42,6 @@
 
 AmsAddr 		meAddr = {{"\0"}, 0};		// filled in by AdsGetMeAddress()
 
-char *ADSCommandName(int c)
-{
-	switch (c) {
-	case 0:
-		return ("cmdADSinvalid");
-	case 1:
-		return ("cmdADSreadDevInfo");
-	case 2:
-		return ("cmdADSread");
-	case 3:
-		return ("cmdADSwrite");
-	case 4:
-		return ("cmdADSreadState");
-	case 5:
-		return ("cmdADSwriteControl");
-	case 6:
-		return ("cmdADSaddDevNotify");
-	case 7:
-		return ("cmdADSdelDevNotify");
-	case 8:
-		return ("cmdADSdevNotify");
-	case 9:
-		return ("cmdADSreadWrite");
-	default:
-		return ("unknown !");
-	}
-}
-
 /*
  * Debug function.
  * sends some output to stdout if you define DEBUG
@@ -84,32 +56,6 @@ void ads_debug(int type, const char *fmt, ...)
 		printf("%s\n", tmp_str);
 		va_end(args);
 	}
-}
-
-void _ADSDumpAMSNetId(AMSNetID * id)
-{
-	_ADSDump("AMSNetID: ", (unsigned char *) id, sizeof(AMSNetID));
-}
-
-void _ADSDumpAMSheader(AMSheader * h)
-{
-	if (!ADSDebug)
-		return;
-	printf("DumpAMS header:\n");
-	printf("targetId");
-	_ADSDumpAMSNetId(&(h->targetId));
-	printf("targetPort: %d\n", h->targetPort);
-	printf("sourceId");
-	_ADSDumpAMSNetId(&(h->sourceId));
-	printf("sourcePort: %d\n", h->sourcePort);
-	printf("commandId: %d=%s\n", h->commandId,
-	       ADSCommandName(h->commandId));
-//    printf("stateFlags: %d=%s\n", h->stateFlags,ADSstateFlagsName(h->stateFlags));
-	printf("stateFlags: %d\n", h->stateFlags);
-	printf("dataLength: %d\n", h->dataLength);
-	printf("errorCode:  %04x %s\n", h->errorCode,
-	       ADSerrorText(h->errorCode));
-	printf("invokeId:   %d\n", h->invokeId);
 }
 
 char *ADSerrorText(int err)

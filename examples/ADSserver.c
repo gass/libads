@@ -39,6 +39,7 @@
 
 #include "ads.h"
 #include "ads_io.h" //TODO: call this from ads.h
+#include "debugprint.h"
 #include "accepter.h"
 
 AMSNetID me;
@@ -79,7 +80,7 @@ void ranalyze(ADSConnection * dc)
 	ads_debug(ADSDebug, "ADS_TCP.header.reserved: %d\n",
 		  p->adsHeader.reserved);
 	ads_debug(ADSDebug, "ADS_TCPheader.length: %d\n", p->adsHeader.length);
-	_ADSDumpAMSheader(&(p->amsHeader));
+	_msgAnalyzeHeader(__FILE__, __LINE__, MSG_PACKET, &(p->amsHeader));
 	ADSreadRequest *rrq;
 	ADSreadResponse *rrs;
 	ADSreadWriteRequest *rwrq;
@@ -163,7 +164,7 @@ void ranalyze(ADSConnection * dc)
 		
 		
 	default:
-		printf("Unhandeled command: %s\n", ADSCommandName(p->amsHeader.commandId));
+		printf("Unhandeled command: %s\n", _ADSCommandName(p->amsHeader.commandId));
 		pr->amsHeader.dataLength = 4;
 	}
 	pr->adsHeader.length = pr->amsHeader.dataLength + 32;
@@ -189,7 +190,7 @@ void ranalyze(ADSConnection * dc)
 	ads_debug(ADSDebug, "ADS_TCPheader.length: %d total:%d\n",
 		  pr->adsHeader.length,
 		  sizeof(AMS_TCPheader) + sizeof(AMSheader) + 4);
-	_ADSDumpAMSheader(&(pr->amsHeader));
+	_msgAnalyzeHeader(__FILE__, __LINE__, MSG_PACKET, &(pr->amsHeader));
 	_ADSWritePacket(dc->iface, pr, &nErr);
 };
 
