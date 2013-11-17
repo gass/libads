@@ -459,7 +459,7 @@ int ADSreadBytes(ADSConnection *dc,
 			if (buffer != NULL) {
 				if(rr->length > length){
 					char strBuf[256];
-					sprintf(strBuf, "ADSreadBytes() failed(): Buffer sized %lu bytes, got %lu bytes.", length, rr->length);
+					sprintf(strBuf, "ADSreadBytes() failed(): Buffer sized %lu bytes, got %u bytes.", length, rr->length);
 					MsgOut(MSG_ERROR, MsgStr("%s\n", strBuf));
 					return(0x705); // parameter size not correct
 				}
@@ -674,7 +674,7 @@ int ADSreadWriteBytes(ADSConnection * dc,
 			rr = (ADSreadWriteResponse *) (dc->msgIn + 38);
 			if(rr->length > readLength){
 				char strBuf[256];
-				sprintf(strBuf, "ADSreadWriteBytes() failed(): Max Read: %lu, got %lu", readLength, rr->length);
+				sprintf(strBuf, "ADSreadWriteBytes() failed(): Max Read: %lu, got %u", readLength, rr->length);
 				return(0x705); // parameter size not correct
 			}
 // 			memcpy(readBuffer, rr->data, readLength);
