@@ -30,8 +30,6 @@ extern "C" {
 #ifndef __ADSAPI_H__
 #define __ADSAPI_H__
 
-#define ADSAPIERR_NOERROR			0x0000
-#include "AdsDEF.h"
 long AdsGetDllVersion(void);
 long AdsPortOpen(void);
 long AdsPortClose(void);

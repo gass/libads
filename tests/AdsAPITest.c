@@ -25,8 +25,9 @@
 
 #include <stdio.h>
 
-#include <AdsAPI.h>
-#include <AdsDEF.h>
+#include "AdsDEF.h"
+#include "AdsAPI.h"
+
 
 int main(int argc, char **argv)
 {
