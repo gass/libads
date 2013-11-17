@@ -253,11 +253,6 @@ typedef struct {
     ADSInterface and PLC's MPI address.
 */
 	ADSConnection *_ADSNewConnection(ADSInterface *di, AmsNetId partner, int port);
-
-/**
-Hex dump:
-*/
-        void _ADSDump(char *name, void *v, int len);
         
 /**
     Naming

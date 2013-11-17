@@ -251,24 +251,6 @@ ADSConnection *_ADSNewConnection(ADSInterface * di, AmsNetId partner, int port)
 }
 
 /**
-    Hex dump:
-*/
-void _ADSDump(char *name, void *v, int len)
-{
-	if (!ADSDebug)
-		return;
-	unsigned char *b = (unsigned char *) v;
-	int j;
-	printf("%s: ", name);
-	if (len > MAXDATALEN)
-		len = MAXDATALEN;	// this will avoid to dump zillions of chars
-	for (j = 0; j < len; j++) {
-		printf("%02X,", b[j]);
-	}
-	printf("\n");
-};
-
-/**
  * Frees the allocated space for ADSConnection
  */
 void ADSFreeConnection(ADSConnection *dc)

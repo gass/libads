@@ -126,7 +126,7 @@ void ranalyze(ADSConnection * dc)
 		ads_debug(ADSDebug, "Index Group:   %04x\n", wrq->indexGroup);
 		ads_debug(ADSDebug, "Index Offset:  %d\n", wrq->indexOffset);
 		ads_debug(ADSDebug, "Data length:  %d\n", wrq->length);
-		_ADSDump("Data: ", wrq->data, wrq->length);
+		//_ADSDump("Data: ", wrq->data, wrq->length);
 		wrs = (ADSwriteResponse *) (pr->data);
 		wrs->result = 0;
 		pr->amsHeader.dataLength = 4;
@@ -139,7 +139,7 @@ void ranalyze(ADSConnection * dc)
 			  rwrq->readLength);
 		ads_debug(ADSDebug, "Write data length: %d\n",
 			  rwrq->writeLength);
-		_ADSDump("WriteData: ", rwrq->data, rwrq->writeLength);
+		//_ADSDump("WriteData: ", rwrq->data, rwrq->writeLength);
 
 		rwrs = (ADSreadWriteResponse *) (pr->data);
 		rwrs->result = 0;
@@ -149,7 +149,7 @@ void ranalyze(ADSConnection * dc)
 		*(int *)(rwrs->data + 0) = p->amsHeader.invokeId;
 		ads_debug(ADSDebug, "Response data length: %d\n",
 			  pr->amsHeader.dataLength);
-		_ADSDump("Response ", rwrs->data, rwrq->writeLength);
+		//_ADSDump("Response ", rwrs->data, rwrq->writeLength);
 		break;
 
 	case cmdADSread:
@@ -208,7 +208,7 @@ void *portServer(void *arg)
 		dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn, &nErr);
 		if (dc->AnswLen > 0) {
 			ads_debug(ADSDebug, "%d ", pcount);
-			_ADSDump("packet", dc->msgIn, dc->AnswLen);
+			//_ADSDump("packet", dc->msgIn, dc->AnswLen);
 			waitCount = 0;
 			ranalyze(dc);
 
