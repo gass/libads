@@ -379,6 +379,9 @@ int ADSreadBytes(ADSConnection *dc,
 
 	rc = _ADSWritePacket(dc->iface, p1, &nErr);
 	if(rc <= 0){
+#ifdef LOG_ALL_MESSAGES
+		syslog(LOG_USER | LOG_ERR, "ADSreadBytes() failed().");
+#endif
         MsgOut(MSG_ERROR, "ADSreadBytes() failed().\n");
 		return( _ADStranslateWrError(rc, nErr));
 	}
@@ -409,6 +412,9 @@ int ADSreadBytes(ADSConnection *dc,
 				if(rr->length > length){
 					char strBuf[256];
 					sprintf(strBuf, "ADSreadBytes() failed(): Buffer sized %lu bytes, got %u bytes.", length, rr->length);
+#ifdef LOG_ALL_MESSAGES
+					syslog(LOG_USER | LOG_ERR, strBuf);
+#endif
 					MsgOut(MSG_ERROR, MsgStr("%s\n", strBuf));
 					return(0x705); // parameter size not correct
 				}
@@ -430,6 +436,9 @@ int ADSreadBytes(ADSConnection *dc,
 			return p2->amsHeader.errorCode;
 	}
 
+#ifdef LOG_ALL_MESSAGES
+	syslog(LOG_USER | LOG_ERR, "ADSreadBytes() failed().");
+#endif
 	MsgOut(MSG_ERROR, "ADSreadBytes() failed().\n");
 	return(_ADStranslateRdError(dc->AnswLen, nErr));
 }
@@ -680,6 +689,9 @@ int ADSreadState(ADSConnection * dc,
 	/* sends the the packet */
 	rc = _ADSWritePacket(dc->iface, p1, &nErr);
 	if(rc <= 0){
+#ifdef LOG_ALL_MESSAGES
+		syslog(LOG_USER | LOG_ERR, "ADSreadState() failed().");
+#endif
 		MsgOut(MSG_ERROR, "ADSreadState failed().\n");
 		return( _ADStranslateWrError(rc, nErr));
 	}
@@ -704,6 +716,9 @@ int ADSreadState(ADSConnection * dc,
 	}
 
 	/* if there is an error */
+#ifdef LOG_ALL_MESSAGES
+	syslog(LOG_USER | LOG_ERR, "ADSreadState failed().");
+#endif
 	MsgOut(MSG_ERROR, "ADSreadState failed().\n");
 	return(_ADStranslateRdError(dc->AnswLen, nErr));
 }
@@ -751,6 +766,9 @@ int ADSwriteControl(ADSConnection *dc,
 	MsgAnalyzePacket("ADSwriteControl()", p1);
 	rc = _ADSWritePacket(dc->iface, p1, &nErr);
 	if(rc <= 0){
+#ifdef LOG_ALL_MESSAGES
+		syslog(LOG_USER | LOG_ERR, "ADSwriteControl() failed().");
+#endif
 		MsgOut(MSG_ERROR, "ADSwriteControl() failed().\n");
 		return( _ADStranslateWrError(rc, nErr));
 	}
@@ -769,6 +787,9 @@ int ADSwriteControl(ADSConnection *dc,
 		return p2->amsHeader.errorCode;
 	}
 	/* if there is an error */
+#ifdef LOG_ALL_MESSAGES
+	syslog(LOG_USER | LOG_ERR, "ADSwriteControl() failed().");
+#endif
 	MsgOut(MSG_ERROR, "ADSwriteControl() failed().\n");
 	return(_ADStranslateRdError(dc->AnswLen, nErr));
 }
