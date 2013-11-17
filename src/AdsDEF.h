@@ -17,13 +17,16 @@
     along with libads.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef __ADSDEF_H__
 #define __ADSDEF_H__
 
 #ifndef	ANYSIZE_ARRAY
-#define	ANYSIZE_ARRAY					1
-#endif				/* 
-				 */
+#define	ANYSIZE_ARRAY	1
+#endif
 
 /*
  * ADS Available Ports
@@ -78,14 +81,14 @@
 #define ADSIOFFS_DEVDATA_DEVSTATE			0x0002	// device state
 /* TypeDef and structure definition */
 /**
-    \brief  The NetId of and ADS device can be represented in this structure.
-
-    According to BECKHOFF, AMS Id is a six byte field. In case of IP transport, the first
-    4 bytes are identical to the IP Address.
-*/
-typedef struct _AMSNetID {
+  *	\brief  The NetId of and ADS device can be represented in this structure.
+  * According to BECKHOFF, AMS Id is a six byte field.
+  * In our case, the first 4 bytes MUST be identical to the IP Address.
+ */
+typedef struct _AMSNetId
+{
 	unsigned char b[6];
-} AMSNetID, AmsNetId;
+} AMSNetID, AmsNetId, *PAmsNetId;
 
 /**
  * The complete address of an ADS device can be stored in this structure.
@@ -97,15 +100,12 @@ typedef struct _AmsAddr {
 
 /**
  * The structure contains the version number, revision number and build number.
- * TODO: not used
  */
 typedef struct {
-
-	unsigned char version;	// < Version number.
-	unsigned char revision;	// < Revision number.
-	unsigned short build;	// < Build number
+	unsigned char version;	// Version number.
+	unsigned char revision;	// Revision number.
+	unsigned short build;	// Build number
 } AdsVersion;
-
 typedef AdsVersion *PAdsVersion;
 
 /**
