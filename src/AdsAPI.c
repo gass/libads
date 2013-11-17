@@ -155,7 +155,6 @@ long AdsSyncWriteControlReqEx(long port, PAmsAddr pAddr,
 		return adsError;
 
 	ret = ADSwriteControl(dc, nAdsState, nDeviceState, pData, nLength);
-	ADSFreeConnection(dc); // simply a free(dc)
 	return(ret);
 
 }
@@ -197,7 +196,6 @@ long AdsSyncWriteReqEx(long port, PAmsAddr pAddr,
 
 	ret = ADSwriteBytes(dc, nIndexGroup, nIndexOffset, nLength, pData);
 
-	ADSFreeConnection(dc); // simply a free(dc)
 	return(ret);
 }
 
@@ -239,8 +237,6 @@ long AdsSyncReadReqEx2(long port, PAmsAddr pAddr,
 		return adsError;
 
 	adsError = ADSreadBytes(dc, nIndexGroup, nIndexOffset, nLength, pData, pnRead);
-
-	ADSFreeConnection(dc); // simply a free(dc)
 
 	return adsError;
 }
@@ -304,7 +300,6 @@ long AdsSyncReadStateReqEx(long port, PAmsAddr pAddr,
 		return adsError;
 
 	adsError = ADSreadState(dc, pAdsState, pDeviceState);
-	ADSFreeConnection(dc); // simply a free(dc)
 
 	return adsError;
 }
@@ -343,7 +338,6 @@ long AdsSyncReadDeviceInfoReqEx(long port, PAmsAddr pAddr,
 		return adsError;
 
 	adsError = ADSreadDeviceInfo(dc, pDevName, pVersion);
-	ADSFreeConnection(dc); // simply a free(dc)
 	return adsError;
 }
 
@@ -393,7 +387,6 @@ long AdsSyncReadWriteReqEx2(long port, PAmsAddr pAddr,
 								 nWriteLength, pWriteData,
 								 pcbReturn
 								);
-	ADSFreeConnection(dc); // simply a free(dc)
 	return adsError;
 }
 
