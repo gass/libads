@@ -172,4 +172,8 @@ typedef void (*PAdsNotificationFunc) (AmsAddr * Addr,
 				      AdsNotificationHeader *
 				      pNotification, unsigned long hUser);
 
-#endif				// __ADSDEF_H__
+#endif	// __ADSDEF_H__
+
+#ifdef __cplusplus
+}
+#endif
