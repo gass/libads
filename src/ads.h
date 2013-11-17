@@ -287,6 +287,7 @@ Hex dump:
 
 	char *ADSerrorText(int err);
 
+long AdsGetMeAddress(PAmsAddr pAddr, int AmsPort);
 	int ADSreadBytes(ADSConnection *dc,
 				 unsigned long indexGroup, unsigned long offset,
 				 unsigned long length, void *buffer,
