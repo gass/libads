@@ -201,9 +201,9 @@ void *portServer(void *arg)
 	ads_debug(ADSDebug, "portMy fd is:%d\n", fd);
 	int waitCount = 0;
 	int pcount = 0;
-	ADSInterface *di = _ADSNewInterface(*fd, me, 0x800, "IF");
+	ADSInterface *di = _ADSNewInterface(*fd, me, AMSPORT_R0_PLC_RTS1, "IF");
 	di->timeout = 900000;
-	ADSConnection *dc = _ADSNewConnection(di, partner, 800);
+	ADSConnection *dc = _ADSNewConnection(di, partner, AMSPORT_R0_PLC_RTS1);
 	while (waitCount < 1000) {
 		dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn, &nErr);
 		if (dc->AnswLen > 0) {

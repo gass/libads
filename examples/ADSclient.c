@@ -85,9 +85,9 @@ int main(int argc, char **argv)
 	PAmsAddr pAddr = &Addr, pMeAddr = &MeAddr;
 	char addr[20];
 
-	if (argc < 2) {
+	if (argc < 3) {
 		printf("Usage: ADSclient host port \n");
-		printf("Example: ADSclient 192.168.17.110 800\n");
+		printf("Example: ADSclient 192.168.17.110 801\n");
 		return -1;
 	}
 	/* set the local and remote netId */
