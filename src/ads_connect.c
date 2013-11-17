@@ -182,11 +182,12 @@ ADSConnection *ADSsocketConnect(PAmsAddr pAddr, int *adsError)
 /**
  * Closes a connection to the PLC.
  */
-int ADSsocketDisconnect(int *fd)
+int ADSsocketDisconnect(ADSConnection *dc)
 {
 	MsgOut(MSG_TRACE, "ADSsocketDisconnect() called\n");
-
-	if (*fd == 0) {
+	//gets the connection file descriptor.
+	int *fd = &(dc->iface->sd);
+	if (fd == 0) {
 		MsgOut(MSG_ERROR,
 			   "ADSsocketDisconnect() called with file discriptor = 0, "
 					   "returns 0xd (error).\n");

@@ -33,7 +33,7 @@
 
 ADSConnection *ADSsocketGet(int dummy, PAmsAddr pAddr, int *adsError);
 ADSConnection *ADSsocketConnect(PAmsAddr pAddr, int *adsError);
-int  ADSsocketDisconnect(int *fd);
+int ADSsocketDisconnect(ADSConnection *dc);
 
 int	ADScloseConection(int port);
 long AdsSetTimeout(long port, long nMs);

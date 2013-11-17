@@ -76,7 +76,6 @@ int main(int argc, char **argv)
 //    ADSDebug=ADSDebugAnalyze;
 	ADSConnection *dc;
 	struct timeval;
-	int netFd=0;
 	int nErr;
 	AdsVersion Version;
 	PAdsVersion pVersion = &Version;
@@ -145,7 +144,7 @@ int main(int argc, char **argv)
 	ADSreadBytes(dc,i,0,100,NULL);
 //    double usec = (t2.tv_sec - t1.tv_sec) + (t2.tv_usec - t1.tv_usec)*1e-6;
 */
-	ADSsocketDisconnect(&netFd);
+	ADSsocketDisconnect(dc);
 	ADSFreeConnection(dc);
 	return 0;
 }

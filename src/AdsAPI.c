@@ -79,12 +79,10 @@ long AdsPortOpen(void)
  */
 long AdsPortClose(void)
 {
-	int socket_fd;
 	int i;
 
 	for(i = 0; i < nADSConnectionCnt; i++){
-		socket_fd = pADSConnectionList[i]->iface->sd;
-		ADSsocketDisconnect(&socket_fd);
+		ADSsocketDisconnect(pADSConnectionList[i]);
 		ADSFreeConnection(pADSConnectionList[i]);
 	}
 	free(pADSConnectionList);
