@@ -95,7 +95,7 @@ extern "C" {
 typedef struct _AMSNetId
 {
 	unsigned char b[6];
-} AMSNetID, AmsNetId, *PAmsNetId;
+} AmsNetId, *PAmsNetId;
 
 /**
  * The complete address of an ADS device can be stored in this structure.

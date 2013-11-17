@@ -755,7 +755,7 @@ int ADSwriteControl(ADSConnection *dc,
 /**
  * This is an internal function
  * Input: netIDstring, something like "127.0.0.1.1.1"
- * Output: id, the input converted to an AmsNetID struct.
+ * Output: id, the input converted to an AmsNetId struct.
  */
 int _ADSparseNetID(const char *netIDstring, AmsNetId *id)
 {

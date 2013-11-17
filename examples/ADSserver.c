@@ -49,9 +49,9 @@
 #include "debugprint.h"
 #include "accepter.h"
 
-AMSNetID me;
+AmsNetId me;
 
-AMSNetID partner;
+AmsNetId partner;
 
 /*
     many bytes. hopefully enough to serve any read request.
