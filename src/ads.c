@@ -58,153 +58,174 @@ void ads_debug(int type, const char *fmt, ...)
 	}
 }
 
+/**
+ * A helper function to find out, what an errorcode returned by an
+ * Ads*** function means...
+ * The list of errorcodes is NOT complete!
+ * @param err ADS errorcode
+ * @return Returns a short text.
+ */
 char *ADSerrorText(int err)
 {
 	switch (err) {
-	case 0:
-		return "no error";
-	case 0x0001:
-		return "Internal error";
-	case 0x0002:
-		return "No Rtime";
-	case 0x0003:
-		return "Allocation locked memory error";
-	case 0x0004:
-		return "Insert mailbox error";
-	case 0x0005:
-		return "Wrong receive HMSG";
-	case 0x0006:
-		return "target port not found";
-	case 0x0007:
-		return "target machine not found";
-	case 0x0008:
-		return "unknown command ID";
-	case 0x0009:
-		return "Bad task ID";
-	case 0x000A:
-		return "No IO";
-	case 0x000B:
-		return "unknown AMS command";
-	case 0x000C:
-		return "Win 32 error";
-	case 0x000D:
-		return "port not connected";
-	case 0x000E:
-		return "invalid AMS length";
-	case 0x000F:
-		return "invalid AMS Net ID";
-	case 0x0010:
-		return "Low installation level";
-	case 0x0011:
-		return "No debug available";
-	case 0x0012:
-		return "Port disabled";
-	case 0x0013:
-		return "Port already connected";
-	case 0x0014:
-		return "AMS Sync Win 32 error";
-	case 0x0015:
-		return "AMS Sync timeout";
-	case 0x0016:
-		return "AMS Sync AMS error";
-	case 0x0017:
-		return "AMS Sync no index map";
-	case 0x0018:
-		return "Invalid AMS port";
-	case 0x0019:
-		return "No memory";
-	case 0x001A:
-		return "TCP send error";
-	case 0x001B:
-		return "Host unreachable";
+		case 0:
+			return "ok";
+		case 0x0001:
+			return "Internal error";
+		case 0x0002:
+			return "No Rtime";
+		case 0x0003:
+			return "Allocation locked memory error";
+		case 0x0004:
+			return "Insert mailbox error";
+		case 0x0005:
+			return "Wrong receive HMSG";
+		case 0x0006:
+			return "target port not found";
+		case 0x0007:
+			return "target machine not found";
+		case 0x0008:
+			return "unknown command ID";
+		case 0x0009:
+			return "Bad task ID";
+		case 0x000A:
+			return "No IO";
+		case 0x000B:
+			return "unknown AMS command";
+		case 0x000C:
+			return "Win 32 error";
+		case 0x000D:
+			return "port not connected";
+		case 0x000E:
+			return "invalid AMS length";
+		case 0x000F:
+			return "invalid AMS Net ID";
+		case 0x0010:
+			return "Low installation level";
+		case 0x0011:
+			return "No debug available";
+		case 0x0012:
+			return "Port disabled";
+		case 0x0013:
+			return "Port already connected";
+		case 0x0014:
+			return "AMS Sync Win 32 error";
+		case 0x0015:
+			return "AMS Sync timeout";
+		case 0x0016:
+			return "AMS Sync AMS error";
+		case 0x0017:
+			return "AMS Sync no index map";
+		case 0x0018:
+			return "Invalid AMS port";
+		case 0x0019:
+			return "No memory";
+		case 0x001A:
+			return "TCP send error";
+		case 0x001B:
+			return "Host unreachable";
 
-	case 0x0500:
-		return "Router: no locked memory";
-	case 0x0502:
-		return "Router: mailbox full";
+		case 0x0500:
+			return "Router: no locked memory";
+		case 0x0502:
+			return "Router: mailbox full";
+		case 0x050a:
+			return "Router: not (yet) active";
 
-	case 0x0700:
-		return "error class <device error>??";
-	case 0x0701:
-		return "service is not supported by server";
-	case 0x0702:
-		return "invalid index group";
-	case 0x0703:
-		return "invalid index offset";
-	case 0x0704:
-		return "reading/writing not permitted";
-	case 0x0705:
-		return "parameter size not correct";
-	case 0x0706:
-		return "invalid parameter value(s)";
-	case 0x0707:
-		return "device is not in a ready state";
-	case 0x0708:
-		return "device is busy";
-	case 0x0709:
-		return "invalid context. (must be in Windows ?)";
-	case 0x070A:
-		return "out of memory";
+		case 0x0700:
+			return "error class <device error>??";
+		case 0x0701:
+			return "service is not supported by server";
+		case 0x0702:
+			return "invalid index group";
+		case 0x0703:
+			return "invalid index offset";
+		case 0x0704:
+			return "reading/writing not permitted";
+		case 0x0705:
+			return "parameter size not correct";
+		case 0x0706:
+			return "invalid parameter value(s)";
+		case 0x0707:
+			return "device is not in a ready state";
+		case 0x0708:
+			return "device is busy";
+		case 0x0709:
+			return "invalid context. (must be in Windows ?)";
+		case 0x070A:
+			return "out of memory";
 
-	case 0x070B:
-		return "invalid parameter value(s)";
-	case 0x070C:
-		return "not found (files,...)";
-	case 0x070D:
-		return "syntax error in command or file";
-	case 0x070E:
-		return "objects do not match";
-	case 0x070F:
-		return "object already exists";
-	case 0x0710:
-		return "symbol not found";
-	case 0x0711:
-		return "symbol version invalid";
+		case 0x070B:
+			return "invalid parameter value(s)";
+		case 0x070C:
+			return "not found (files,...)";
+		case 0x070D:
+			return "syntax error in command or file";
+		case 0x070E:
+			return "objects do not match";
+		case 0x070F:
+			return "object already exists";
+		case 0x0710:
+			return "symbol not found";
+		case 0x0711:
+			return "symbol version invalid";
 
-	case 0x0712:
-		return "server is in invalid state";
-	case 0x0713:
-		return "AdsTransMode not supported";
-	case 0x0714:
-		return "Notification handle is invalid";
-	case 0x0715:
-		return "Notification client not registered";
-	case 0x0716:
-		return "No more notification handles";
-	case 0x0717:
-		return "Size for watch too big";
-	case 0x0718:
-		return "device not initialized";
-	case 0x0719:
-		return "device has a timeout";
+		case 0x0712:
+			return "server is in invalid state";
+		case 0x0713:
+			return "AdsTransMode not supported";
+		case 0x0714:
+			return "Notification handle is invalid";
+		case 0x0715:
+			return "Notification client not registered";
+		case 0x0716:
+			return "No more notification handles";
+		case 0x0717:
+			return "Size for watch too big";
+		case 0x0718:
+			return "device not initialized";
+		case 0x0719:
+			return "device has a timeout";
 
-	case 0x0740:
-		return "error class <client error>??";
-	case 0x0741:
-		return "invalid parameter at service";
-	case 0x0742:
-		return "polling list is empty";
-	case 0x0743:
-		return "var connection already in use";
-	case 0x0744:
-		return "invoke ID in use";
-	case 0x0745:
-		return "timeout elapsed";
-	case 0x0746:
-		return "error in win32 subsystem";
-	case 0x0748:
-		return "ads port not opened";
 
-	case 0x0750:
-		return "internal error in ads sync";
-	case 0x0751:
-		return "Hash table overflow";
-	case 0x0752:
-		return "key not found in hash";
-	case 0x0753:
-		return "no more symbols in cache";
-	default:
-		return "Unknown error code";
+		case 0x0740:
+			return "error class <client error>??";
+		case 0x0741:
+			return "invalid parameter at service";
+		case 0x0742:
+			return "polling list is empty";
+		case 0x0743:
+			return "var connection already in use";
+		case 0x0744:
+			return "invoke ID in use";
+		case 0x0745:
+			return "timeout elapsed";
+		case 0x0746:
+			return "error in win32 subsystem";
+		case 0x0748:
+			return "ads port not opened";
+
+		case 0x0750:
+			return "internal error in ads sync";
+		case 0x0751:
+			return "Hash table overflow";
+		case 0x0752:
+			return "key not found in hash";
+		case 0x0753:
+			return "no more symbols in cache";
+		case 0x0754:
+			return "invalid response received";
+		case 0x0755:
+			return "Sync port locked";
+
+
+		case 0x274c:
+			return "A socket operation was attempted to an unreachable host";
+		case 0x274d:
+			return "A connection attempt failed";
+
+		default:
+			return "Unknown error code";
 	}
 }
 
@@ -755,7 +776,7 @@ int ADSwriteControl(ADSConnection *dc,
 /**
  * This is an internal function
  * Input: netIDstring, something like "127.0.0.1.1.1"
- * Output: id, the input converted to an AmsNetId struct.
+ * Output: id, the input converted to an AmsNetID struct.
  */
 int _ADSparseNetID(const char *netIDstring, AmsNetId *id)
 {
