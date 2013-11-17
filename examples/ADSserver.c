@@ -200,9 +200,6 @@ void *portServer(void *arg)
 	ads_debug(ADSDebug, "portMy fd is:%d\n", fd);
 	int waitCount = 0;
 	int pcount = 0;
-	_ADSOSserialType s;
-	s.rfd = *fd;
-	s.wfd = *fd;
 	ADSInterface *di = _ADSNewInterface(*fd, me, 0x800, "IF");
 	di->timeout = 900000;
 	ADSConnection *dc = _ADSNewConnection(di, partner, 800);

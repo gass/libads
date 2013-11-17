@@ -38,20 +38,8 @@ extern "C" {
 
 #include "AdsDEF.h"
 #include <stdio.h>
-
-/* 
-    Some simple types:
-*/
-
-#ifdef __linux__
-	typedef struct dost {
-		int rfd;
-		int wfd;
-//    int connectionType;
-	} _ADSOSserialType;
 #include <stdlib.h>
 #define tmotype int
-#endif
 
 #define MAXDATALEN 8192
 
