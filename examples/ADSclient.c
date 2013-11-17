@@ -102,14 +102,19 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	/* start communicating */
+	/* start communicating 
+	 * Read Device info
+	 */
 	ads_debug(ADSDebug,"device info:\n");
 	ADSreadDeviceInfo(dc, pDevName, pVersion);
-
+	printf("Device Name: %s\n", pDevName);
+	printf("Device Version: %d.%d.%d\n", pVersion->version, pVersion->revision, pVersion->build);
+	/*
+	 * read state
+	 */
 	ads_debug(ADSDebug,"read state:\n");
-//    ADSreadBytes(dc,igr,0,100,NULL);
-//    ADSwriteBytes(dc,igr,0,100,NULL);
 	ADSreadState(dc, &ADSstate, &devState);
+	printf("ADS State: %d Device State: %d\n", ADSstate, devState);
 	//ads_debug(ADSDebug,"write control:");
 	ADSwriteControl(dc, 4, 0, NULL, 0);
 
