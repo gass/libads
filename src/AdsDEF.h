@@ -57,36 +57,45 @@ extern "C" {
 /*
  * ADS index groups
  */
+#define ADSIGRP_IOIMAGE_FLAGS			0x4020	//PLC memory area ( AT %MB...)
+#define ADSIGRP_IOIMAGE_FLAGBITS		0x4021	//PLC memory area - bits ( AT %MX...)
+#define ADSIGRP_IOIMAGE_DATA			0x4040  //PLC data area
 
-#define ADSIGRP_SYMTAB						0xF000
-#define ADSIGRP_SYMNAME						0xF001
-#define ADSIGRP_SYMVAL						0xF002
+#define ADSIGRP_SYMTAB					0xF000
+#define ADSIGRP_SYMNAME					0xF001
+#define ADSIGRP_SYMVAL					0xF002
+#define ADSIGRP_SYM_HNDBYNAME			0xF003
+#define ADSIGRP_SYM_VALBYNAME			0xF004
+#define ADSIGRP_SYM_VALBYHND			0xF005
+#define ADSIGRP_SYM_RELEASEHND			0xF006
 
-#define ADSIGRP_SYM_HNDBYNAME				0xF003
-#define ADSIGRP_SYM_VALBYNAME				0xF004
-#define ADSIGRP_SYM_VALBYHND				0xF005
-#define ADSIGRP_SYM_RELEASEHND				0xF006
-#define ADSIGRP_SYM_INFOBYNAME				0xF007
-#define ADSIGRP_SYM_VERSION					0xF008
-#define ADSIGRP_SYM_INFOBYNAMEEX			0xF009
+#define ADSIGRP_SYM_INFOBYNAME			0xF007
+#define ADSIGRP_SYM_VERSION				0xF008
+#define ADSIGRP_SYM_INFOBYNAMEEX		0xF009
+#define ADSIGRP_SYM_DOWNLOAD			0xF00A
+#define ADSIGRP_SYM_UPLOAD				0xF00B	// read declared symbols (variables) from PLC
+#define ADSIGRP_SYM_UPLOADINFO			0xF00C	// read count and sizes for symbols from PLC
+#define ADSIGRP_SYM_DT_UPLOAD			0xF00E	// read datatye-descriptions  from PLC
+#define ADSIGRP_SYM_UPLOADINFO2			0xF00F	// read count and sizes for symbols and datatypes from PLC
 
-#define ADSIGRP_SYM_DOWNLOAD				0xF00A
-#define ADSIGRP_SYM_UPLOAD					0xF00B
-#define ADSIGRP_SYM_UPLOADINFO				0xF00C
+#define ADSIGRP_SYMNOTE					0xF010	//notification of named handle
+#define ADSIGRP_IOIMAGE_RWIB			0xF020	//read/write input byte(s)
+#define ADSIGRP_IOIMAGE_RWIX			0xF021	//read/write input bit
+#define ADSIGRP_IOIMAGE_RWOB			0xF030	//read/write output byte(s)
+#define ADSIGRP_IOIMAGE_RWOX			0xF031	//read/write output bit
+#define ADSIGRP_IOIMAGE_CLEARI			0xF040	//write inputs to null
+#define ADSIGRP_IOIMAGE_CLEARO			0xF050	//write outputs to null
+#define ADSIGRP_SUMUP_READ				0xF080 	//read a list of variables with one single ADS-command
+#define ADSIGRP_SUMUP_WRITE				0xF081	//write a list of variables with one single ADS-command
+#define ADSIGRP_DEVICE_DATA				0xF100	//state, name, etc...
 
-#define ADSIGRP_SYMNOTE						0xF010	// notification of named handle
+/*
+ * state flags
+ */
+#define ADSIOFFS_DEVDATA_ADSSTATE		0x0000	//ads state of device
+#define ADSIOFFS_DEVDATA_DEVSTATE		0x0002	//device state
 
-#define ADSIGRP_IOIMAGE_RWIB				0xF020	// read/write input byte(s)
-#define ADSIGRP_IOIMAGE_RWIX				0xF021	// read/write input bit
-#define ADSIGRP_IOIMAGE_RWOB				0xF030	// read/write output byte(s)
-#define ADSIGRP_IOIMAGE_RWOX				0xF031	// read/write output bit
-#define ADSIGRP_IOIMAGE_CLEARI				0xF040	// write inputs to null
-#define ADSIGRP_IOIMAGE_CLEARO				0xF050	// write outputs to null
-
-#define ADSIGRP_DEVICE_DATA					0xF100	// state, name, etc...
-#define ADSIOFFS_DEVDATA_ADSSTATE			0x0000	// ads state of device
-#define ADSIOFFS_DEVDATA_DEVSTATE			0x0002	// device state
-/* TypeDef and structure definition */
+#define ADSERR_NOERR 					0x0
 
 typedef enum nAdsTransMode
 {
@@ -148,33 +157,20 @@ typedef struct {
 typedef AdsVersion *PAdsVersion;
 
 typedef struct {
-
 	unsigned long cbLength;
-
 	ADSTRANSMODE nTransMode;
-
 	unsigned long nMaxDelay;
-
 	union {
-
 		unsigned long nCycleTime;
-
 		unsigned long dwChangeFilter;
-
 	};
-
 } AdsNotificationAttrib, *PAdsNotificationAttrib;
 
 typedef struct {
-
 	unsigned long hNotification;
-
 	unsigned long long nTimeStamp;
-
 	unsigned long cbSampleSize;
-
 	unsigned char data[ANYSIZE_ARRAY];
-
 } AdsNotificationHeader, *PAdsNotificationHeader;
 
 typedef void (*PAdsNotificationFunc) (AmsAddr * Addr,
