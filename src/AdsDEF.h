@@ -87,6 +87,38 @@ extern "C" {
 #define ADSIOFFS_DEVDATA_ADSSTATE			0x0000	// ads state of device
 #define ADSIOFFS_DEVDATA_DEVSTATE			0x0002	// device state
 /* TypeDef and structure definition */
+
+typedef enum nAdsTransMode
+{
+	ADSTRANS_NOTRANS     = 0,
+	ADSTRANS_CLIENTCYCLE = 1,
+	ADSTRANS_CLIENT1REQ  = 2,
+	ADSTRANS_SERVERCYCLE = 3,
+	ADSTRANS_SERVERONCHA = 4
+} ADSTRANSMODE;
+
+typedef enum nAdsState
+{
+	ADSSTATE_INVALID 		= 0,
+	ADSSTATE_IDLE 			= 1,
+	ADSSTATE_RESET 			= 2,
+	ADSSTATE_INIT 			= 3,
+	ADSSTATE_START 			= 4,
+	ADSSTATE_RUN 			= 5,
+	ADSSTATE_STOP 			= 6,
+	ADSSTATE_SAVECFG 		= 7,
+	ADSSTATE_LOADCFG 		= 8,
+	ADSSTATE_POWERFAILURE 	= 9,
+	ADSSTATE_POWERGOOD 		= 10,
+	ADSSTATE_ERROR 			= 11,
+	ADSSTATE_SHUTDOWN 		= 12,
+	ADSSTATE_SUSPEND 		= 13,
+	ADSSTATE_RESUME 		= 14,
+	ADSSTATE_CONFIG		   	= 15, // system is in config mode
+	ADSSTATE_RECONFIG		= 16, // system should restart in config mode
+	ADSSTATE_MAXSTATES
+} ADSSTATE;
+
 /**
   *	\brief  The NetId of and ADS device can be represented in this structure.
   * According to BECKHOFF, AMS Id is a six byte field.
@@ -114,36 +146,6 @@ typedef struct {
 	unsigned short build;	// Build number
 } AdsVersion;
 typedef AdsVersion *PAdsVersion;
-
-/**
-  *
-  */
-typedef enum nAdsTransMode {
-	ADSTRANS_NOTRANS = 0,
-	ADSTRANS_CLIENTCYCLE = 1,
-	ADSTRANS_CLIENT1REQ = 2,
-	ADSTRANS_SERVERCYCLE = 3,
-	ADSTRANS_SERVERONCHA = 4
-} ADSTRANSMODE;
-
-typedef enum nAdsState {
-	ADSSTATE_INVALID = 0,
-	ADSSTATE_IDLE = 1,
-	ADSSTATE_RESET = 2,
-	ADSSTATE_INIT = 3,
-	ADSSTATE_START = 4,
-	ADSSTATE_RUN = 5,
-	ADSSTATE_STOP = 6,
-	ADSSTATE_SAVECFG = 7,
-	ADSSTATE_LOADCFG = 8,
-	ADSSTATE_POWERFAILURE = 9,
-	ADSSTATE_POWERGOOD = 10,
-	ADSSTATE_ERROR = 11,
-	ADSSTATE_SHUTDOWN = 12,
-	ADSSTATE_SUSPEND = 13,
-	ADSSTATE_RESUME = 14,
-	ADSSTATE_MAXSTATES
-} ADSSTATE;
 
 typedef struct {
 
