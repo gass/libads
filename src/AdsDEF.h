@@ -99,6 +99,9 @@ extern "C" {
 
 #define ADSERR_NOERR 					0x0
 
+#pragma pack(push)
+#pragma pack(1)
+
 typedef enum nAdsTransMode
 {
 	ADSTRANS_NOTRANS     = 0,
@@ -178,6 +181,41 @@ typedef struct {
 typedef void (*PAdsNotificationFunc) (AmsAddr * Addr,
 				      AdsNotificationHeader *
 				      pNotification, unsigned long hUser);
+
+typedef struct
+{
+        uint32_t    nSymbols;
+        uint32_t   nSymSize;
+} AdsSymbolUploadInfo, *PAdsSymbolUploadInfo;
+
+////////////////////////////////////////////////////////////////////////////////
+#define ADSSYMBOLFLAG_PERSISTENT                0x00000001
+#define ADSSYMBOLFLAG_BITVALUE                  0x00000002
+
+typedef struct
+{
+        uint32_t            entryLength;    // length of complete symbol entry
+        uint32_t            iGroup;                 // indexGroup of symbol: input, output etc.
+        uint32_t            iOffs;                  // indexOffset of symbol
+        uint32_t            size;                           // size of symbol ( in bytes, 0 = bit )
+        uint32_t            dataType;               // adsDataType of symbol
+        uint32_t            flags;                  // see above
+        uint16_t           nameLength;             // length of symbol name (excl. \0)
+        uint16_t           typeLength;             // length of type name (excl. \0)
+        uint16_t           commentLength;  // length of comment (excl. \0)
+        // ADS_INT8             name[];                 // name of symbol with terminating \0
+        // ADS_INT8             type[];                 // type name of symbol with terminating \0
+        // ADS_INT8             comment[];              // comment of symbol with terminating \0
+} AdsSymbolEntry, *PAdsSymbolEntry, **PPAdsSymbolEntry;
+
+
+#define PADSSYMBOLNAME(p)                       ((char*)(((PAdsSymbolEntry)p)+1))
+#define PADSSYMBOLTYPE(p)                       (((char*)(((PAdsSymbolEntry)p)+1))+((PAdsSymbolEntry)p)->nameLength+1)
+#define PADSSYMBOLCOMMENT(p)            (((char*)(((PAdsSymbolEntry)p)+1))+((PAdsSymbolEntry)p)->nameLength+1+((PAdsSymbolEntry)p)->typeLength+1)
+
+#define PADSNEXTSYMBOLENTRY(pEntry)     (*((uint32_t*)(((char*)pEntry)+((PAdsSymbolEntry)pEntry)->entryLength)) \
+                                                ? ((PAdsSymbolEntry)(((char*)pEntry)+((PAdsSymbolEntry)pEntry)->entryLength)): NULL)
+#pragma pack(pop)
 
 #endif	// __ADSDEF_H__
 
