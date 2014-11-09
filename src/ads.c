@@ -582,7 +582,7 @@ int ADSreadWriteBytes(ADSConnection * dc,
                       uint32_t* pnRead)
 {
 	AMSheader 				*h1;
-//	AMS_TCPheader 			*h2; not used
+    AMS_TCPheader 			*h2;
 	ADSreadWriteRequest 	*rq;
 	ADSreadWriteResponse	*rr;
 	int						rc;
@@ -594,14 +594,14 @@ int ADSreadWriteBytes(ADSConnection * dc,
 	MsgOut(MSG_TRACE, "ADSreadWriteBytes() called\n");
 
 	h1 = &(p1->amsHeader);
-//	h2 = &(p1->adsHeader); not used
+    h2 = &(p1->adsHeader);
 
 	_ADSsetupAmsHeader(dc, h1);
 	h1->commandId = cmdADSreadWrite;
 	h1->dataLength = sizeof(ADSreadWriteRequest) - MAXDATALEN + writeLength;
 
-//	h2->length = h1->dataLength + sizeof(AMSheader); not used
-//	h2->reserved = 0; not used
+    h2->length = h1->dataLength + sizeof(AMSheader);
+    h2->reserved = 0;
 
 	rq = (ADSreadWriteRequest *) & p1->data;
 	rq->indexGroup = indexGroup;
