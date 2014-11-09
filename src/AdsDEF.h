@@ -31,6 +31,8 @@ extern "C" {
 #ifndef __ADSDEF_H__
 #define __ADSDEF_H__
 
+#include <stdint.h>
+
 #ifndef	ANYSIZE_ARRAY
 #define	ANYSIZE_ARRAY	1
 #endif

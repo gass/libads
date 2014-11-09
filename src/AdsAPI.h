@@ -30,125 +30,128 @@ extern "C" {
 #ifndef __ADSAPI_H__
 #define __ADSAPI_H__
 
-long AdsGetDllVersion(void);
-long AdsPortOpen(void);
-long AdsPortClose(void);
-long AdsGetLocalAddress(PAmsAddr pAddr);
-long AdsSyncWriteControlReq(PAmsAddr pAddr,
-			    			unsigned short nAdsState,
-			   				unsigned short nDeviceState,
-			    			unsigned long nLength,
+#include "AdsDEF.h"
+#include <stdint.h>
+
+int32_t AdsGetDllVersion(void);
+int32_t AdsPortOpen(void);
+int32_t AdsPortClose(void);
+int32_t AdsGetLocalAddress(PAmsAddr pAddr);
+int32_t AdsSyncWriteControlReq(PAmsAddr pAddr,
+                            uint16_t nAdsState,
+                            uint16_t nDeviceState,
+                            uint32_t nLength,
 							void *pData);
-long AdsSyncWriteReq(PAmsAddr pAddr,
-							unsigned long nIndexGroup,
-							unsigned long nIndexOffset,
-							unsigned long nLength,
+int32_t AdsSyncWriteReq(PAmsAddr pAddr,
+                            uint32_t nIndexGroup,
+                            uint32_t nIndexOffset,
+                            uint32_t nLength,
 							void *pData);
-long AdsSyncReadReq(PAmsAddr pAddr,
-							unsigned long nIndexGroup,
-							unsigned long nIndexOffset,
-							unsigned long nLength,
+int32_t AdsSyncReadReq(PAmsAddr pAddr,
+                            uint32_t nIndexGroup,
+                            uint32_t nIndexOffset,
+                            uint32_t nLength,
 							void *pData);
-long AdsSyncReadReqEx(PAmsAddr pAddr,
-							unsigned long nIndexGroup,
-							unsigned long nIndexOffset,
-							unsigned long nLength,
+int32_t AdsSyncReadReqEx(PAmsAddr pAddr,
+                            uint32_t nIndexGroup,
+                            uint32_t nIndexOffset,
+                            uint32_t nLength,
 							void *pData,
-							unsigned long *pcbReturn);
-long AdsSyncReadStateReq(PAmsAddr pAddr,
-							unsigned short *pAdsState,
-							unsigned short *pDeviceState);
-long AdsSyncReadDeviceInfoReq(PAmsAddr pAddr,
+                            uint32_t *pcbReturn);
+int32_t AdsSyncReadStateReq(PAmsAddr pAddr,
+                            uint16_t *pAdsState,
+                            uint16_t *pDeviceState);
+int32_t AdsSyncReadDeviceInfoReq(PAmsAddr pAddr,
 							char *pDevName,
 							PAdsVersion pVersion);
-long AdsSyncReadWriteReq(PAmsAddr pAddr,
-							unsigned long nIndexGroup,
-							unsigned long nIndexOffset,
-							unsigned long nReadLength,
+int32_t AdsSyncReadWriteReq(PAmsAddr pAddr,
+                            uint32_t nIndexGroup,
+                            uint32_t nIndexOffset,
+                            uint32_t nReadLength,
 							void *pReadData,
-							unsigned long nWriteLength,
+                            uint32_t nWriteLength,
 							void *pWriteData);
-long AdsSyncReadWriteReqEx(PAmsAddr pAddr,
-							unsigned long nIndexGroup,
-							unsigned long nIndexOffset,
-							unsigned long nReadLength,
+int32_t AdsSyncReadWriteReqEx(PAmsAddr pAddr,
+                            uint32_t nIndexGroup,
+                            uint32_t nIndexOffset,
+                            uint32_t nReadLength,
 							void *pReadData,
-							unsigned long nWriteLength,
+                            uint32_t nWriteLength,
 							void *pWriteData,
-							unsigned long *pcbReturn);
+                            uint32_t *pcbReturn);
 
-long AdsSyncAddDeviceNotificationReq(PAmsAddr pAddr,
-							unsigned long nIndexGroup,
-							unsigned long nIndexOffset,
+int32_t AdsSyncAddDeviceNotificationReq(PAmsAddr pAddr,
+                            uint32_t nIndexGroup,
+                            uint32_t nIndexOffset,
 							PAdsNotificationAttrib pNoteAttrib,
 							PAdsNotificationFunc pNoteFunc,
-							unsigned long hUser,
-							unsigned long *pNotification);
-long AdsSyncDelDeviceNotificationReq(PAmsAddr pAddr,
-							unsigned long hNotification);
-long AdsSyncSetTimeout(long nMs);
+                            uint32_t hUser,
+                            uint32_t *pNotification);
+int32_t AdsSyncDelDeviceNotificationReq(PAmsAddr pAddr,
+                            uint32_t hNotification);
+int32_t AdsSyncSetTimeout(int32_t nMs);
 
 //extended functions
-long AdsPortOpenEx(void);
-long AdsPortCloseEx(long port);
-long AdsGetLocalAddressEx(long port, AmsAddr *pAddr);
-long AdsSyncWriteReqEx(long	port, 					// Ams port of ADS client
+int32_t AdsPortOpenEx(void);
+int32_t AdsPortCloseEx(long port);
+int32_t AdsGetLocalAddressEx(int32_t port, AmsAddr *pAddr);
+int32_t AdsSyncWriteReqEx(int32_t	port, 					// Ams port of ADS client
 					 	PAmsAddr pAddr,
-					 	unsigned long nIndexGroup,
-					 	unsigned long nIndexOffset,
-					 	unsigned long nLength,
+                        uint32_t nIndexGroup,
+                        uint32_t nIndexOffset,
+                        uint32_t nLength,
 					 	void *pData);
-long AdsSyncReadReqEx2(long	port,					// Ams port of ADS client
+int32_t AdsSyncReadReqEx2(int32_t	port,					// Ams port of ADS client
 						PAmsAddr pAddr,
-						unsigned long nIndexGroup,
-						unsigned long nIndexOffset,
-						unsigned long nLength,
+                        uint32_t nIndexGroup,
+                        uint32_t nIndexOffset,
+                        uint32_t nLength,
 						void *pData,
-						unsigned long *pcbReturn);	// count of bytes read
+                        uint32_t *pcbReturn);	// count of bytes read
 
-long AdsSyncReadWriteReqEx2(long port,				// Ams port of ADS client
+int32_t AdsSyncReadWriteReqEx2(int32_t port,				// Ams port of ADS client
 						PAmsAddr pAddr,
-						unsigned long nIndexGroup,
-						unsigned long nIndexOffset,
-						unsigned long nReadLength,
+                        uint32_t nIndexGroup,
+                        uint32_t nIndexOffset,
+                        uint32_t nReadLength,
 						void *pReadData,
-						unsigned long nWriteLength,
+                        uint32_t nWriteLength,
 						void *pWriteData,
-						unsigned long *pcbReturn);	// count of bytes read
+                        uint32_t *pcbReturn);	// count of bytes read
 
-long AdsSyncReadDeviceInfoReqEx(long port,			// Ams port of ADS client
+int32_t AdsSyncReadDeviceInfoReqEx(int32_t port,			// Ams port of ADS client
 						PAmsAddr pAddr,
 						char *pDevName,
 						PAdsVersion pVersion);
 
-long AdsSyncWriteControlReqEx(long port,			// Ams port of ADS client
+int32_t AdsSyncWriteControlReqEx(int32_t port,			// Ams port of ADS client
 						PAmsAddr pAddr,
-						unsigned short nAdsState,
-						unsigned short nDeviceState,
-						unsigned long nLength,
+                        uint16_t nAdsState,
+                        uint16_t nDeviceState,
+                        uint32_t nLength,
 						void *pData);
 
-long AdsSyncReadStateReqEx(long port,				// Ams port of ADS client
+int32_t AdsSyncReadStateReqEx(int32_t port,				// Ams port of ADS client
 						PAmsAddr pAddr,
-						unsigned short *pAdsState,
-						unsigned short *pDeviceState);
+                        uint16_t *pAdsState,
+                        uint16_t *pDeviceState);
 
-long AdsSyncAddDeviceNotificationReqEx(long port,	// Ams port of ADS client
+int32_t AdsSyncAddDeviceNotificationReqEx(int32_t port,	// Ams port of ADS client
 						PAmsAddr pAddr,
-						unsigned long nIndexGroup,
-						unsigned long nIndexOffset,
+                        uint32_t nIndexGroup,
+                        uint32_t nIndexOffset,
 						PAdsNotificationAttrib pNoteAttrib,
 						PAdsNotificationFunc pNoteFunc,
-						unsigned long hUser,
-						unsigned long *pNotification);
+                        uint32_t hUser,
+                        uint32_t *pNotification);
 
-long AdsSyncDelDeviceNotificationReqEx(long port,	// Ams port of ADS client
+int32_t AdsSyncDelDeviceNotificationReqEx(int32_t port,	// Ams port of ADS client
 						PAmsAddr pAddr,
-						unsigned long hNotification);
+                        uint32_t hNotification);
 
-long AdsSyncSetTimeoutEx(long port, long nMs);
-long AdsSyncGetTimeoutEx(long port, long *pnMs);
-long AdsAmsPortEnabledEx(long nPort, char *pbEnabled);
+int32_t AdsSyncSetTimeoutEx(int32_t port, int32_t nMs);
+int32_t AdsSyncGetTimeoutEx(int32_t port, int32_t *pnMs);
+int32_t AdsAmsPortEnabledEx(int32_t nPort, char *pbEnabled);
 
 
 #endif	/* __ADSAPI_H__ */

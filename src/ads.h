@@ -33,6 +33,8 @@ extern "C" {
 #ifndef __ADS_H__
 #define __ADS_H__
 
+#include <stdint.h>
+
 #pragma pack (push)
 #pragma pack (1)
 
@@ -243,19 +245,19 @@ typedef struct {
 /**
 	Prototypes, theese form the interface to AdsAPI.c
  */
-long AdsGetMeAddress(PAmsAddr pAddr, int AmsPort);
+int32_t AdsGetMeAddress(PAmsAddr pAddr, int AmsPort);
 int ADSreadBytes(ADSConnection *dc,
-				 unsigned long indexGroup, unsigned long offset,
-				 unsigned long length, void *buffer,
-				 unsigned long *pnRead);
+                 uint32_t indexGroup, uint32_t offset,
+                 uint32_t length, void *buffer,
+                 uint32_t *pnRead);
 int ADSreadDeviceInfo(ADSConnection *dc, char *pDevName, PAdsVersion pVersion);
 int ADSreadState(ADSConnection *dc, unsigned short *ADSstate,
 				 				unsigned short *devState);
 int ADSreadWriteBytes(ADSConnection * dc,
-					  unsigned long indexGroup, unsigned long offset,
-					  unsigned long readLength, void *readBuffer,
-					  unsigned long writeLength, void *writeBuffer,
-					  unsigned long *pnRead);
+                      uint32_t indexGroup, uint32_t offset,
+                      uint32_t readLength, void *readBuffer,
+                      uint32_t writeLength, void *writeBuffer,
+                      uint32_t *pnRead);
 int ADSwriteBytes(ADSConnection *dc, int indexGroup, int offset,
 								int length, void *data);
 int ADSwriteControl(ADSConnection *dc, int ADSstate, int devState,

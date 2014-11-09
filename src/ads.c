@@ -303,10 +303,10 @@ void _ADSsetupAmsHeader(ADSConnection *dc, AMSheader *h)
  * \param pAddr Pointer to the structure of type AmsAddr.
  * \return Returns the function's error status.
  */
-long AdsGetMeAddress(PAmsAddr pAddr, int AmsPort)
+int32_t AdsGetMeAddress(PAmsAddr pAddr, int AmsPort)
 {
 	struct ifaddrs *list, *cur;
-	unsigned long int netAddr;
+    uint32_t netAddr;
 	struct sockaddr_in *addrStruct;
 
 	if(meAddr.netId.b[0] == 0){
@@ -340,9 +340,9 @@ long AdsGetMeAddress(PAmsAddr pAddr, int AmsPort)
  * Used by AdsSyncReadReqEx()
  */
 int ADSreadBytes(ADSConnection *dc,
-				 unsigned long indexGroup, unsigned long offset,
-				 unsigned long length, void *buffer,
-				 unsigned long *pnRead)
+                 uint32_t indexGroup, uint32_t offset,
+                 uint32_t length, void *buffer,
+                 uint32_t *pnRead)
 {
 	AMSheader 		*h1;
 //	AMS_TCPheader 	*h2; not used
@@ -576,10 +576,10 @@ int ADSreadDeviceInfo(ADSConnection * dc, char *pDevName, PAdsVersion pVersion)
  * Used by AdsSyncReadWriteReqEx().
  */
 int ADSreadWriteBytes(ADSConnection * dc,
-					  unsigned long indexGroup, unsigned long offset,
-					  unsigned long readLength, void *readBuffer,
-					  unsigned long writeLength, void *writeBuffer,
-					  unsigned long *pnRead)
+                      uint32_t indexGroup, uint32_t offset,
+                      uint32_t readLength, void *readBuffer,
+                      uint32_t writeLength, void *writeBuffer,
+                      uint32_t* pnRead)
 {
 	AMSheader 				*h1;
 //	AMS_TCPheader 			*h2; not used
@@ -832,7 +832,7 @@ int ADSGetLocalAMSId(AmsNetId * id)
 {
 	struct ifaddrs *list;
 	unsigned char b[4];
-	unsigned long int netAddr;
+    uint32_t netAddr;
 	struct sockaddr_in *addrStruct;
 
 	if (getifaddrs(&list) < 0) {

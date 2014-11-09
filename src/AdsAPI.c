@@ -46,11 +46,11 @@ int defaultPort = 0;	//port used by "not extended" functions,
  * @return A long int that must be converted to an AdsVersion structure
  * is returned.
  */
-long AdsGetDllVersion( void )
+int32_t AdsGetDllVersion( void )
 {
 	union {
 		AdsVersion ver;
-		long num;
+        int32_t num;
 	} v;
 	v.ver.version = 0;
 	v.ver.revision = 1;
@@ -67,7 +67,7 @@ long AdsGetDllVersion( void )
  * operation to/from a PLC. ADSsocketConnect() does it.
  * @return 0x0 (ADS Success)
  */
-long AdsPortOpen(void)
+int32_t AdsPortOpen(void)
 {
 	defaultPort = 1;
 	return defaultPort;
@@ -80,7 +80,7 @@ long AdsPortOpen(void)
  * (= connections to PLC's)
  * @return Returns The function's error status.
  */
-long AdsPortClose(void)
+int32_t AdsPortClose(void)
 {
 	int i;
 
@@ -100,7 +100,7 @@ long AdsPortClose(void)
  * @param pAddr Pointer to the structure of type AmsAddr.
  * @return Returns the function's error status.
  */
-long AdsGetLocalAddressEx(long port, PAmsAddr pAddr)
+int32_t AdsGetLocalAddressEx(int32_t port, PAmsAddr pAddr)
 {
 	if(port <= 0){
 #ifdef LOG_ALL_MESSAGES
@@ -119,7 +119,7 @@ long AdsGetLocalAddressEx(long port, PAmsAddr pAddr)
 /**
  * @brief A frontend to AdsGetLocalAddressEx() with port = defaultPort
  */
-long AdsGetLocalAddress(PAmsAddr pAddr)
+int32_t AdsGetLocalAddress(PAmsAddr pAddr)
 {
 	return AdsGetLocalAddressEx(defaultPort, pAddr);
 }
@@ -145,10 +145,10 @@ long AdsGetLocalAddress(PAmsAddr pAddr)
   * @param pData Pointer to data sent additionally to the ADS device.
   * @return Returns the function's error status.
   */
-long AdsSyncWriteControlReqEx(long port, PAmsAddr pAddr,
-			    unsigned short nAdsState,
-			    unsigned short nDeviceState,
-			    unsigned long nLength, void *pData)
+int32_t AdsSyncWriteControlReqEx(int32_t port, PAmsAddr pAddr,
+                uint16_t nAdsState,
+                uint16_t nDeviceState,
+                uint32_t nLength, void *pData)
 {
     ADSConnection *dc;
 	int adsError, ret;
@@ -165,10 +165,10 @@ long AdsSyncWriteControlReqEx(long port, PAmsAddr pAddr,
 /**
  * @brief A frontend to AdsSyncWriteControlReqEx() with port = defaultPort
  */
-long AdsSyncWriteControlReq(PAmsAddr pAddr,
-							  unsigned short nAdsState,
-							  unsigned short nDeviceState,
-							  unsigned long nLength, void *pData)
+int32_t AdsSyncWriteControlReq(PAmsAddr pAddr,
+                              uint16_t nAdsState,
+                              uint16_t nDeviceState,
+                              uint32_t nLength, void *pData)
 {
 	return(AdsSyncWriteControlReqEx(defaultPort, pAddr,
 		   							nAdsState, nDeviceState,
@@ -186,9 +186,9 @@ long AdsSyncWriteControlReq(PAmsAddr pAddr,
  * @param pData Pointer to the data written to the ADS server.
  * @return Returns the function's error status.
  */
-long AdsSyncWriteReqEx(long port, PAmsAddr pAddr,
-		     unsigned long nIndexGroup,unsigned long nIndexOffset,
-		     unsigned long nLength, void *pData)
+int32_t AdsSyncWriteReqEx(int32_t port, PAmsAddr pAddr,
+             uint32_t nIndexGroup,uint32_t nIndexOffset,
+             uint32_t nLength, void *pData)
 {
     ADSConnection *dc;
 	int adsError, ret;
@@ -205,9 +205,9 @@ long AdsSyncWriteReqEx(long port, PAmsAddr pAddr,
 /**
  * @brief A frontend to AdsSyncWriteReqEx() with port = defaultPort
  */
-long AdsSyncWriteReq( PAmsAddr pAddr,
-					   unsigned long nIndexGroup,unsigned long nIndexOffset,
-					   unsigned long nLength, void *pData)
+int32_t AdsSyncWriteReq( PAmsAddr pAddr,
+                       uint32_t nIndexGroup,uint32_t nIndexOffset,
+                       uint32_t nLength, void *pData)
 {
 	return(AdsSyncWriteReqEx(defaultPort, pAddr,
 		   nIndexGroup, nIndexOffset,
@@ -227,10 +227,10 @@ long AdsSyncWriteReq( PAmsAddr pAddr,
  *                  data bytes.
  * @return Returns the function's error status.
  */
-long AdsSyncReadReqEx2(long port, PAmsAddr pAddr,
-					unsigned long nIndexGroup, unsigned long nIndexOffset,
-					unsigned long nLength, void *pData,
-					unsigned long *pnRead)
+int32_t AdsSyncReadReqEx2(int32_t port, PAmsAddr pAddr,
+                    uint32_t nIndexGroup, uint32_t nIndexOffset,
+                    uint32_t nLength, void *pData,
+                    uint32_t *pnRead)
 {
 	ADSConnection *dc;
 	int adsError;
@@ -247,11 +247,11 @@ long AdsSyncReadReqEx2(long port, PAmsAddr pAddr,
 /**
  * @brief A frontend to AdsSyncReadReqEx2() with port = defaultPort
  */
-long AdsSyncReadReqEx(PAmsAddr pAddr,
-					unsigned long nIndexGroup,
-					unsigned long nIndexOffset,
-					unsigned long nLength, void *pData,
-					unsigned long *pnRead)
+int32_t AdsSyncReadReqEx(PAmsAddr pAddr,
+                    uint32_t nIndexGroup,
+                    uint32_t nIndexOffset,
+                    uint32_t nLength, void *pData,
+                    uint32_t *pnRead)
 {
 	return AdsSyncReadReqEx2(defaultPort, pAddr,
 							 nIndexGroup, nIndexOffset,
@@ -262,10 +262,10 @@ long AdsSyncReadReqEx(PAmsAddr pAddr,
 /**
  * @brief A frontend to AdsSyncReadReqEx2() with port = defaultPort and pnRead = NULL
  */
-long AdsSyncReadReq(PAmsAddr pAddr,
-					unsigned long nIndexGroup,
-					unsigned long nIndexOffset,
-					unsigned long nLength, void *pData)
+int32_t AdsSyncReadReq(PAmsAddr pAddr,
+                    uint32_t nIndexGroup,
+                    uint32_t nIndexOffset,
+                    uint32_t nLength, void *pData)
 {
 	return AdsSyncReadReqEx2(defaultPort, pAddr,
 							 nIndexGroup, nIndexOffset,
@@ -289,9 +289,9 @@ long AdsSyncReadReq(PAmsAddr pAddr,
  * @return Returns the function's error status.
  *
  */
-long AdsSyncReadStateReqEx(long port, PAmsAddr pAddr,
-			 unsigned short *pAdsState,
-			 unsigned short *pDeviceState)
+int32_t AdsSyncReadStateReqEx(int32_t port, PAmsAddr pAddr,
+             uint16_t *pAdsState,
+             uint16_t *pDeviceState)
 {
 	ADSConnection *dc;
 
@@ -310,9 +310,9 @@ long AdsSyncReadStateReqEx(long port, PAmsAddr pAddr,
 /**
  * @brief A frontend to AdsSyncReadStateReqEx() with port = defaultPort
  */
-long AdsSyncReadStateReq(PAmsAddr pAddr,
-						 unsigned short *pAdsState,
-						 unsigned short *pDeviceState)
+int32_t AdsSyncReadStateReq(PAmsAddr pAddr,
+                         uint16_t *pAdsState,
+                         uint16_t *pDeviceState)
 {
 
 	return AdsSyncReadStateReqEx(defaultPort, pAddr, pAdsState, pDeviceState);
@@ -329,7 +329,7 @@ long AdsSyncReadStateReq(PAmsAddr pAddr,
  *		the version number, revision number and the build number.
  * @return Returns the function's error status.
  */
-long AdsSyncReadDeviceInfoReqEx(long port, PAmsAddr pAddr,
+int32_t AdsSyncReadDeviceInfoReqEx(int32_t port, PAmsAddr pAddr,
 							  	char *pDevName,
 							  	PAdsVersion pVersion)
 {
@@ -347,7 +347,7 @@ long AdsSyncReadDeviceInfoReqEx(long port, PAmsAddr pAddr,
 /**
  * @brief A frontend to AdsSyncReadDeviceInfoReqEx() with port = defaultPort
  */
-long AdsSyncReadDeviceInfoReq(PAmsAddr pAddr,
+int32_t AdsSyncReadDeviceInfoReq(PAmsAddr pAddr,
 							  char *pDevName,
 							  PAdsVersion pVersion)
 {
@@ -371,11 +371,11 @@ long AdsSyncReadDeviceInfoReq(PAmsAddr pAddr,
  *					actually read data bytes
  * @return Returns the function's error status.
  */
-long AdsSyncReadWriteReqEx2(long port, PAmsAddr pAddr,
-						 unsigned long nIndexGroup, unsigned long nIndexOffset,
-						 unsigned long nReadLength, void *pReadData,
-						 unsigned long nWriteLength, void *pWriteData,
-						 unsigned long *pcbReturn)
+int32_t AdsSyncReadWriteReqEx2(int32_t port, PAmsAddr pAddr,
+                         uint32_t nIndexGroup, uint32_t nIndexOffset,
+                         uint32_t nReadLength, void *pReadData,
+                         uint32_t nWriteLength, void *pWriteData,
+                         uint32_t *pcbReturn)
 {
     ADSConnection *dc;
 	int adsError;
@@ -396,13 +396,13 @@ long AdsSyncReadWriteReqEx2(long port, PAmsAddr pAddr,
 /**
  * @brief A frontend to AdsSyncReadWriteReqEx2() with port = defaultPort
  */
-long AdsSyncReadWriteReqEx(PAmsAddr pAddr,
-						 unsigned long nIndexGroup,
-						 unsigned long nIndexOffset,
-						 unsigned long nReadLength,
+int32_t AdsSyncReadWriteReqEx(PAmsAddr pAddr,
+                         uint32_t nIndexGroup,
+                         uint32_t nIndexOffset,
+                         uint32_t nReadLength,
 						 void *pReadData,
-						 unsigned long nWriteLength, void *pWriteData,
-						 unsigned long *pnRead)
+                         uint32_t nWriteLength, void *pWriteData,
+                         uint32_t *pnRead)
 {
 	return AdsSyncReadWriteReqEx2(defaultPort, pAddr,
 								 nIndexGroup, nIndexOffset,
@@ -414,12 +414,12 @@ long AdsSyncReadWriteReqEx(PAmsAddr pAddr,
 /**
  * @brief A frontend to AdsSyncReadWriteReqEx2() with port = defaultPort and pnRead = NULL
  */
-long AdsSyncReadWriteReq(PAmsAddr pAddr,
-						 unsigned long nIndexGroup,
-						 unsigned long nIndexOffset,
-						 unsigned long nReadLength,
+int32_t AdsSyncReadWriteReq(PAmsAddr pAddr,
+                         uint32_t nIndexGroup,
+                         uint32_t nIndexOffset,
+                         uint32_t nReadLength,
 						 void *pReadData,
-						 unsigned long nWriteLength, void *pWriteData)
+                         uint32_t nWriteLength, void *pWriteData)
 {
 	return AdsSyncReadWriteReqEx2(defaultPort, pAddr,
 								 nIndexGroup, nIndexOffset,
@@ -435,7 +435,7 @@ long AdsSyncReadWriteReq(PAmsAddr pAddr,
  * @param nMs Timeout in ms.
  * @return the function's error status.
  */
-long AdsSyncSetTimeoutEx(long port, long nMs)
+int32_t AdsSyncSetTimeoutEx(int32_t port, int32_t nMs)
 {
 	return AdsSetTimeout(port, nMs);
 }
@@ -443,7 +443,7 @@ long AdsSyncSetTimeoutEx(long port, long nMs)
 /**
  * @brief A frontend to AdsSyncSetTimeoutEx() with port = defaultPort
  */
-long AdsSyncSetTimeout(long nMs)
+int32_t AdsSyncSetTimeout(int32_t nMs)
 {
 	return (AdsSyncSetTimeoutEx(defaultPort, nMs));
 }
@@ -456,7 +456,7 @@ long AdsSyncSetTimeout(long nMs)
  */
 #define EPOCH_DIFF 116444736000000000LL
 
-time_t FileTime2tt(long long winTime)
+time_t FileTime2tt(int64_t winTime)
 {
 	time_t tt;
 
