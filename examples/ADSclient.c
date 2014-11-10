@@ -25,8 +25,9 @@
 #include <sys/socket.h>
 #include <errno.h>
 
-#include "ads.h"
 #include "AdsDEF.h"
+#include "ads.h"
+#include "ads_connect.h"
 
 #include <sys/time.h>
 
@@ -43,11 +44,11 @@
 
 void dump(char *name, void *v, int len)
 {
-        uc *b = (uc *) v;
+        unsigned char *b = (unsigned char *) v;
         int j;
         printf("%s: ", name);
-        if (len > maxDataLen)
-                len = maxDataLen;       // this will avoid to dump zillions of chars
+        if (len > MAXDATALEN)
+                len = MAXDATALEN;       // this will avoid to dump zillions of chars
         for (j = 0; j < len; j++) {
                 printf("%02X,", b[j]);
         }
@@ -58,7 +59,7 @@ void readIndexGroup(ADSConnection * dc, int igr, int off)
 {
 	int res;
 	printf("Trying to read from index group 0x%04x, offset 0x%01x\n", igr, off);
-	res = ADSreadBytes(dc, igr, off, 20, NULL);
+	res = ADSreadBytes(dc, igr, off, 20, NULL, NULL);
 	if (res == 0) {
 		printf("Dumping:\n");
 		dump("data", dc->dataPointer, dc->AnswLen);
@@ -75,7 +76,7 @@ int main(int argc, char **argv)
 //    ADSDebug=ADSDebugAnalyze;
 	ADSConnection *dc;
 	struct timeval;
-	int netFd=0;
+	int nErr;
 	AdsVersion Version;
 	PAdsVersion pVersion = &Version;
 	char pDevName[16];
@@ -84,31 +85,36 @@ int main(int argc, char **argv)
 	PAmsAddr pAddr = &Addr, pMeAddr = &MeAddr;
 	char addr[20];
 
-	if (argc < 2) {
+	if (argc < 3) {
 		printf("Usage: ADSclient host port \n");
-		printf("Example: ADSclient 192.168.17.110 800\n");
+		printf("Example: ADSclient 192.168.17.110 801\n");
 		return -1;
 	}
 	/* set the local and remote netId */
 	snprintf(addr, 20, "%s.1.1", argv[1]);
-	ADSparseNetID(addr, &pAddr->netId);
+	_ADSparseNetID(addr, &pAddr->netId);
 	Addr.port = atol(argv[2]);
 	ADSGetLocalAMSId(&pMeAddr->netId);
 	/* connect */
-	dc = AdsSocketConnect(&netFd, pAddr, pMeAddr);
+	dc = ADSsocketConnect(pAddr, &nErr);
 	if (dc == NULL) {
 		fprintf(stderr, "Could not connect to ADS server\n");
 		return 1;
 	}
 
-	/* start communicating */
+	/* start communicating 
+	 * Read Device info
+	 */
 	ads_debug(ADSDebug,"device info:\n");
 	ADSreadDeviceInfo(dc, pDevName, pVersion);
-
+	printf("Device Name: %s\n", pDevName);
+	printf("Device Version: %d.%d.%d\n", pVersion->version, pVersion->revision, pVersion->build);
+	/*
+	 * read state
+	 */
 	ads_debug(ADSDebug,"read state:\n");
-//    ADSreadBytes(dc,igr,0,100,NULL);
-//    ADSwriteBytes(dc,igr,0,100,NULL);
 	ADSreadState(dc, &ADSstate, &devState);
+	printf("ADS State: %d Device State: %d\n", ADSstate, devState);
 	//ads_debug(ADSDebug,"write control:");
 	ADSwriteControl(dc, 4, 0, NULL, 0);
 
@@ -143,8 +149,8 @@ int main(int argc, char **argv)
 	ADSreadBytes(dc,i,0,100,NULL);
 //    double usec = (t2.tv_sec - t1.tv_sec) + (t2.tv_usec - t1.tv_usec)*1e-6;
 */
-	AdsSocketDisconnect(&netFd);
-	freeADSConnection(dc);
+	ADSsocketDisconnect(dc);
+	ADSFreeConnection(dc);
 	return 0;
 }
 

@@ -6,7 +6,9 @@
  TwinCAT, ADS and maybe other terms used herein are registered trademarks of
  BECKHOFF Company. www.beckhoff.de
 
+ Copyright (C) Thomas Hergenhahn (thomas.hergenhahn@web.de) 2003.
  Copyright (C) Luis Matos (gass@otiliamatos.ath.cx) 2009.
+ Copyright (C) Gerhard Schiller (gerhard.schiller@gmail.com) 2013.
 
  This file is part of libads.  
  Libads is free software: you can redistribute it and/or modify
@@ -23,23 +25,12 @@
  along with libads.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
+#ifndef __ADS_IO_H__
+#define __ADS_IO_H__
 
-#include "AdsDEF.h"
-#include "AdsAPI.h"
+int _ADSWrite(ADSInterface *di, void *buffer, int len);
+int	_ADSWritePacket(ADSInterface *di, ADSpacket *p1, int *error);
+int _ADSRead(ADSInterface *di, unsigned char *b);
+int _ADSReadPacket(ADSInterface *di, unsigned char *b, int *error);
 
-
-int main(int argc, char **argv)
-{
-	long nErr;
-	AmsAddr addr;
-	PAmsAddr pAddr = &addr;
-
-	AdsPortOpen();
-	nErr = AdsGetLocalAddress(pAddr);
-
-	if (nErr)
-		printf("Error: AdsGetLocalAddress %ld\n", nErr);
-
-	return 0;
-}
+#endif //__ADS_IO_H__

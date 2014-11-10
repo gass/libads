@@ -3,6 +3,7 @@ bin_PROGRAMS = ADSserver AdsApiClient ADSclient
 ADSserver_SOURCES = ADSserver.c \
                     accepter.c \
 					ads.h \
+					ads_io.h \
 					AdsDEF.h \
 					AdsAPI.h
 
@@ -24,7 +25,8 @@ AdsApiClient_LDADD = \
 
 ADSclient_SOURCES = ADSclient.c \
 					AdsDEF.h \
-					AdsAPI.h
+					AdsAPI.h \
+					ads_connect.h
 
 ADSclient_CFLAGS = -I$(top_builddir)/src
 

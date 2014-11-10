@@ -1,27 +1,31 @@
 /*
-    libads is an implementation of the Beckhoff's ADS protocol.
-    
-    (C) Thomas Hergenhahn (thomas.hergenhahn@web.de) 2003.
-    (C) Luis Matos (gass@otiliamatos.ath.cx) 2012.
+ Implementation of BECKHOFF's ADS protocol.
+ ADS = Automation Device Specification
+ Implemented according to specifications given in TwinCAT Information System
+ May 2011.
+ TwinCAT, ADS and maybe other terms used herein are registered trademarks of
+ BECKHOFF Company. www.beckhoff.de
 
-    libads is free software: you can redistribute it and/or modify
-    it under the terms of the Lesser GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ Copyright (C) Thomas Hergenhahn (thomas.hergenhahn@web.de) 2003.
+ Copyright (C) Luis Matos (gass@otiliamatos.ath.cx) 2009.
+ Copyright (C) Gerhard Schiller (gerhard.schiller@gmail.com) 2013.
 
-    libads is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    Lesser GNU General Public License for more details.
+ This file is part of libads.  
+ Libads is free software: you can redistribute it and/or modify
+ it under the terms of the Lesser GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    You should have received a copy of the Lesser GNU General Public License
-    along with libads.  If not, see <http://www.gnu.org/licenses/>.
+ libads is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ Lesser GNU General Public License for more details.
+
+ You should have received a copy of the Lesser GNU General Public License
+ along with libads.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef __linux__
 #include <unistd.h>
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -31,36 +35,12 @@
 #include <errno.h>
 #include <ifaddrs.h>
 
-#include "ads.h"
 #include "AdsDEF.h"
+#include "ads.h"
+#include "ads_io.h"
+#include "debugprint.h"
 
-char *ADSCommandName(int c)
-{
-	switch (c) {
-	case 0:
-		return ("cmdADSinvalid");
-	case 1:
-		return ("cmdADSreadDevInfo");
-	case 2:
-		return ("cmdADSread");
-	case 3:
-		return ("cmdADSwrite");
-	case 4:
-		return ("cmdADSreadState");
-	case 5:
-		return ("cmdADSwriteControl");
-	case 6:
-		return ("cmdADSaddDevNotify");
-	case 7:
-		return ("cmdADSdelDevNotify");
-	case 8:
-		return ("cmdADSdevNotify");
-	case 9:
-		return ("cmdADSreadWrite");
-	default:
-		return ("unknown !");
-	}
-}
+AmsAddr 		meAddr = {{"\0"}, 0};		// filled in by AdsGetMeAddress()
 
 /*
  * Debug function.
@@ -78,261 +58,189 @@ void ads_debug(int type, const char *fmt, ...)
 	}
 }
 
-void _ADSDumpAMSNetId(AMSNetID * id)
-{
-	_ADSDump("AMSNetID: ", (uc *) id, sizeof(AMSNetID));
-}
-
-void _ADSDumpAMSheader(AMSheader * h)
-{
-	if (!ADSDebug)
-		return;
-	printf("DumpAMS header:\n");
-	printf("targetId");
-	_ADSDumpAMSNetId(&(h->targetId));
-	printf("targetPort: %d\n", h->targetPort);
-	printf("sourceId");
-	_ADSDumpAMSNetId(&(h->sourceId));
-	printf("sourcePort: %d\n", h->sourcePort);
-	printf("commandId: %d=%s\n", h->commandId,
-	       ADSCommandName(h->commandId));
-//    printf("stateFlags: %d=%s\n", h->stateFlags,ADSstateFlagsName(h->stateFlags));
-	printf("stateFlags: %d\n", h->stateFlags);
-	printf("dataLength: %d\n", h->dataLength);
-	printf("errorCode:  %04x %s\n", h->errorCode,
-	       ADSerrorText(h->errorCode));
-	printf("invokeId:   %d\n", h->invokeId);
-}
-
+/**
+ * A helper function to find out, what an errorcode returned by an
+ * Ads*** function means...
+ * The list of errorcodes is NOT complete!
+ * @param err ADS errorcode
+ * @return Returns a short text.
+ */
 char *ADSerrorText(int err)
 {
 	switch (err) {
-	case 0:
-		return "no error";
-	case 0x0001:
-		return "Internal error";
-	case 0x0002:
-		return "No Rtime";
-	case 0x0003:
-		return "Allocation locked memory error";
-	case 0x0004:
-		return "Insert mailbox error";
-	case 0x0005:
-		return "Wrong receive HMSG";
-	case 0x0006:
-		return "target port not found";
-	case 0x0007:
-		return "target machine not found";
-	case 0x0008:
-		return "unknown command ID";
-	case 0x0009:
-		return "Bad task ID";
-	case 0x000A:
-		return "No IO";
-	case 0x000B:
-		return "unknown AMS command";
-	case 0x000C:
-		return "Win 32 error";
-	case 0x000D:
-		return "port not connected";
-	case 0x000E:
-		return "invalid AMS length";
-	case 0x000F:
-		return "invalid AMS Net ID";
-	case 0x0010:
-		return "Low installation level";
-	case 0x0011:
-		return "No debug available";
-	case 0x0012:
-		return "Port disabled";
-	case 0x0013:
-		return "Port already connected";
-	case 0x0014:
-		return "AMS Sync Win 32 error";
-	case 0x0015:
-		return "AMS Sync timeout";
-	case 0x0016:
-		return "AMS Sync AMS error";
-	case 0x0017:
-		return "AMS Sync no index map";
-	case 0x0018:
-		return "Invalid AMS port";
-	case 0x0019:
-		return "No memory";
-	case 0x001A:
-		return "TCP send error";
-	case 0x001B:
-		return "Host unreachable";
+		case 0:
+			return "ok";
+		case 0x0001:
+			return "Internal error";
+		case 0x0002:
+			return "No Rtime";
+		case 0x0003:
+			return "Allocation locked memory error";
+		case 0x0004:
+			return "Insert mailbox error";
+		case 0x0005:
+			return "Wrong receive HMSG";
+		case 0x0006:
+			return "target port not found";
+		case 0x0007:
+			return "target machine not found";
+		case 0x0008:
+			return "unknown command ID";
+		case 0x0009:
+			return "Bad task ID";
+		case 0x000A:
+			return "No IO";
+		case 0x000B:
+			return "unknown AMS command";
+		case 0x000C:
+			return "Win 32 error";
+		case 0x000D:
+			return "port not connected";
+		case 0x000E:
+			return "invalid AMS length";
+		case 0x000F:
+			return "invalid AMS Net ID";
+		case 0x0010:
+			return "Low installation level";
+		case 0x0011:
+			return "No debug available";
+		case 0x0012:
+			return "Port disabled";
+		case 0x0013:
+			return "Port already connected";
+		case 0x0014:
+			return "AMS Sync Win 32 error";
+		case 0x0015:
+			return "AMS Sync timeout";
+		case 0x0016:
+			return "AMS Sync AMS error";
+		case 0x0017:
+			return "AMS Sync no index map";
+		case 0x0018:
+			return "Invalid AMS port";
+		case 0x0019:
+			return "No memory";
+		case 0x001A:
+			return "TCP send error";
+		case 0x001B:
+			return "Host unreachable";
 
-	case 0x0500:
-		return "Router: no locked memory";
-	case 0x0502:
-		return "Router: mailbox full";
+		case 0x0500:
+			return "Router: no locked memory";
+		case 0x0502:
+			return "Router: mailbox full";
+		case 0x050a:
+			return "Router: not (yet) active";
 
-	case 0x0700:
-		return "error class <device error>??";
-	case 0x0701:
-		return "service is not supported by server";
-	case 0x0702:
-		return "invalid index group";
-	case 0x0703:
-		return "invalid index offset";
-	case 0x0704:
-		return "reading/writing not permitted";
-	case 0x0705:
-		return "parameter size not correct";
-	case 0x0706:
-		return "invalid parameter value(s)";
-	case 0x0707:
-		return "device is not in a ready state";
-	case 0x0708:
-		return "device is busy";
-	case 0x0709:
-		return "invalid context. (must be in Windows ?)";
-	case 0x070A:
-		return "out of memory";
+		case 0x0700:
+			return "error class <device error>??";
+		case 0x0701:
+			return "service is not supported by server";
+		case 0x0702:
+			return "invalid index group";
+		case 0x0703:
+			return "invalid index offset";
+		case 0x0704:
+			return "reading/writing not permitted";
+		case 0x0705:
+			return "parameter size not correct";
+		case 0x0706:
+			return "invalid parameter value(s)";
+		case 0x0707:
+			return "device is not in a ready state";
+		case 0x0708:
+			return "device is busy";
+		case 0x0709:
+			return "invalid context. (must be in Windows ?)";
+		case 0x070A:
+			return "out of memory";
 
-	case 0x070B:
-		return "invalid parameter value(s)";
-	case 0x070C:
-		return "not found (files,...)";
-	case 0x070D:
-		return "syntax error in command or file";
-	case 0x070E:
-		return "objects do not match";
-	case 0x070F:
-		return "object already exists";
-	case 0x0710:
-		return "symbol not found";
-	case 0x0711:
-		return "symbol version invalid";
+		case 0x070B:
+			return "invalid parameter value(s)";
+		case 0x070C:
+			return "not found (files,...)";
+		case 0x070D:
+			return "syntax error in command or file";
+		case 0x070E:
+			return "objects do not match";
+		case 0x070F:
+			return "object already exists";
+		case 0x0710:
+			return "symbol not found";
+		case 0x0711:
+			return "symbol version invalid";
 
-	case 0x0712:
-		return "server is in invalid state";
-	case 0x0713:
-		return "AdsTransMode not supported";
-	case 0x0714:
-		return "Notification handle is invalid";
-	case 0x0715:
-		return "Notification client not registered";
-	case 0x0716:
-		return "No more notification handles";
-	case 0x0717:
-		return "Size for watch too big";
-	case 0x0718:
-		return "device not initialized";
-	case 0x0719:
-		return "device has a timeout";
+		case 0x0712:
+			return "server is in invalid state";
+		case 0x0713:
+			return "AdsTransMode not supported";
+		case 0x0714:
+			return "Notification handle is invalid";
+		case 0x0715:
+			return "Notification client not registered";
+		case 0x0716:
+			return "No more notification handles";
+		case 0x0717:
+			return "Size for watch too big";
+		case 0x0718:
+			return "device not initialized";
+		case 0x0719:
+			return "device has a timeout";
 
-	case 0x0740:
-		return "error class <client error>??";
-	case 0x0741:
-		return "invalid parameter at service";
-	case 0x0742:
-		return "polling list is empty";
-	case 0x0743:
-		return "var connection already in use";
-	case 0x0744:
-		return "invoke ID in use";
-	case 0x0745:
-		return "timeout elapsed";
-	case 0x0746:
-		return "error in win32 subsystem";
-	case 0x0748:
-		return "ads port not opened";
 
-	case 0x0750:
-		return "internal error in ads sync";
-	case 0x0751:
-		return "Hash table overflow";
-	case 0x0752:
-		return "key not found in hash";
-	case 0x0753:
-		return "no more symbols in cache";
-	default:
-		return "Unknown error code";
+		case 0x0740:
+			return "error class <client error>??";
+		case 0x0741:
+			return "invalid parameter at service";
+		case 0x0742:
+			return "polling list is empty";
+		case 0x0743:
+			return "var connection already in use";
+		case 0x0744:
+			return "invoke ID in use";
+		case 0x0745:
+			return "timeout elapsed";
+		case 0x0746:
+			return "error in win32 subsystem";
+		case 0x0748:
+			return "ads port not opened";
+
+		case 0x0750:
+			return "internal error in ads sync";
+		case 0x0751:
+			return "Hash table overflow";
+		case 0x0752:
+			return "key not found in hash";
+		case 0x0753:
+			return "no more symbols in cache";
+		case 0x0754:
+			return "invalid response received";
+		case 0x0755:
+			return "Sync port locked";
+
+
+		case 0x274c:
+			return "A socket operation was attempted to an unreachable host";
+		case 0x274d:
+			return "A connection attempt failed";
+
+		default:
+			return "Unknown error code";
 	}
 }
 
-void analyze(uc * p1)
-{
-	ADSreadResponse *rr;
-	ADSdeviceInfo *di;
-	ADSstateResponse *sr;
-	ADSaddDeviceNotificationResponse *adnr;
-	int i;
-	ADSpacket *p = (ADSpacket *) p1;
-	ads_debug(ADSDebugAnalyze, "ADS_TCP.header.reserved: %d",
-		  p->adsHeader.reserved);
-	ads_debug(ADSDebugAnalyze, "ADS_TCPheader.length: %d",
-		  p->adsHeader.length);
-	_ADSDumpAMSheader(&(p->amsHeader));
-
-	if ((p->amsHeader.stateFlags & 1) == 0) {
-		switch (p->amsHeader.commandId) {
-		}
-	} else
-		switch (p->amsHeader.commandId) {
-		case cmdADSreadDevInfo:
-			di = (ADSdeviceInfo *) (p1 + 38);
-			ads_debug(ADSDebugAnalyze, "Error: %d %s",
-				  di->ADSerror, ADSerrorText(di->ADSerror));
-			ads_debug(ADSDebugAnalyze, "Version: %d.%d",
-				  di->Version.version, di->Version.revision);
-			ads_debug(ADSDebugAnalyze, "Build: %d",
-				  di->Version.build);
-			ads_debug(ADSDebugAnalyze, "Device name: ");
-			for (i = 0; i < 15; i++) {
-				ads_debug(ADSDebugAnalyze, "%c", di->name[i]);
-			}
-			break;
-
-		case cmdADSread:
-			rr = (ADSreadResponse *) (p1 + 38);
-			ads_debug(ADSDebugAnalyze, "Result: %d %s",
-				  rr->result, ADSerrorText(rr->result));
-			ads_debug(ADSDebugAnalyze, "Data length: %d",
-				  rr->length);
-			_ADSDump("Data: ", (uc *) p1 + 46, rr->length);
-			break;
-
-		case cmdADSwrite:
-			rr = (ADSreadResponse *) (p1 + 38);
-			ads_debug(ADSDebugAnalyze, "Result: %d %s",
-				  rr->result, ADSerrorText(rr->result));
-			ads_debug(ADSDebugAnalyze, "Data length: %d",
-				  rr->length);
-			break;
-
-		case cmdADSreadState:
-			sr = (ADSstateResponse *) (p1 + 38);
-			ads_debug(ADSDebugAnalyze, "Result: %d %s",
-				  sr->result, ADSerrorText(sr->result));
-			ads_debug(ADSDebugAnalyze, "ADS state: %d",
-				  sr->ADSstate);
-			ads_debug(ADSDebugAnalyze, "Device state: %d",
-				  sr->devState);
-			break;
-
-		case cmdADSaddDeviceNotification:
-			adnr = (ADSaddDeviceNotificationResponse *) (p1 + 38);
-			ads_debug(ADSDebugAnalyze, "Result: %d %s",
-				  adnr->result, ADSerrorText(adnr->result));
-			ads_debug(ADSDebugAnalyze, "Handle: %d",
-				  adnr->notificationHandle);
-			break;
-
-		}
-}
-
-ADSInterface *ADSNewInterface(_ADSOSserialType nfd, AMSNetID me, int port,
-			      char *nname)
+/**
+ * Allocates space for ADSInterface and fills members with given params
+ */
+ADSInterface *_ADSNewInterface(int sd,
+							  AmsNetId me,
+							  int port,
+							  char *nname)
 {
 	ADSInterface *di = (ADSInterface *) calloc(1, sizeof(ADSInterface));
 	if (di) {
+		di->sd = sd;
 		di->name = nname;
-		di->fd = nfd;
-		di->timeout = 1000000;
 		di->me = me;
 		di->AMSport = port;
 	}
@@ -342,31 +250,20 @@ ADSInterface *ADSNewInterface(_ADSOSserialType nfd, AMSNetID me, int port,
 /**
  * Frees the allocated space for ADSInterface
  */
-int freeADSInterface(ADSInterface * di)
+int _ADSFreeInterface(ADSInterface * di)
 {
 	free(di);
 	return 0;
 }
 
 /**
- * Frees the allocated space for ADSConnection
+ * Allocates space for a a new connection structure and fills members
+ *	using an initialized ADSInterface.
  */
-int freeADSConnection(ADSConnection * dc)
-{
-	freeADSInterface(dc->iface);
-	free(dc);
-	return 0;
-}
-
-/** 
-    This will setup a new connection structure using an initialized
-    ADSInterface.
-*/
-ADSConnection *ADSNewConnection(ADSInterface * di, AMSNetID partner, int port)
+ADSConnection *_ADSNewConnection(ADSInterface * di, AmsNetId partner, int port)
 {
 	ADSConnection *dc = (ADSConnection *) calloc(1, sizeof(ADSConnection));
 	if (dc) {
-//      di->name=nname;
 		dc->iface = di;
 		dc->partner = partner;
 		dc->AMSport = port;
@@ -375,208 +272,337 @@ ADSConnection *ADSNewConnection(ADSInterface * di, AMSNetID partner, int port)
 }
 
 /**
-    Hex dump:
-*/
-void _ADSDump(char *name, void *v, int len)
+ * Frees the allocated space for ADSConnection
+ */
+void ADSFreeConnection(ADSConnection *dc)
 {
-	if (!ADSDebug)
-		return;
-	uc *b = (uc *) v;
-	int j;
-	printf("%s: ", name);
-	if (len > maxDataLen)
-		len = maxDataLen;	// this will avoid to dump zillions of chars
-	for (j = 0; j < len; j++) {
-		printf("%02X,", b[j]);
-	}
-	printf("\n");
-};
-
-#ifdef __linux__
-int _ADSReadOne(ADSInterface * di, uc * b)
-{
-	fd_set FDS;
-	struct timeval t;
-	FD_ZERO(&FDS);
-	FD_SET(di->fd.rfd, &FDS);
-
-	t.tv_sec = di->timeout / 1000000;
-	t.tv_usec = di->timeout % 1000000;
-	if (select(di->fd.rfd + 1, &FDS, NULL, NULL, &t) <= 0) {
-		ads_debug(ADSDebugPrintErrors, "timeout in readOne.");
-		return (0);
-	} else {
-		return read(di->fd.rfd, b, 1);
-	}
-};
-#endif
-
-#ifdef WIN32
-int _ADSReadOne(ADSInterface * di, uc * b)
-{
-	unsigned long i;
-	ReadFile(di->fd.rfd, b, maxDataLen, &i, NULL);
-//  _ADSDump(ADSDebugByte, "got",buffer,i);
-	return i;
+	_ADSFreeInterface(dc->iface);
+	free(dc);
 }
-#endif
 
 /**
-    Read one complete packet. First bytes contain length information.
-*/
-int _ADSReadPacket(ADSInterface * di, uc * b)
+    Setup an AMSHeader using an initialized ADSConnection.
+ */
+void _ADSsetupAmsHeader(ADSConnection *dc, AMSheader *h)
 {
-	AMS_TCPheader *h = (AMS_TCPheader *) b;
-	int i, res = 0;
-	res += _ADSReadOne(di, b);
-	res += _ADSReadOne(di, b + res);
-	res += _ADSReadOne(di, b + res);
-	res += _ADSReadOne(di, b + res);
-	res += _ADSReadOne(di, b + res);
-	res += _ADSReadOne(di, b + res);
-	if ((res > 0) && (res < 6))
-		res += _ADSReadOne(di, b + res);
-	if ((res > 0) && (res < 6))
-		res += _ADSReadOne(di, b + res);
-	if (res < 6) {
-		if (ADSDebug & ADSDebugByte) {
-			ads_debug(ADSDebugByte, "res %d ", res);
-			_ADSDump("_ADSReadIBHpacket: short packet", b, res);
+	h->targetId 	= dc->partner;
+	h->targetPort 	= dc->AMSport;
+	h->sourceId 	= dc->iface->me;
+	h->sourcePort 	= dc->iface->AMSport;
+	h->stateFlags 	= 4;
+	h->errorCode 	= 0;
+	h->invokeId 	= ++dc->invokeId;
+};
+
+/**
+ * \brief Returns the local NetId and port number.
+ * AdsGetMeAddress stores it in the global variable meAddr.
+ * If already have determined it, simply copy meAddr to pAddr.
+ * \param port  port number of an Ads port that had previously been opened with
+ *				AdsPortOpenEx or AdsPortOpen..
+ * \param pAddr Pointer to the structure of type AmsAddr.
+ * \return Returns the function's error status.
+ */
+int32_t AdsGetMeAddress(PAmsAddr pAddr, int AmsPort)
+{
+	struct ifaddrs *list, *cur;
+    uint32_t netAddr;
+	struct sockaddr_in *addrStruct;
+
+	if(meAddr.netId.b[0] == 0){
+		if (getifaddrs(&list) < 0) {
+			return 0x1; // internal error
 		}
-		return (0);	// short packet
-	}
-/*
-    This may be shorter, but we would hang on malformed packets.
-    res+=read(fd, b+res,b[2]+5 ); //length +8 -3 already read    
-    So do it byte by byte.
-    Somebody might have a better solution using non-blocking something.
-*/
-	ads_debug(ADSDebugByte, "h.length %d", h->length);
-	while (res < h->length + 6) {
-		i = _ADSReadOne(di, b + res);	//length +8 -3 already read
-		if (i < 1)
-			return (0);
-		res += i;
-	}
-	ads_debug(ADSDebugByte, "readADSpacket: %d bytes read, %d needed",
-		  res, h->length + 6);
-	if (res > 0) {
-		if ((ADSDebug & ADSDebugPacket))
-			_ADSDump("packet", b, res);
-		analyze(b);
-	}
-	return (res);
-};
 
-void _ADSsetupHeader(ADSConnection * dc, AMSheader * h)
-{
-	h->targetId = dc->partner;
-	h->targetPort = dc->AMSport;
-	h->sourceId = dc->iface->me;
-	h->sourcePort = dc->iface->AMSport;
-	h->stateFlags = 0x0004;	/* command and tcp connection TODO: this shpuld be configured */
-	h->errorCode = 0;
-	h->invokeId = ++dc->invokeId;	//user-defined 32-bit field. Usually it is used to identify
-};
+		for (cur = list; cur != NULL; cur = cur->ifa_next) {
+			if ((cur->ifa_addr->sa_family == AF_INET) && (strcmp(cur->ifa_name, "lo") != 0)) {
+				addrStruct = (struct sockaddr_in *) cur->ifa_addr;
+				netAddr = addrStruct->sin_addr.s_addr;
+				memcpy((char *) &(meAddr.netId), (char *) &netAddr, 4);
+				meAddr.netId.b[4] = 1;
+				meAddr.netId.b[5] = 1;
+				break;
+			}
+			if (cur->ifa_next == NULL){
+				return 0xa; // no network interface ????
+			}
+		}
+		freeifaddrs(list);
+		meAddr.port = AmsPort;
+	}
 
-int _ADSwrite2(ADSInterface * di, void *buffer, int len)
-{
-	int res;
-	if (di == NULL)
-		return -2;
-	if (di->error)
-		return -1;
-	if (ADSDebug & ADSDebugByte)
-		_ADSDump("I send: ", buffer, len);
-	res = write(di->fd.wfd, buffer, len);
-	if (res < 0)
-		di->error |= 1;
-	return res;
+	memcpy((char *)pAddr, (char *)&meAddr, sizeof(AmsAddr));
+	return 0x0;
 }
 
-int _ADSwrite(ADSConnection * dc)
+/**
+ * This is an interface to AdsAPI.c.
+ * Used by AdsSyncReadReqEx()
+ */
+int ADSreadBytes(ADSConnection *dc,
+                 uint32_t indexGroup, uint32_t offset,
+                 uint32_t length, void *buffer,
+                 uint32_t *pnRead)
 {
-	ADSpacket *p1 = (ADSpacket *) dc->msgOut;
-	return _ADSwrite2(dc->iface, dc->msgOut, p1->adsHeader.length + 6);
-}
-
-int
-ADSreadBytes(ADSConnection * dc, int indexGroup, int offset, int length,
-	     void *buffer)
-{
-	AMSheader *h1;
-	ADSpacket *p2;
+	AMSheader 		*h1;
+//	AMS_TCPheader 	*h2; not used
+	ADSpacket 		*p1;
+	ADSpacket 		*p2;
+	ADSreadRequest  *rq;
 	ADSreadResponse *rr;
-	ADSreadRequest *rq;
-	ADSpacket *p1 = (ADSpacket *) dc->msgOut;
+	int				rc;
+	int				nErr;
 
+	MsgOut(MSG_TRACE, "ADSreadBytes() called\n");
+
+	p1 = (ADSpacket *) dc->msgOut;
 	h1 = &(p1->amsHeader);
-	_ADSsetupHeader(dc, h1);
+//	h2 = &(p1->adsHeader); not used
+	_ADSsetupAmsHeader(dc, h1);
+
 	h1->commandId = cmdADSread;
 	h1->dataLength = sizeof(ADSreadRequest);
-	if ((ADSDebug & ADSDebugPacket) != 0) {
-		_ADSDumpAMSheader(h1);
-	}
 
-	p1->adsHeader.length = h1->dataLength + 32;
+	p1->adsHeader.length = sizeof(AMSheader) + h1->dataLength;
 	p1->adsHeader.reserved = 0;
 
-	rq = (ADSreadRequest *) & p1->data;
+	rq = (ADSreadRequest *) &p1->data;
 	rq->indexGroup = indexGroup;
 	rq->indexOffset = offset;
 	rq->length = length;
 
-	ads_debug(ADSDebugPacket, "Index Group:   %x", rq->indexGroup);
-	ads_debug(ADSDebugPacket, "Index Offset:  %d", rq->indexOffset);
-	ads_debug(ADSDebugPacket, "Data length:  %d", rq->length);
+	MsgOut(MSG_PACKET_V, MsgStr("Index Group:   0x%x\n", rq->indexGroup));
+	MsgOut(MSG_PACKET_V, MsgStr("Index Offset:  %d\n", rq->indexOffset));
+	MsgOut(MSG_PACKET_V, MsgStr("Data length:   %d\n", rq->length));
 
-	_ADSwrite(dc);
-	dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn);
-	if (dc->AnswLen > 0) {
+	MsgAnalyzePacket("ADSreadBytes", p1);
+
+	rc = _ADSWritePacket(dc->iface, p1, &nErr);
+	if(rc <= 0){
+#ifdef LOG_ALL_MESSAGES
+		syslog(LOG_USER | LOG_ERR, "ADSreadBytes() failed().");
+#endif
+        MsgOut(MSG_ERROR, "ADSreadBytes() failed().\n");
+		return( _ADStranslateWrError(rc, nErr));
+	}
+
+	dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn, &nErr);
+	if (dc->AnswLen > 0 && nErr == 0 ) {
 		p2 = (ADSpacket *) dc->msgIn;
-
+// 		if (p2->amsHeader.commandId == cmdADSread && p2->amsHeader.errorCode == 0) {
 		if (p2->amsHeader.commandId == cmdADSread) {
+			MsgDumpPacket("ADSreadBytes", dc->msgIn, dc->AnswLen);
+			MsgAnalyzePacket("ADSreadBytes", (ADSpacket *)dc->msgIn);
+
 			rr = (ADSreadResponse *) (dc->msgIn + 38);
-			if (rr->result != 0)
+/*			if (rr->result != 0){
+#ifdef LOG_ALL_MESSAGES
+				syslog(LOG_USER | LOG_ERR,
+					   "ADSreadBytes(): ADSreadResponse() failed with error 0x%x.",
+					   rr->result);
+#endif
+				MsgOut(MSG_ERROR,
+					   MsgStr("ADSreadBytes(): ADSreadResponse() failed with error 0x%x.\n",
+							  rr->result));
 				return rr->result;
-//          ads_debug("Here we are");
-//          _ADSDump("Data: ", (uc*) (dc->msgIn+44), rr->length);
+			}*/
 			dc->dataPointer = dc->msgIn + 46;
 			dc->AnswLen = rr->length;
 			if (buffer != NULL) {
+				if(rr->length > length){
+					char strBuf[256];
+					sprintf(strBuf, "ADSreadBytes() failed(): Buffer sized %lu bytes, got %u bytes.", length, rr->length);
+#ifdef LOG_ALL_MESSAGES
+					syslog(LOG_USER | LOG_ERR, strBuf);
+#endif
+					MsgOut(MSG_ERROR, MsgStr("%s\n", strBuf));
+					return(0x705); // parameter size not correct
+				}
 				memcpy(buffer, dc->dataPointer, rr->length);
 			}
+			if(pnRead != NULL)
+				*pnRead = rr->length;
+
+			MsgOut(MSG_DEVEL,
+				   MsgStr("ADSreadBytes() invokeId=%d\n", p2->amsHeader.invokeId));
+			MsgOut(MSG_TRACE, "ADSreadBytes() returns 0 (OK)\n");
+// 			return 0;
+
+// printf("rr->result=0x%x, p2->amsHeader.errorCode=0x%x\n", rr->result, p2->amsHeader.errorCode);
+
+			return rr->result;
 		}
-		return 0;
+		else
+			return p2->amsHeader.errorCode;
 	}
-	return -1;
+
+#ifdef LOG_ALL_MESSAGES
+	syslog(LOG_USER | LOG_ERR, "ADSreadBytes() failed().");
+#endif
+	MsgOut(MSG_ERROR, "ADSreadBytes() failed().\n");
+	return(_ADStranslateRdError(dc->AnswLen, nErr));
 }
 
-int
-ADSreadWriteBytes(ADSConnection * dc,
-		  int indexGroup,
-		  int offset,
-		  int readLength,
-		  void *readBuffer, int writeLength, void *writeBuffer)
+/**
+ * This is an interface to AdsAPI.c.
+ * Used by AdsSyncWriteReq().
+ */
+int ADSwriteBytes(ADSConnection *dc,
+				  int indexGroup, int offset,
+				  int length, void *data)
 {
+	ADSpacket			*p1;
+	ADSpacket			*p2;
+	AMSheader			*h1;
+//	AMS_TCPheader		*h2; not used
+	ADSwriteRequest		*rq;
+	ADSwriteResponse	*wr;
+	int					rc;
+	int					nErr;
 
-	AMSheader *h1;
-	AMS_TCPheader *h2;
-	ADSreadWriteRequest *rq;
-	ADSreadWriteResponse *rr;
+	MsgOut(MSG_TRACE, "ADSwriteBytes() called\n");
+
+	p1 = (ADSpacket *) dc->msgOut;
+	h1 = &(p1->amsHeader);
+//	h2 = &(p1->adsHeader); not used
+
+	_ADSsetupAmsHeader(dc, h1);
+	h1->commandId = cmdADSwrite;
+	h1->dataLength = sizeof(ADSwriteRequest) - MAXDATALEN + length;
+	p1->adsHeader.length = sizeof(AMSheader) + h1->dataLength;
+	p1->adsHeader.reserved = 0;
+
+	rq = (ADSwriteRequest *) & p1->data;
+	rq->indexGroup = indexGroup;
+	rq->indexOffset = offset;
+	rq->length = length;
+	if (data != NULL)
+		memcpy(rq->data, data, length);
+
+	MsgOut(MSG_PACKET_V, MsgStr("Index Group:   %x\n", rq->indexGroup));
+	MsgOut(MSG_PACKET_V, MsgStr("Index Offset:  %d\n", rq->indexOffset));
+	MsgOut(MSG_PACKET_V, MsgStr("Data length:   %d\n", rq->length));
+
+	MsgAnalyzePacket("ADSwriteBytes()", p1);
+	rc = _ADSWritePacket(dc->iface, p1, &nErr);
+	if(rc <= 0){
+		MsgOut(MSG_ERROR, "ADSwriteBytes() failed().\n");
+		return( _ADStranslateWrError(rc, nErr));
+	}
+
+	/*Reads the answer */
+	dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn, &nErr);
+	if (dc->AnswLen >= (sizeof(AMS_TCPheader) + sizeof(AMSheader))) {
+		p2 = (ADSpacket *) dc->msgIn;
+		if(nErr == 0 ) {
+			MsgAnalyzePacket("ADSwriteBytes()", (ADSpacket*)dc->msgIn);
+			wr = (ADSwriteResponse *) (dc->msgIn + 38);
+			MsgOut(MSG_TRACE,
+				MsgStr("ADSwriteBytes() returns 0x%x (0 means OK)\n", wr->result));
+			return wr->result;
+		}
+		else
+			return p2->amsHeader.errorCode;
+	}
+
+	/* if there is an error */
+	MsgOut(MSG_ERROR, "ADSwriteBytes() failed().\n");
+	return(_ADStranslateRdError(dc->AnswLen, nErr));
+}
+
+/**
+ * This is an interface to AdsAPI.c.
+ * Used by ADSreadDeviceInfo().
+ */
+int ADSreadDeviceInfo(ADSConnection * dc, char *pDevName, PAdsVersion pVersion)
+{
+	AMSheader 		*h1;
+//	AMS_TCPheader 	*h2; not used
+	ADSpacket 		*p1;
+	ADSpacket 		*p2;
+	ADSdeviceInfo 	*DeviceInfo;
+	int				rc;
+	int				nErr;
+
+	MsgOut(MSG_TRACE, "ADSreadDeviceInfo() called\n");
+
+	p1 = (ADSpacket *) dc->msgOut;
+	h1 = &(p1->amsHeader);
+//	h2 = &(p1->adsHeader); not used
+	_ADSsetupAmsHeader(dc, h1);
+	h1->commandId = cmdADSreadDevInfo;
+	h1->dataLength = 0;
+	p1->adsHeader.length = sizeof(AMSheader) + h1->dataLength;
+	p1->adsHeader.reserved = 0;
+
+	MsgAnalyzePacket("ADSreadDeviceInfo()", p1);
+	rc = _ADSWritePacket(dc->iface, p1, &nErr);
+	if(rc <= 0){
+#ifdef LOG_ALL_MESSAGES
+		syslog(LOG_USER | LOG_ERR, "ADSreadDeviceInfo() failed().");
+#endif
+		MsgOut(MSG_ERROR, "ADSreadDeviceInfo() failed().\n");
+		return( _ADStranslateWrError(rc, nErr));
+	}
+
+	/*Reads the answer */
+	dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn, &nErr);
+	if (dc->AnswLen > 0 && nErr == 0 ) {
+		p2 = (ADSpacket *) dc->msgIn;
+		if (p2->amsHeader.commandId == cmdADSreadDevInfo) {
+			MsgAnalyzePacket("ADSreadDeviceInfo()", (ADSpacket*)dc->msgIn);
+			DeviceInfo = (ADSdeviceInfo *) (dc->msgIn + 38);
+			*pVersion = DeviceInfo->Version;
+			memcpy(pDevName, DeviceInfo->name, 16);
+			MsgOut(MSG_TRACE,
+				   MsgStr("ADSreadDeviceInfo() returns 0x%x (0 means OK)\n", DeviceInfo->result));
+			return DeviceInfo->result;
+		}
+		else
+			return p2->amsHeader.errorCode;
+	}
+
+	/* if there is an error */
+#ifdef LOG_ALL_MESSAGES
+	syslog(LOG_USER | LOG_ERR, "ADSreadDeviceInfo() failed().");
+#endif
+	MsgOut(MSG_ERROR, "ADSreadDeviceInfo() failed().\n");
+	return(_ADStranslateRdError(dc->AnswLen, nErr));
+
+}
+
+/**
+ * This is an interface to AdsAPI.c.
+ * Used by AdsSyncReadWriteReqEx().
+ */
+int ADSreadWriteBytes(ADSConnection * dc,
+                      uint32_t indexGroup, uint32_t offset,
+                      uint32_t readLength, void *readBuffer,
+                      uint32_t writeLength, void *writeBuffer,
+                      uint32_t* pnRead)
+{
+	AMSheader 				*h1;
+    AMS_TCPheader 			*h2;
+	ADSreadWriteRequest 	*rq;
+	ADSreadWriteResponse	*rr;
+	int						rc;
+	int						nErr;
+
 	ADSpacket *p1 = (ADSpacket *) dc->msgOut;
 	ADSpacket *p2;
+
+	MsgOut(MSG_TRACE, "ADSreadWriteBytes() called\n");
+
 	h1 = &(p1->amsHeader);
-	h2 = &(p1->adsHeader);
-	_ADSsetupHeader(dc, h1);
+    h2 = &(p1->adsHeader);
+
+	_ADSsetupAmsHeader(dc, h1);
 	h1->commandId = cmdADSreadWrite;
-	h1->dataLength = sizeof(ADSreadWriteRequest) - maxDataLen + writeLength;
+	h1->dataLength = sizeof(ADSreadWriteRequest) - MAXDATALEN + writeLength;
 
-	_ADSDumpAMSheader(h1);
+    h2->length = h1->dataLength + sizeof(AMSheader);
+    h2->reserved = 0;
 
-	h2->length = h1->dataLength + sizeof(AMSheader);
-	h2->reserved = 0;
-	ads_debug(ADSDebug, "lenght: %dn", h2->length);
 	rq = (ADSreadWriteRequest *) & p1->data;
 	rq->indexGroup = indexGroup;
 	rq->indexOffset = offset;
@@ -585,173 +611,146 @@ ADSreadWriteBytes(ADSConnection * dc,
 	if (writeBuffer != NULL) {
 		memcpy(rq->data, writeBuffer, writeLength);
 	}
-	_ADSDump("packet", dc->msgOut, p1->adsHeader.length + 6);
+	MsgOut(MSG_PACKET_V, MsgStr("Index Group:   0x%x\n", rq->indexGroup));
+	MsgOut(MSG_PACKET_V, MsgStr("Index Offset:  %d\n", rq->indexOffset));
+	MsgOut(MSG_PACKET_V, MsgStr("Data length:   %d\n", rq->writeLength));
 
-	ads_debug(ADSDebugPacket, "Index Group:   %x", rq->indexGroup);
-	ads_debug(ADSDebugPacket, "Index Offset:  %d", rq->indexOffset);
-	ads_debug(ADSDebugPacket, "Data length:  %d", rq->writeLength);
-	_ADSwrite(dc);
+	MsgAnalyzePacket("ADSreadWriteBytes()", p1);
+	rc = _ADSWritePacket(dc->iface, p1, &nErr);
+	if(rc <= 0){
+		MsgOut(MSG_ERROR, "ADSreadWriteBytes() failed().\n");
+		return( _ADStranslateWrError(rc, nErr));
+	}
+
 	/*Reads the answer */
-	dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn);
-
-	/* Analises the received packet */
-	if (dc->AnswLen > 0) {
+	dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn, &nErr);
+	if (dc->AnswLen > 0 && nErr == 0 ) {
 		p2 = (ADSpacket *) dc->msgIn;
 		if (p2->amsHeader.commandId == cmdADSreadWrite) {
 
-			_ADSDump(" readpacket", dc->msgIn, dc->AnswLen);
+			MsgAnalyzePacket("ADSreadWriteBytes()", p2);
 			rr = (ADSreadWriteResponse *) (dc->msgIn + 38);
-			if (rr->result != 0)
-				return rr->result;
-
-			memcpy(readBuffer, rr->data, readLength);
-		}
-	}
-	return 0;
-}
-
-int ADSreadDeviceInfo(ADSConnection * dc, char *pDevName, PAdsVersion pVersion)
-{
-	AMSheader *h1;
-	ADSpacket *p1 = (ADSpacket *) dc->msgOut;
-	ADSpacket *p2;
-	ADSdeviceInfo *DeviceInfo;
-	h1 = &(p1->amsHeader);
-	_ADSsetupHeader(dc, h1);
-	h1->commandId = cmdADSreadDevInfo;
-	h1->dataLength = 0;
-	_ADSDumpAMSheader(h1);
-
-	p1->adsHeader.length = h1->dataLength + AMSHeaderSIZE;
-	p1->adsHeader.reserved = 0;
-
-	_ADSwrite(dc);
-	/*Reads the answer */
-	dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn);
-
-	if (dc->AnswLen > 0) {
-		p2 = (ADSpacket *) dc->msgIn;
-		if (p2->amsHeader.commandId == cmdADSreadDevInfo) {
-			DeviceInfo =
-			    (ADSdeviceInfo *) (dc->msgIn + ADSTCPDataStart);
-			if (DeviceInfo->ADSerror != 0) {
-				ads_debug(ADSDebug,
-					  "Error in the received packet: %s",
-					  ADSerrorText(DeviceInfo->ADSerror));
-				return 0x01;
+			if(rr->length > readLength){
+				char strBuf[256];
+				sprintf(strBuf, "ADSreadWriteBytes() failed(): Max Read: %lu, got %u", readLength, rr->length);
+				return(0x705); // parameter size not correct
 			}
-			*pVersion = DeviceInfo->Version;
-			memcpy(pDevName, DeviceInfo->name, 16);
+// 			memcpy(readBuffer, rr->data, readLength);
+			memcpy(readBuffer, rr->data, rr->length);
+			if(pnRead != NULL)
+				*pnRead = rr->length;
+
+			MsgOut(MSG_TRACE,
+				   MsgStr("ADSreadBytes() returns 0x%x (0 means OK)\n", rr->result));
+			return rr->result;
 		}
-	} else {
-		return 0x01;
+		else
+			return p2->amsHeader.errorCode;
 	}
-	return 0;
-}
 
-int
-ADSwriteBytes(ADSConnection * dc, int indexGroup, int offset, int length,
-	      void *data)
-{
-	AMSheader *h1;
-	ADSwriteRequest *rq;
-	ADSpacket *p1 = (ADSpacket *) dc->msgOut;
-	h1 = &(p1->amsHeader);
-	_ADSsetupHeader(dc, h1);
-	h1->commandId = cmdADSwrite;
-	h1->dataLength = sizeof(ADSwriteRequest) - maxDataLen + length;
-	_ADSDumpAMSheader(h1);
-
-	p1->adsHeader.length = h1->dataLength + 32;
-	p1->adsHeader.reserved = 0;
-
-	rq = (ADSwriteRequest *) & p1->data;
-	rq->indexGroup = indexGroup;
-	rq->indexOffset = offset;
-	rq->length = length;
-	if (data != NULL) {
-		memcpy(rq->data, data, length);
-	}
-	ads_debug(ADSDebugPacket, "Index Group:   %x", rq->indexGroup);
-	ads_debug(ADSDebugPacket, "Index Offset:  %d", rq->indexOffset);
-	ads_debug(ADSDebugPacket, "Data length:  %d", rq->length);
-	_ADSwrite(dc);
-	dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn);
-	return 0;
+	/* if there is an error */
+	MsgOut(MSG_ERROR, "ADSreadWriteBytes() failed().\n");
+	return(_ADStranslateRdError(dc->AnswLen, nErr));
 }
 
 /**
  * \brief Builds the necessary headers and analises the ADSserver ADSstate response
+ * This is an interface to AdsAPI.c.
+ * Used by AdsSyncReadStateReq().
  * \param dc ADSConection handler
  * \param ADSstate Address of a variable that will receive the ADS status (see data type ADSSTATE).
  * \param devState Address of a variable that will receive the device status. 
  * \return Error code
  */
-int
-ADSreadState(ADSConnection * dc, unsigned short *ADSstate,
-	     unsigned short *devState)
+int ADSreadState(ADSConnection * dc,
+				 unsigned short *ADSstate,
+				 unsigned short *devState)
 {
-	AMSheader *h1;
-	ADSpacket *p1 = (ADSpacket *) dc->msgOut;
-	ADSpacket *p2;
-	ADSstateResponse *StateResponse;
+	AMSheader 			*h1;
+//	AMS_TCPheader 		*h2; not used
+	ADSpacket 			*p1;
+	ADSpacket 			*p2;
+	ADSstateResponse 	*StateResponse;
+	int					rc;
+	int					nErr;
 
-    /******* Send ******/
-	/* Build the comunication headers */
+	MsgOut(MSG_TRACE, "ADSreadState() called\n");
+
+	p1 = (ADSpacket *) dc->msgOut;
 	h1 = &(p1->amsHeader);
-	_ADSsetupHeader(dc, h1);
+//	h2 = &(p1->adsHeader); not used
+	_ADSsetupAmsHeader(dc, h1);
 	h1->commandId = cmdADSreadState;
 	h1->dataLength = 0;
-	if (ADSDebug & ADSDebugReadState)
-		_ADSDumpAMSheader(h1);
-
-	p1->adsHeader.length = h1->dataLength + AMSHeaderSIZE;
+	p1->adsHeader.length = sizeof(AMSheader) + h1->dataLength;
 	p1->adsHeader.reserved = 0;
+	MsgAnalyzePacket("ADSreadState()", p1);
+
 	/* sends the the packet */
-	_ADSwrite(dc);
-
-	/******* Receive ******/
-	/*Reads the answer */
-	dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn);
-
-	/* Analises the received packet */
-	if (dc->AnswLen <= 0) {
-		ads_debug(ADSDebugPrintErrors, "Read State Error: %s", 0xE);
-		return 0xE;
-	}
-	p2 = (ADSpacket *) dc->msgIn;
-	if (p2->amsHeader.errorCode != 0) {
-		ads_debug(ADSDebugPrintErrors,
-			  "ADSreadState Error: %s",
-			  ADSerrorText(p2->amsHeader.errorCode));
-		return p2->amsHeader.errorCode;
-	}
-	if (p2->amsHeader.commandId == cmdADSreadState) {
-		StateResponse =
-		    (ADSstateResponse *) (dc->msgIn + ADSTCPDataStart);
-		*ADSstate = StateResponse->ADSstate;;
-		*devState = StateResponse->devState;
+	rc = _ADSWritePacket(dc->iface, p1, &nErr);
+	if(rc <= 0){
+#ifdef LOG_ALL_MESSAGES
+		syslog(LOG_USER | LOG_ERR, "ADSreadState() failed().");
+#endif
+		MsgOut(MSG_ERROR, "ADSreadState failed().\n");
+		return( _ADStranslateWrError(rc, nErr));
 	}
 
-	return 0;
+	/*Read the answer */
+	dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn, &nErr);
+	MsgDumpPacket("ADSreadState()", dc->msgIn, dc->AnswLen);
+	MsgAnalyzePacket("ADSreadState()", (ADSpacket*)dc->msgIn);
+	if (dc->AnswLen > 0 && nErr == 0 ) {
+		p2 = (ADSpacket *) dc->msgIn;
+		if (p2->amsHeader.commandId == cmdADSreadState) {
+			MsgAnalyzePacket("ADSreadState()", p2);
+			StateResponse = (ADSstateResponse *) (dc->msgIn + 38);
+			*ADSstate = StateResponse->ADSstate;;
+			*devState = StateResponse->devState;
+			MsgOut(MSG_TRACE,
+				   MsgStr("ADSreadState() returns 0x%x (0 means OK)\n", StateResponse->result));
+			return StateResponse->result;
+		}
+		else
+			return p2->amsHeader.errorCode;
+	}
+
+	/* if there is an error */
+#ifdef LOG_ALL_MESSAGES
+	syslog(LOG_USER | LOG_ERR, "ADSreadState failed().");
+#endif
+	MsgOut(MSG_ERROR, "ADSreadState failed().\n");
+	return(_ADStranslateRdError(dc->AnswLen, nErr));
 }
 
-int
-ADSwriteControl(ADSConnection * dc, int ADSstate, int devState, void *data,
-		int length)
+/**
+ * This is an interface to AdsAPI.c.
+ * Used by AdsSyncReadStateReq().
+ */
+int ADSwriteControl(ADSConnection *dc,
+					int ADSstate,
+					int devState,
+					void *data, int length)
 {
-	AMSheader *h1;
-	ADSwriteControlRequest *rq;
-	ADSpacket *p1 = (ADSpacket *) dc->msgOut;
+	AMSheader 				*h1;
+//	AMS_TCPheader 			*h2; not used
+	ADSpacket 				*p1;
+	ADSpacket				*p2;
+	ADSwriteControlRequest 	*rq;
+	ADSwriteResponse		*wr;
+	int						rc;
+	int						nErr;
+
+	MsgOut(MSG_TRACE, "ADSwriteControl() called\n");
+
+	p1 = (ADSpacket *) dc->msgOut;
 	h1 = &(p1->amsHeader);
-	_ADSsetupHeader(dc, h1);
+//	h2 = &(p1->adsHeader); not used
+
+	_ADSsetupAmsHeader(dc, h1);
 	h1->commandId = cmdADSwriteControl;
 	h1->dataLength = sizeof(ADSwriteControlRequest);
-
-	ads_debug(ADSDebug, "SIZE:  %d", h1->dataLength);
-	_ADSDumpAMSheader(h1);
-
-	p1->adsHeader.length = h1->dataLength + 32;
+	p1->adsHeader.length = sizeof(AMSheader) + h1->dataLength;
 	p1->adsHeader.reserved = 0;
 
 	rq = (ADSwriteControlRequest *) & p1->data;
@@ -764,71 +763,76 @@ ADSwriteControl(ADSConnection * dc, int ADSstate, int devState, void *data,
 		h1->dataLength += length;
 	}
 
-	_ADSwrite(dc);
-	dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn);
-	return 0;
+	MsgAnalyzePacket("ADSwriteControl()", p1);
+	rc = _ADSWritePacket(dc->iface, p1, &nErr);
+	if(rc <= 0){
+#ifdef LOG_ALL_MESSAGES
+		syslog(LOG_USER | LOG_ERR, "ADSwriteControl() failed().");
+#endif
+		MsgOut(MSG_ERROR, "ADSwriteControl() failed().\n");
+		return( _ADStranslateWrError(rc, nErr));
+	}
+
+
+	dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn, &nErr);
+	p2 = (ADSpacket *) dc->msgIn;
+	if (dc->AnswLen > 0 && nErr == 0 ) {
+		MsgAnalyzePacket("ADSwriteControl()", p2);
+		wr = (ADSwriteResponse *) (dc->msgIn + 38);
+		MsgOut(MSG_TRACE,
+			   MsgStr("ADSwriteControl() returns 0x%x (0 means OK)\n", wr->result));
+		return wr->result;
+	}
+	else{
+		return p2->amsHeader.errorCode;
+	}
+	/* if there is an error */
+#ifdef LOG_ALL_MESSAGES
+	syslog(LOG_USER | LOG_ERR, "ADSwriteControl() failed().");
+#endif
+	MsgOut(MSG_ERROR, "ADSwriteControl() failed().\n");
+	return(_ADStranslateRdError(dc->AnswLen, nErr));
 }
 
-int
-ADSaddDeviceNotification(ADSConnection * dc,
-			 int indexGroup, int offset, int length,
-			 int transmissionMode, int maxDelay, int cycleTime)
-{
-	AMSheader *h1;
-	ADSaddDeviceNotificationRequest *rq;
-	ADSpacket *p1 = (ADSpacket *) dc->msgOut;
-	h1 = &(p1->amsHeader);
-	_ADSsetupHeader(dc, h1);
-	h1->commandId = cmdADSaddDeviceNotification;
-	h1->dataLength = sizeof(ADSaddDeviceNotificationRequest);
-
-	ads_debug(ADSDebug, "SIZE:  %d", h1->dataLength);
-	_ADSDumpAMSheader(h1);
-
-	p1->adsHeader.length = h1->dataLength + 32;
-	p1->adsHeader.reserved = 0;
-
-	rq = (ADSaddDeviceNotificationRequest *) & p1->data;
-	rq->indexGroup = indexGroup;
-	rq->indexOffset = offset;
-	rq->length = length;
-	rq->transmissionMode = transmissionMode;
-	rq->maxDelay = maxDelay;
-	rq->cycleTime = cycleTime;
-	_ADSwrite(dc);
-	dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn);
-	return 0;
-}
-
-int ADSparseNetID(const char *netIDstring, AMSNetID * id)
+/**
+ * This is an internal function
+ * Input: netIDstring, something like "127.0.0.1.1.1"
+ * Output: id, the input converted to an AmsNetID struct.
+ */
+int _ADSparseNetID(const char *netIDstring, AmsNetId *id)
 {
 	const char *p;
 	char *q;
 	int i;
-	q = (char *)id;
+
+	MsgOut(MSG_TRACE, "_ADSparseNetID() called\n");
+	q = (char *) id;
 	p = netIDstring;
 	for (i = 0; i < 6; i++) {
 		q[i] = atoi(p);
-		ads_debug(ADSDebug, "%d:  %d", i, q[i]);
+		MsgOut(MSG_TRACE_V, MsgStr("%d:  %d\n", i, q[i]));
 		p = strchr(p, '.');
-		if (p == NULL)
+		if (p == NULL){
+			MsgOut(MSG_TRACE_V, MsgStr("_ADSparseNetID() returns %d\n", 5 - i));
 			return 5 - i;
+		}
 		p++;
 	}
+	MsgOut(MSG_TRACE, MsgStr("_ADSparseNetID() returns %d\n", 0));
 	return 0;
 }
 
 /**
  * \brief Gets the local network address.
  * Fills the local AMSNetif.
- * \param id Structure with local AMSNetId.
+ * \param id Structure with local AmsNetId.
  * \return error code.
  */
-int ADSGetLocalAMSId(AMSNetID * id)
+int ADSGetLocalAMSId(AmsNetId * id)
 {
 	struct ifaddrs *list;
 	unsigned char b[4];
-	unsigned long int netAddr;
+    uint32_t netAddr;
 	struct sockaddr_in *addrStruct;
 
 	if (getifaddrs(&list) < 0) {
@@ -843,16 +847,14 @@ int ADSGetLocalAMSId(AMSNetID * id)
 				addrStruct = (struct sockaddr_in *)cur->ifa_addr;
 				netAddr = ntohl(addrStruct->sin_addr.s_addr);
 				memcpy((char *)&b, (char *)&netAddr, 4);
-				*id = (AMSNetID) {
+				*id = (AmsNetId) {
 				{
 				b[3], b[2], b[1], b[0], 1, 1}};
-				if (ADSDebug)
-					_ADSDumpAMSNetId(id);
 				break;
 			}
 		}
 		if (cur->ifa_next == NULL)
-			*id = (AMSNetID) {
+			*id = (AmsNetId) {
 			{
 			127, 0, 0, 1, 1, 1}
 			};
@@ -862,118 +864,40 @@ int ADSGetLocalAMSId(AMSNetID * id)
 
 }
 
-/**
- * \brief Opens a new onnection to the Ads client.
- * This is an auxiliar function.
- * \param pAddr Structure with NetId and port number of the ADS server.
- * \param pMeAddr Structure with NetId and port number of the ADS client (local).
- * \return An ADSConnection pointer.
- */
-ADSConnection *AdsSocketConnect(int *socket_fd, PAmsAddr pAddr,
-				PAmsAddr pMeAddr)
+int _ADStranslateWrError(int rc, int nErr)
 {
-
-	struct sockaddr_in addr;
-	socklen_t addrlen;
-	char peer[16];
-	int opt;
-	ADSInterface *di;
-	ADSConnection *dc;
-	_ADSOSserialType fds;
-	if (*socket_fd == 0)
-		*socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-
-	/* Build socket address */
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(0xBF02);	/* ADS port 48898 */
-	/* lazy convertion from byte array to socket adress format */
-	sprintf(peer, "%d.%d.%d.%d", pAddr->netId.b[0], pAddr->netId.b[1],
-		pAddr->netId.b[2], pAddr->netId.b[3]);
-	inet_aton(peer, &addr.sin_addr);
-
-	addrlen = sizeof(addr);
-
-	/* connect to plc */
-	if (connect(*socket_fd, (struct sockaddr *)&addr, addrlen) < 0) {
-		ads_debug(ADSDebugOpen, "Socket error: %s", strerror(errno));
-		return NULL;
+/*	syslog(LOG_USER | LOG_ERR,
+		   "_ADSWritePacket() returns %d, errno %d.", rc, nErr);
+	MsgOut(MSG_ERROR,
+		   MsgStr("_ADSWritePacket() returns %d, errno %d.\n", rc, nErr));*/
+	switch(rc){
+		case 0:		// system error
+			return 0x1a; //TODO translate nErr (=errno) int ADS return code
+		case -3:	// internal error
+		case -4:	// error flag set in ADSinterface
+			return 0x1;
 	}
-	ads_debug(ADSDebugOpen, "connected to %s", peer);
-	errno = 0;
-	opt = 1;
-	if (setsockopt(*socket_fd, SOL_SOCKET, SO_KEEPALIVE, &opt, 4) < 0) {
-		ads_debug(ADSDebugOpen, "setsockopt %s", strerror(errno));
-		return NULL;
-	}
-
-	fds.rfd = *socket_fd;
-	fds.wfd = *socket_fd;
-	di = ADSNewInterface(fds, pMeAddr->netId, pAddr->port, "test");
-	dc = ADSNewConnection(di, pAddr->netId, pAddr->port);
-
-	return dc;
-}
-
-/**
- * \brief Opens a new onnection to the Ads server using a specified IP since there is no ADS router yet
- * This is an auxiliar function.
- * \param peer IP of the ADS server
- * \param pAddr Structure with NetId and port number of the ADS server.
- * \param pMeAddr Structure with NetId and port number of the ADS client (local).
- * \return An ADSConnection pointer.
- */
-ADSConnection *AdsSocketConnectIP(int *socket_fd, char *peer, PAmsAddr pAddr,
-				PAmsAddr pMeAddr)
-{
-
-	struct sockaddr_in addr;
-	socklen_t addrlen;
-	int opt;
-	ADSInterface *di;
-	ADSConnection *dc;
-	_ADSOSserialType fds;
-	if (*socket_fd == 0)
-		*socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-
-	/* Build socket address */
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(0xBF02);	/* ADS port 48898 */
-	/* lazy convertion from byte array to socket adress format */
-	inet_aton(peer, &addr.sin_addr);
-
-	addrlen = sizeof(addr);
-
-	/* connect to plc */
-	if (connect(*socket_fd, (struct sockaddr *)&addr, addrlen) < 0) {
-		ads_debug(ADSDebugOpen, "Socket error: %s", strerror(errno));
-		return NULL;
-	}
-	ads_debug(ADSDebugOpen, "connected to %s", peer);
-	errno = 0;
-	opt = 1;
-	if (setsockopt(*socket_fd, SOL_SOCKET, SO_KEEPALIVE, &opt, 4) < 0) {
-		ads_debug(ADSDebugOpen, "setsockopt %s", strerror(errno));
-		return NULL;
-	}
-
-	fds.rfd = *socket_fd;
-	fds.wfd = *socket_fd;
-	di = ADSNewInterface(fds, pMeAddr->netId, pAddr->port, "test");
-	dc = ADSNewConnection(di, pAddr->netId, pAddr->port);
-
-	return dc;
-}
-
-/**
- * \brief Closes the connection socket opened by AdsSocketConnect
- * \return Error code
- */
-int AdsSocketDisconnect(int *fd)
-{
-	if (*fd == 0) {
-		return 0xD;	/* Port not connected */
-	}
-	close(*fd);
-	*fd = 0;
+	//NOT REACHED
 	return 0;
+}
+
+int _ADStranslateRdError(int rc, int nErr)
+{
+/*	syslog(LOG_USER | LOG_ERR,
+		   "_ADSReadPacket() returns %d, errno %d.", rc, nErr);
+	MsgOut(MSG_ERROR,
+		   MsgStr("_ADSReadPacket() returns %d, errno %d.\n", rc, nErr));*/
+	switch(rc){
+		case 0:		// system error
+			return 0x1a; //TODO translate nErr (=errno) int ADS return code
+		case -1:	// time out
+			return 0x15;
+		case -2:	// worker shut down
+			return 0x50a;
+		case -3:	// internal error
+		case -4:	// error flag set in ADSinterface
+			return 0x1;
+	}
+	// NOT REACHED
+	return(0);
 }

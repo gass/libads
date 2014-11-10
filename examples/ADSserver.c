@@ -1,20 +1,27 @@
 /*
-    libads is an implementation of the Beckhoff's ADS protocol.
-    
-    (C) Thomas Hergenhahn (thomas.hergenhahn@web.de) 2003.
+ Implementation of BECKHOFF's ADS protocol.
+ ADS = Automation Device Specification
+ Implemented according to specifications given in TwinCAT Information System
+ May 2011.
+ TwinCAT, ADS and maybe other terms used herein are registered trademarks of
+ BECKHOFF Company. www.beckhoff.de
 
-    libads is free software: you can redistribute it and/or modify
-    it under the terms of the Lesser GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ Copyright (C) Thomas Hergenhahn (thomas.hergenhahn@web.de) 2003.
+ Copyright (C) Luis Matos (gass@otiliamatos.ath.cx) 2009,2013
 
-    libads is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    Lesser GNU General Public License for more details.
+ This file is part of libads.  
+ Libads is free software: you can redistribute it and/or modify
+ it under the terms of the Lesser GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    You should have received a copy of the Lesser GNU General Public License
-    along with libads.  If not, see <http://www.gnu.org/licenses/>.
+ libads is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ Lesser GNU General Public License for more details.
+
+ You should have received a copy of the Lesser GNU General Public License
+ along with libads.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <stdio.h>
@@ -37,17 +44,21 @@
 
 #define ThisModule "ADSserver : "
 
+#include "AdsDEF.h"
 #include "ads.h"
+#include "ads_io.h" //TODO: call this from ads.h
+#include "debugprint.h"
 #include "accepter.h"
 
-AMSNetID me;
+AmsNetId me;
 
-AMSNetID partner;
+AmsNetId partner;
 
 /*
     many bytes. hopefully enough to serve any read request.
 */
-uc dummyRes[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+unsigned char dummyRes[] =
+	{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
 	1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
 	1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
 	1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
@@ -77,7 +88,7 @@ void ranalyze(ADSConnection * dc)
 	ads_debug(ADSDebug, "ADS_TCP.header.reserved: %d\n",
 		  p->adsHeader.reserved);
 	ads_debug(ADSDebug, "ADS_TCPheader.length: %d\n", p->adsHeader.length);
-	_ADSDumpAMSheader(&(p->amsHeader));
+	_msgAnalyzeHeader(__FILE__, __LINE__, MSG_PACKET, &(p->amsHeader));
 	ADSreadRequest *rrq;
 	ADSreadResponse *rrs;
 	ADSreadWriteRequest *rwrq;
@@ -86,7 +97,8 @@ void ranalyze(ADSConnection * dc)
 	ADSwriteResponse *wrs;
 	ADSdeviceInfo *di;
 	ADSstateResponse *asr;
-
+	int nErr;
+	
 	memset(dc->msgOut, 0, 500);
 	ADSpacket *pr = (ADSpacket *) (dc->msgOut);
 
@@ -122,7 +134,7 @@ void ranalyze(ADSConnection * dc)
 		ads_debug(ADSDebug, "Index Group:   %04x\n", wrq->indexGroup);
 		ads_debug(ADSDebug, "Index Offset:  %d\n", wrq->indexOffset);
 		ads_debug(ADSDebug, "Data length:  %d\n", wrq->length);
-		_ADSDump("Data: ", wrq->data, wrq->length);
+		//_ADSDump("Data: ", wrq->data, wrq->length);
 		wrs = (ADSwriteResponse *) (pr->data);
 		wrs->result = 0;
 		pr->amsHeader.dataLength = 4;
@@ -135,7 +147,7 @@ void ranalyze(ADSConnection * dc)
 			  rwrq->readLength);
 		ads_debug(ADSDebug, "Write data length: %d\n",
 			  rwrq->writeLength);
-		_ADSDump("WriteData: ", rwrq->data, rwrq->writeLength);
+		//_ADSDump("WriteData: ", rwrq->data, rwrq->writeLength);
 
 		rwrs = (ADSreadWriteResponse *) (pr->data);
 		rwrs->result = 0;
@@ -145,7 +157,7 @@ void ranalyze(ADSConnection * dc)
 		*(int *)(rwrs->data + 0) = p->amsHeader.invokeId;
 		ads_debug(ADSDebug, "Response data length: %d\n",
 			  pr->amsHeader.dataLength);
-		_ADSDump("Response ", rwrs->data, rwrq->writeLength);
+		//_ADSDump("Response ", rwrs->data, rwrq->writeLength);
 		break;
 
 	case cmdADSread:
@@ -160,7 +172,7 @@ void ranalyze(ADSConnection * dc)
 		
 		
 	default:
-		printf("Unhandeled command: %s\n", ADSCommandName(p->amsHeader.commandId));
+		printf("Unhandeled command: %s\n", _ADSCommandName(p->amsHeader.commandId));
 		pr->amsHeader.dataLength = 4;
 	}
 	pr->adsHeader.length = pr->amsHeader.dataLength + 32;
@@ -186,27 +198,25 @@ void ranalyze(ADSConnection * dc)
 	ads_debug(ADSDebug, "ADS_TCPheader.length: %d total:%d\n",
 		  pr->adsHeader.length,
 		  sizeof(AMS_TCPheader) + sizeof(AMSheader) + 4);
-	_ADSDumpAMSheader(&(pr->amsHeader));
-	_ADSwrite(dc);
+	_msgAnalyzeHeader(__FILE__, __LINE__, MSG_PACKET, &(pr->amsHeader));
+	_ADSWritePacket(dc->iface, pr, &nErr);
 };
 
 void *portServer(void *arg)
 {
 	int *fd = (int *)arg;
+	int nErr;
 	ads_debug(ADSDebug, "portMy fd is:%d\n", fd);
 	int waitCount = 0;
 	int pcount = 0;
-	_ADSOSserialType s;
-	s.rfd = *fd;
-	s.wfd = *fd;
-	ADSInterface *di = ADSNewInterface(s, me, 0x800, "IF");
+	ADSInterface *di = _ADSNewInterface(*fd, me, AMSPORT_R0_PLC_RTS1, "IF");
 	di->timeout = 900000;
-	ADSConnection *dc = ADSNewConnection(di, partner, 800);
+	ADSConnection *dc = _ADSNewConnection(di, partner, AMSPORT_R0_PLC_RTS1);
 	while (waitCount < 1000) {
-		dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn);
+		dc->AnswLen = _ADSReadPacket(dc->iface, dc->msgIn, &nErr);
 		if (dc->AnswLen > 0) {
 			ads_debug(ADSDebug, "%d ", pcount);
-			_ADSDump("packet", dc->msgIn, dc->AnswLen);
+			//_ADSDump("packet", dc->msgIn, dc->AnswLen);
 			waitCount = 0;
 			ranalyze(dc);
 

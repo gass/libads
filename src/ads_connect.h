@@ -6,7 +6,9 @@
  TwinCAT, ADS and maybe other terms used herein are registered trademarks of
  BECKHOFF Company. www.beckhoff.de
 
+ Copyright (C) Thomas Hergenhahn (thomas.hergenhahn@web.de) 2003.
  Copyright (C) Luis Matos (gass@otiliamatos.ath.cx) 2009.
+ Copyright (C) Gerhard Schiller (gerhard.schiller@gmail.com) 2013.
 
  This file is part of libads.  
  Libads is free software: you can redistribute it and/or modify
@@ -23,23 +25,17 @@
  along with libads.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
+#ifndef __ADS_CONNECT_H__
+#define __ADS_CONNECT_H__
 
-#include "AdsDEF.h"
-#include "AdsAPI.h"
+#define ROUTER_PORT 48898 					/* same as the Beckhoff port */
+#define CLIENT_PORT AMSPORT_R0_PLC_RTS1
 
+ADSConnection *ADSsocketGet(int dummy, PAmsAddr pAddr, int *adsError);
+ADSConnection *ADSsocketConnect(PAmsAddr pAddr, int *adsError);
+int ADSsocketDisconnect(ADSConnection *dc);
 
-int main(int argc, char **argv)
-{
-	long nErr;
-	AmsAddr addr;
-	PAmsAddr pAddr = &addr;
+int	ADScloseConection(int port);
+long AdsSetTimeout(long port, long nMs);
 
-	AdsPortOpen();
-	nErr = AdsGetLocalAddress(pAddr);
-
-	if (nErr)
-		printf("Error: AdsGetLocalAddress %ld\n", nErr);
-
-	return 0;
-}
+#endif //__ADS_CONNECT_H__
